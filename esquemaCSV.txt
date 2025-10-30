@@ -1,0 +1,171 @@
+csv=
+{
+    "generations"=["apex"={"coParent","indexInPath","person"}, ],
+    "relationshipDescription",
+    "targetPerson"
+}
+
+person=
+{
+    "commonAncestor": false,
+    "nameConclusion": {
+                        "contributor": null,
+                        "details": {
+                                    "fullText": "Francisca Casilda Leivas"
+                                    }
+                    },
+    "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/i4u4t/thumb200s.jpg",
+    "relationshipToPrevious": "MOTHER",
+}
+
+[
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Carlos Eusebio Zuasnabar"
+            },
+          },
+          "relationshipToPrevious": "SPOUSE",
+        },
+        "indexInPath": 4,
+        "person": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Francisca Casilda Leivas"
+            },
+          },
+          "relationshipToPrevious": "MOTHER",
+        }
+      },
+      "descendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "José Ladislao Terra Da Silveira"
+            },
+          },
+          "relationshipToPrevious": "SPOUSE",
+        },
+        "indexInPath": 6,
+        "person": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "María Joaquina Leivas y Caballero"
+            },
+          },
+          "relationshipToPrevious": "DAUGHTER",
+        }
+      }
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Lujan Aida Amaro Da Silveira Piegas"
+            },
+          },
+          "relationshipToPrevious": "SPOUSE",
+        },
+        "indexInPath": 3,
+        "person": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Julio Amalio Zuasnabar Leiva"
+            },
+          },
+          "relationshipToPrevious": "FATHER",
+        }
+      },
+      "descendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "María Marcelina Ilarraz Miranda"
+            },
+          },
+          "relationshipToPrevious": "SPOUSE",
+        },
+        "indexInPath": 7,
+        "person": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "José Luis Gabriel Terra Leivas"
+            },
+          },
+          "relationshipToPrevious": "SON",
+        }
+      },
+      "finalGeneration": true
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Carlos Ovidio Lopez Rodriguez"
+            },
+          },
+          "relationshipToPrevious": "SPOUSE",
+        },
+        "indexInPath": 2,
+        "person": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Aida Zuasnábar Amaro da Silveira"
+            },
+          },
+          "relationshipToPrevious": "MOTHER",
+        }
+      }
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Cristián Núñez López"
+            },
+          },
+          "relationshipToPrevious": "HUSBAND",
+        },
+        "coParentIsPathPerson": true,
+        "indexInPath": 0,
+        "person": {
+          "commonAncestor": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "fullText": "Silvia Liliana Perez Massia"
+            },
+          },
+          "relationshipToPrevious": "ME",
+        }
+      },
+      "initialGeneration": true
+    }
+  ]

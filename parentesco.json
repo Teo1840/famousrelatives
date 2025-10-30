@@ -1,0 +1,633 @@
+{
+  "generations": [
+    {
+      "apex": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "KGLX-T2J",
+          "lifespan": "1820–1920",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Laureana Caballero",
+              "nameForms": [
+                {
+                  "familyPart": "Caballero",
+                  "fullText": "Laureana Caballero",
+                  "givenPart": "Laureana",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "relationshipToPrevious": "MOTHER",
+          "relationshipToPreviousDescription": "Mother"
+        },
+        "indexInPath": 5,
+        "person": {
+          "commonAncestor": true,
+          "gender": "MALE",
+          "id": "KGLX-TKG",
+          "lifespan": "1806–1868",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Ignacio José de Leivas Filho",
+              "nameForms": [
+                {
+                  "familyPart": "de Leivas",
+                  "fullText": "Ignacio José de Leivas Filho",
+                  "givenPart": "Ignacio José",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": "Filho"
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/z5u4t/thumb200s.jpg",
+          "relationshipToPrevious": "FATHER",
+          "relationshipToPreviousDescription": "Father"
+        }
+      }
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "GVWQ-NC8",
+          "lifespan": "1843–Deceased",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Carlos Eusebio Zuasnabar",
+              "nameForms": [
+                {
+                  "familyPart": "Zuasnabar",
+                  "fullText": "Carlos Eusebio Zuasnabar",
+                  "givenPart": "Carlos Eusebio",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "relationshipToPrevious": "SPOUSE",
+          "relationshipToPreviousDescription": "Spouse"
+        },
+        "indexInPath": 4,
+        "person": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "2SH9-N88",
+          "lifespan": "1850–1909",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Francisca Casilda Leivas",
+              "nameForms": [
+                {
+                  "familyPart": "Leivas",
+                  "fullText": "Francisca Casilda Leivas",
+                  "givenPart": "Francisca Casilda",
+                  "lang": "es",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/i4u4t/thumb200s.jpg",
+          "relationshipToPrevious": "MOTHER",
+          "relationshipToPreviousDescription": "Mother"
+        }
+      },
+      "descendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "LCFV-SXG",
+          "lifespan": "1835–1902",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "José Ladislao Terra Da Silveira",
+              "nameForms": [
+                {
+                  "familyPart": "Terra Da Silveira",
+                  "fullText": "José Ladislao Terra Da Silveira",
+                  "givenPart": "José Ladislao",
+                  "lang": "en",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/p32vg/thumb200s.jpg",
+          "relationshipToPrevious": "SPOUSE",
+          "relationshipToPreviousDescription": "Spouse"
+        },
+        "indexInPath": 6,
+        "person": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "L8DQ-SPT",
+          "lifespan": "1849–1926",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "María Joaquina Leivas y Caballero",
+              "nameForms": [
+                {
+                  "familyPart": "Leivas y Caballero",
+                  "fullText": "María Joaquina Leivas y Caballero",
+                  "givenPart": "María Joaquina",
+                  "lang": "es",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/w52vg/thumb200s.jpg",
+          "relationshipToPrevious": "DAUGHTER",
+          "relationshipToPreviousDescription": "Daughter"
+        }
+      }
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "2YGZ-DGP",
+          "lifespan": "1899–1993",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Lujan Aida Amaro Da Silveira Piegas",
+              "nameForms": [
+                {
+                  "familyPart": "Amaro Da Silveira Piegas",
+                  "fullText": "Lujan Aida Amaro Da Silveira Piegas",
+                  "givenPart": "Lujan Aida",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "relationshipToPrevious": "SPOUSE",
+          "relationshipToPreviousDescription": "Spouse"
+        },
+        "indexInPath": 3,
+        "person": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "2Z3D-V45",
+          "lifespan": "1887–1969",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Julio Amalio Zuasnabar Leiva",
+              "nameForms": [
+                {
+                  "familyPart": "Zuasnabar Leiva",
+                  "fullText": "Julio Amalio Zuasnabar Leiva",
+                  "givenPart": "Julio Amalio",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/7r3x3/thumb200s.jpg",
+          "relationshipToPrevious": "FATHER",
+          "relationshipToPreviousDescription": "Father"
+        }
+      },
+      "descendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "MXNR-9CN",
+          "lifespan": "1876–Deceased",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "María Marcelina Ilarraz Miranda",
+              "nameForms": [
+                {
+                  "familyPart": "Ilarraz Miranda",
+                  "fullText": "María Marcelina Ilarraz Miranda",
+                  "givenPart": "María Marcelina",
+                  "lang": "es",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/3dowg/thumb200s.jpg",
+          "relationshipToPrevious": "SPOUSE",
+          "relationshipToPreviousDescription": "Spouse"
+        },
+        "indexInPath": 7,
+        "person": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "2SH9-R6D",
+          "lifespan": "1873–1942",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "José Luis Gabriel Terra Leivas",
+              "nameForms": [
+                {
+                  "familyPart": "Terra Leivas",
+                  "fullText": "José Luis Gabriel Terra Leivas",
+                  "givenPart": "José Luis Gabriel",
+                  "lang": "es",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/gc43n/thumb200s.jpg",
+          "relationshipToPrevious": "SON",
+          "relationshipToPreviousDescription": "Son"
+        }
+      },
+      "finalGeneration": true
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "MYCN-L8D",
+          "lifespan": "1913–1987",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Carlos Ovidio Lopez Rodriguez",
+              "nameForms": [
+                {
+                  "familyPart": "Lopez Rodriguez",
+                  "fullText": "Carlos Ovidio Lopez Rodriguez",
+                  "givenPart": "Carlos Ovidio",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/74pa5/thumb200s.jpg",
+          "relationshipToPrevious": "SPOUSE",
+          "relationshipToPreviousDescription": "Spouse"
+        },
+        "indexInPath": 2,
+        "person": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "LJ6W-N86",
+          "lifespan": "1920–2015",
+          "living": false,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Aida Zuasnábar Amaro da Silveira",
+              "nameForms": [
+                {
+                  "familyPart": "Zuasnábar Amaro da Silveira",
+                  "fullText": "Aida Zuasnábar Amaro da Silveira",
+                  "givenPart": "Aida",
+                  "lang": "und",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/qgpd5/thumb200s.jpg",
+          "relationshipToPrevious": "MOTHER",
+          "relationshipToPreviousDescription": "Mother"
+        }
+      }
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "L1ML-CGT",
+          "lifespan": "1946–Living",
+          "living": true,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Jesus Roberto Nuñez Trias",
+              "nameForms": [
+                {
+                  "familyPart": "Nuñez Trias",
+                  "fullText": "Jesus Roberto Nuñez Trias",
+                  "givenPart": "Jesus Roberto",
+                  "lang": "es",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "relationshipToPrevious": "SPOUSE",
+          "relationshipToPreviousDescription": "Spouse"
+        },
+        "indexInPath": 1,
+        "person": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "L1ML-XVB",
+          "lifespan": "1945–Living",
+          "living": true,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Jenier Kyra Lopez Zuaznabar",
+              "nameForms": [
+                {
+                  "familyPart": "Lopez Zuaznabar",
+                  "fullText": "Jenier Kyra Lopez Zuaznabar",
+                  "givenPart": "Jenier Kyra",
+                  "lang": "es",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "relationshipToPrevious": "MOTHER",
+          "relationshipToPreviousDescription": "Mother"
+        }
+      }
+    },
+    {
+      "ascendingSide": {
+        "coParent": {
+          "commonAncestor": false,
+          "gender": "MALE",
+          "id": "LXKS-7V5",
+          "lifespan": "Living",
+          "living": true,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Cristián Núñez López",
+              "nameForms": [
+                {
+                  "familyPart": "Núñez López",
+                  "fullText": "Cristián Núñez López",
+                  "givenPart": "Cristián",
+                  "lang": "x-Latn",
+                  "prefixPart": null,
+                  "suffixPart": null
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": "EUROTYPIC"
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "relationshipToPrevious": "HUSBAND",
+          "relationshipToPreviousDescription": "Husband"
+        },
+        "coParentIsPathPerson": true,
+        "indexInPath": 0,
+        "person": {
+          "commonAncestor": false,
+          "gender": "FEMALE",
+          "id": "KWKC-PV2",
+          "lifespan": "1982–Living",
+          "living": true,
+          "nameConclusion": {
+            "contributor": null,
+            "details": {
+              "detailsType": "NameDetails",
+              "fullText": "Silvia Liliana Perez Massia",
+              "nameForms": [
+                {
+                  "familyPart": "",
+                  "fullText": "Silvia Liliana Perez Massia",
+                  "givenPart": "",
+                  "lang": "",
+                  "prefixPart": "",
+                  "suffixPart": ""
+                }
+              ],
+              "nameType": "",
+              "preferredName": true,
+              "sourceCount": 0,
+              "style": ""
+            },
+            "id": null,
+            "justification": "",
+            "multiValued": false,
+            "type": "NAME"
+          },
+          "portraitUrl": "https://sg30p0.familysearch.org/service/msg-artifact/user-portrait/cis.user.MMMV-71TD/thumb200s",
+          "relationshipToPrevious": "ME",
+          "relationshipToPreviousDescription": "Me"
+        }
+      },
+      "initialGeneration": true
+    }
+  ],
+  "relationshipDescription": "My husband's 1st cousin three times removed",
+  "targetPerson": {
+    "commonAncestor": false,
+    "gender": "MALE",
+    "id": "2SH9-R6D",
+    "lifespan": "1873–1942",
+    "living": false,
+    "nameConclusion": {
+      "contributor": null,
+      "details": {
+        "detailsType": "NameDetails",
+        "fullText": "José Luis Gabriel Terra Leivas",
+        "nameForms": [
+          {
+            "familyPart": "Terra Leivas",
+            "fullText": "José Luis Gabriel Terra Leivas",
+            "givenPart": "José Luis Gabriel",
+            "lang": "es",
+            "prefixPart": null,
+            "suffixPart": null
+          }
+        ],
+        "nameType": "",
+        "preferredName": true,
+        "sourceCount": 0,
+        "style": "EUROTYPIC"
+      },
+      "id": null,
+      "justification": "",
+      "multiValued": false,
+      "type": "NAME"
+    },
+    "portraitUrl": "https://tree-portraits-pgp.familysearchcdn.org/gc43n/thumb200s.jpg",
+    "relationshipToPrevious": "SON",
+    "relationshipToPreviousDescription": "Son"
+  }
+}

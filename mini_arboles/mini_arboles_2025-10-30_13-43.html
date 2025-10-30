@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>FamousRelatives</title>
+<style>
+body { font-family: monospace; background: #f7f7f7; padding: 20px; }
+h1,h2 { font-family: sans-serif; }
+button#toggleCoParents { margin:10px; padding:5px 10px; }
+</style>
+</head>
+<body>
+<h1>Famous Relatives</h1>
+<h2>En rosa se encuentran los parentescos políticos y en rojo parentescos de mi cónyuge*</h2>
+
+<button id="toggleCoParents">- Ocultar parentescos de mi cónyuge</button>
+
+<!-- Aquí se insertan las tarjetas y popups -->
+<style>
+.grid-container { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; justify-items:center; margin:20px auto; max-width:1000px;}
+@media (max-width:900px){.grid-container{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){.grid-container{grid-template-columns:1fr;}}
+.card { cursor:pointer; border-radius:10px; padding:10px; width:90%; max-width:280px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.15); transition:0.2s; background:white; }
+.card:hover { transform:translateY(-4px); box-shadow:0 4px 10px rgba(0,0,0,0.25); }
+.popup-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+.popup-content { background:white; border-radius:12px; padding:20px; width:80%; max-width:650px; max-height:80%; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.3); position:relative; }
+.popup-content img { border-radius:10px; margin-bottom:10px; }
+.popup-content pre { background:#f8f8f8; padding:10px; border-radius:8px; white-space:pre-wrap; }
+.popup-close { position:absolute; top:8px; right:12px; cursor:pointer; font-weight:bold; font-size:20px; color:#333; }
+.nav-buttons { display:flex; justify-content:space-between; margin-top:10px; }
+.nav-buttons button { background:#007bff; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
+.nav-buttons button:hover { background:#0056b3; }
+</style>
+
+<div class="grid-container">
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(0)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/gc43n/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jose Luis Gabriel Terra Leivas</h3>
+            <small><i>My 1st cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 7</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(1)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/8yqkk/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Duvimioso Terra</h3>
+            <small><i>My 2nd cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 9</small><br>
+            <small>Abogado</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(2)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/3gpkr/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jorge Traverso</h3>
+            <small><i>My 4th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 11</small><br>
+            <small>Periodista</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(3)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/64ifq/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jose Mujica</h3>
+            <small><i>My 4th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 11</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(4)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/z3s2l/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Aparicio Saravia</h3>
+            <small><i>My 4th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 13</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(5)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1fxgt/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Edgardo Torterolo Prado</h3>
+            <small><i>My wife's 4th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 13</small><br>
+            <small>Doctor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(6)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/nng67/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Lucas Piriz</h3>
+            <small><i>My 3rd cousin six times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 14</small><br>
+            <small>Militar</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(7)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/16lqb/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Juan Carlos Gomes</h3>
+            <small><i>The husband of my 4th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 15</small><br>
+            <small>Periodista</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(8)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/w98vc/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Eduardo Galeano</h3>
+            <small><i>My 5th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 15</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(9)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/e7iqo/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Baltasar Brum Rodrigues</h3>
+            <small><i>My 6th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 16</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(10)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/lzz6b/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Malba Tahan</h3>
+            <small><i>My 6th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 16</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(11)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1hhu9/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Wilson Ferreira Aldunate</h3>
+            <small><i>The husband of my 6th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 17</small><br>
+            <small>Senador</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(12)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/43ayq/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Atilio Garcia</h3>
+            <small><i>The husband of my 7th cousin</i></small><br>
+            <small style="color:#555;">Cercanía: 17</small><br>
+            <small>Futbolista</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(13)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/opdp7/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Pedro Manini Rios</h3>
+            <small><i>The husband of my 5th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 17</small><br>
+            <small>Politico Uruguayo del Partido Colorado</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(14)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/f9j4m/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Juan Carlos Onetti</h3>
+            <small><i>My 8th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 19</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(15)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/h7ynm/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Carlos Paez Vilaro</h3>
+            <small><i>The husband of my 7th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 19</small><br>
+            <small>Artista</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(16)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/4g8ts/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Gabriela Mistral</h3>
+            <small><i>My wife's 6th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 19</small><br>
+            <small>Poeta Chilena</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(17)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/xkaas/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jose Gervasio Artigas</h3>
+            <small><i>The husband of my 5th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 20</small><br>
+            <small>Procer</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(18)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/x9frq/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Eladio Dieste</h3>
+            <small><i>My 8th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 20</small><br>
+            <small>Ingeniero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(19)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/x33gt/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Juscelino Kubitschek</h3>
+            <small><i>My 7th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 20</small><br>
+            <small>Presidente de Brasil</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(20)"
+            data-co-parent="false">
+            <img src="None" alt="Mini" width="60">
+            <h3>Sebastian Carrasco</h3>
+            <small><i>The husband of my 4th cousin ten times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 21</small><br>
+            <small>Primer morador de Carrasco</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(21)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/w91lr/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Horacio Quiroga</h3>
+            <small><i>My 9th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(22)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1f2ws/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Gordo Macia</h3>
+            <small><i>The husband of my 9th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Hincha</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(23)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/t2p9q/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Pedro Varela</h3>
+            <small><i>My 8th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(24)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/cu12a/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Juan Maria Bordaberry</h3>
+            <small><i>The husband of my 8th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(25)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/3o16q/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jorge Luis Borges</h3>
+            <small><i>My 8th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(26)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/qh9j6/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Raul Montero Bustamante</h3>
+            <small><i>My 9th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Historiador</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(27)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/dft1g/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Carlos Reyles</h3>
+            <small><i>My wife's 9th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(28)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/bk52n/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jose Batlle y Ordonez</h3>
+            <small><i>The husband of my 8th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 23</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(29)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/5v65k/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Damaso Antonio Larranaga</h3>
+            <small><i>My 8th cousin six times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 24</small><br>
+            <small>Botanico</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(30)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/maigt/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Alberto Zum Felde</h3>
+            <small><i>The husband of my 9th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 24</small><br>
+            <small>Historiador</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(31)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/if4lj/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Liber Seregni</h3>
+            <small><i>The husband of my 11th cousin</i></small><br>
+            <small style="color:#555;">Cercanía: 25</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(32)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/ks0us/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Pele</h3>
+            <small><i>My 11th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 25</small><br>
+            <small>Futbolista</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(33)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/7d5xb/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Alfredo Vasquez</h3>
+            <small><i>The husband of my 10th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(34)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/onfqr/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Peron</h3>
+            <small><i>My 11th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Presidente Argentino</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(35)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/9wg3q/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Joao Pessoa</h3>
+            <small><i>My 11th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Politico Brasilero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(36)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/v50xg/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Francisco Bauza</h3>
+            <small><i>My 9th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(37)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1976p/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Luis Alberto de Herrera</h3>
+            <small><i>My wife's 11th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 28</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(38)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/06s9t/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Santos Dumont</h3>
+            <small><i>My 11th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 28</small><br>
+            <small>Inventor Brasilero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(39)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/82kxs/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Carlos Alberto Fein Perez</h3>
+            <small><i>My 13th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 29</small><br>
+            <small>Dueno de la casa presidencial</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(40)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/p15gt/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Pedro II de Brasil</h3>
+            <small><i>My 10th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 29</small><br>
+            <small>Rey Brasilero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(41)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/dgp5s/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Acevedo Diaz</h3>
+            <small><i>My 13th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 29</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(42)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/du65k/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Juana de Ibarbourou</h3>
+            <small><i>My 14th cousin</i></small><br>
+            <small style="color:#555;">Cercanía: 30</small><br>
+            <small>Escritora</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(43)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/jjn0g/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Joaquin Requena</h3>
+            <small><i>My 13th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 30</small><br>
+            <small>Abogado</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(44)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/gaoes/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jose Rondeau</h3>
+            <small><i>The husband of my 10th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 30</small><br>
+            <small>Militar</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(45)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/pcjrc/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Jorge Luis Batlle Ibanez</h3>
+            <small><i>My 13th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 31</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(46)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/rn1jk/thumb200s.jpg" alt="Mini" width="60">
+            <h3>Juan Antonio Lavalleja</h3>
+            <small><i>My 14th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 31</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+</div>
+
+<div id="popup" class="popup-overlay" onclick="closePopup(event)">
+  <div class="popup-content" onclick="event.stopPropagation()">
+    <span class="popup-close" onclick="closePopup(event)">&times;</span>
+    <div id="popup-body"></div>
+    <div class="nav-buttons">
+      <button onclick="prevPopup()">← Anterior</button>
+      <button onclick="nextPopup()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const arboles = {{ARBOLES_JS}}; 
+
+let currentIndex = 0;
+
+function openPopup(i) {
+    currentIndex = i;
+    showPopup();
+    document.getElementById('popup').style.display = 'flex';
+}
+
+function closePopup(e) {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function showPopup() {
+    const a = arboles[currentIndex];
+    document.getElementById('popup-body').innerHTML = `
+        <h3>${a.nombre}</h3>
+        <img src="${a.foto}" width="200">
+        <p><i>${a.relacion}</i></p>
+        <p><b>Cercanía:</b> ${a.cercania}</p>
+        <p>${a.extra}</p>
+        <pre>${a.detalle}</pre>`;
+}
+
+function nextPopup() {
+    currentIndex = (currentIndex + 1) % arboles.length;
+    showPopup();
+}
+
+function prevPopup() {
+    currentIndex = (currentIndex - 1 + arboles.length) % arboles.length;
+    showPopup();
+}
+
+// Toggle coParentIsPathPerson
+document.addEventListener("DOMContentLoaded", function() {
+    const toggleBtn = document.getElementById("toggleCoParents");
+    let hidden = false;
+    toggleBtn.addEventListener("click", function() {
+        document.querySelectorAll(".card").forEach(c=>{
+            if(c.dataset.coParent==="true") c.style.display = hidden?"block":"none";
+        });
+        hidden = !hidden;
+        toggleBtn.textContent = hidden
+            ? "+ Mostrar parentescos de mi cónyuge"
+            : "- Ocultar parentescos de mi cónyuge";
+    });
+});
+</script>
+
+
+</body>
+</html>

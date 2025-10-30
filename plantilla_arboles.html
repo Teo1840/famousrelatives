@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Famous Relatives</title>
+<style>
+.grid-container { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; justify-items:center; margin:20px auto; max-width:1000px;}
+@media (max-width:900px){.grid-container{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){.grid-container{grid-template-columns:1fr;}}
+.card { cursor:pointer; border-radius:10px; padding:10px; width:90%; max-width:280px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.15); transition:0.2s; background:white; }
+.card:hover { transform:translateY(-4px); box-shadow:0 4px 10px rgba(0,0,0,0.25); }
+.popup-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+.popup-content { background:white; border-radius:12px; padding:20px; width:80%; max-width:650px; max-height:80%; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.3); position:relative; }
+.popup-content img { border-radius:10px; margin-bottom:10px; }
+.popup-content pre { background:#f8f8f8; padding:10px; border-radius:8px; white-space:pre-wrap; }
+.popup-close { position:absolute; top:8px; right:12px; cursor:pointer; font-weight:bold; font-size:20px; color:#333; }
+.nav-buttons { display:flex; justify-content:space-between; margin-top:10px; }
+.nav-buttons button { background:#007bff; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
+.nav-buttons button:hover { background:#0056b3; }
+button#toggleCoParents { margin:10px; padding:5px 10px; }
+</style>
+</head>
+<body>
+<h1>Famous Relatives</h1>
+<h2>En rosa se encuentran los parentescos políticos y en rojo los de mi cónyuge*</h2>
+
+<button id="toggleCoParents">- Ocultar parentescos de mi cónyuge</button>
+
+<div class="grid-container">
+{{TARJETAS}}
+</div>
+
+<div id="popup" class="popup-overlay" onclick="closePopup(event)">
+  <div class="popup-content" onclick="event.stopPropagation()">
+    <span class="popup-close" onclick="closePopup(event)">&times;</span>
+    <div id="popup-body"></div>
+    <div class="nav-buttons">
+      <button onclick="prevPopup()">← Anterior</button>
+      <button onclick="nextPopup()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Reemplazado por Python
+const arboles = [];
+
+let currentIndex = 0;
+
+function openPopup(i) {
+    currentIndex = i;
+    showPopup();
+    document.getElementById('popup').style.display = 'flex';
+}
+
+function closePopup(e) {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function showPopup() {
+    const a = arboles[currentIndex];
+    document.getElementById('popup-body').innerHTML = `
+        <h3>${a.nombre}</h3>
+        <img src="${a.foto}" width="200">
+        <p><i>${a.relacion}</i></p>
+        <p><b>Cercanía:</b> ${a.cercania}</p>
+        <p>${a.extra}</p>
+        <pre>${a.detalle}</pre>`;
+}
+
+function nextPopup() {
+    currentIndex = (currentIndex + 1) % arboles.length;
+    showPopup();
+}
+
+function prevPopup() {
+    currentIndex = (currentIndex - 1 + arboles.length) % arboles.length;
+    showPopup();
+}
+
+// Toggle coParentIsPathPerson
+document.addEventListener("DOMContentLoaded", function() {
+    const toggleBtn = document.getElementById("toggleCoParents");
+    let hidden = false;
+    toggleBtn.addEventListener("click", function() {
+        document.querySelectorAll(".card").forEach(c => {
+            if(c.dataset.coParent === "true") c.style.display = hidden ? "block" : "none";
+        });
+        hidden = !hidden;
+        toggleBtn.textContent = hidden
+            ? "+ Mostrar parentescos de mi cónyuge"
+            : "- Ocultar parentescos de mi cónyuge";
+    });
+});
+</script>
+</body>
+</html>
