@@ -102,7 +102,7 @@ def generar_arbol_html(arboles_ordenados):
             style="background-color:{'#fc9999' if a.get('coParentIsPathPerson') else '#fccccc' if a.get('parentescoPolitico') else 'white'};"
             onclick="openPopup({i})"
             data-co-parent="{str(a.get('coParentIsPathPerson', False)).lower()}">
-            <img src="{a.get('portraitUrl','')}" alt="Mini" width="60">
+            <img src="{a.get('portraitUrl','')}" alt="Mini" width="120">
             <h3>{a['codigo'].split(';')[1].strip()}</h3>
             <small><i>{a.get('relationshipDescription','')}</i></small><br>
             <small style="color:#555;">Cercanía: {a.get('cercania','')}</small><br>

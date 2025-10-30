@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>FamousRelatives</title>
+<style>
+body { font-family: monospace; background: #f7f7f7; padding: 20px; }
+h1,h2 { font-family: sans-serif; }
+button#toggleCoParents { margin:10px; padding:5px 10px; }
+</style>
+</head>
+<body>
+
+<!-- Aquí se insertan las tarjetas y popups -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Famous Relatives</title>
+<style>
+.grid-container { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; justify-items:center; margin:20px auto; max-width:1000px;}
+@media (max-width:900px){.grid-container{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){.grid-container{grid-template-columns:1fr;}}
+.card { cursor:pointer; border-radius:10px; padding:10px; width:90%; max-width:280px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.15); transition:0.2s; background:white; }
+.card:hover { transform:translateY(-4px); box-shadow:0 4px 10px rgba(0,0,0,0.25); }
+.popup-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+.popup-content { background:white; border-radius:12px; padding:20px; width:80%; max-width:650px; max-height:80%; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.3); position:relative; }
+.popup-content img { border-radius:10px; margin-bottom:10px; }
+.popup-content pre { background:#f8f8f8; padding:10px; border-radius:8px; white-space:pre-wrap; }
+.popup-close { position:absolute; top:8px; right:12px; cursor:pointer; font-weight:bold; font-size:20px; color:#333; }
+.nav-buttons { display:flex; justify-content:space-between; margin-top:10px; }
+.nav-buttons button { background:#007bff; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
+.nav-buttons button:hover { background:#0056b3; }
+button#toggleCoParents { margin:10px; padding:5px 10px; }
+</style>
+</head>
+<body>
+<h1>Famous Relatives</h1>
+<h2>*En rosa se encuentran los parentescos políticos y en "rojo" parentescos de mi cónyuge*</h2>
+
+<button id="toggleCoParents">- Ocultar parentescos de mi cónyuge</button>
+
+<div class="grid-container">
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(0)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/gc43n/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jose Luis Gabriel Terra Leivas</h3>
+            <small><i>My 1st cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 7</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(1)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/8yqkk/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Duvimioso Terra</h3>
+            <small><i>My 2nd cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 9</small><br>
+            <small>Abogado</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(2)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/3gpkr/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jorge Traverso</h3>
+            <small><i>My 4th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 11</small><br>
+            <small>Periodista</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(3)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/64ifq/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jose Mujica</h3>
+            <small><i>My 4th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 11</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(4)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/z3s2l/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Aparicio Saravia</h3>
+            <small><i>My 4th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 13</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(5)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1fxgt/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Edgardo Torterolo Prado</h3>
+            <small><i>My wife's 4th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 13</small><br>
+            <small>Doctor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(6)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/nng67/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Lucas Piriz</h3>
+            <small><i>My 3rd cousin six times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 14</small><br>
+            <small>Militar</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(7)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/16lqb/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Juan Carlos Gomes</h3>
+            <small><i>The husband of my 4th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 15</small><br>
+            <small>Periodista</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(8)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/w98vc/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Eduardo Galeano</h3>
+            <small><i>My 5th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 15</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(9)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/e7iqo/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Baltasar Brum Rodrigues</h3>
+            <small><i>My 6th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 16</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(10)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/lzz6b/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Malba Tahan</h3>
+            <small><i>My 6th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 16</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(11)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1hhu9/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Wilson Ferreira Aldunate</h3>
+            <small><i>The husband of my 6th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 17</small><br>
+            <small>Senador</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(12)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/43ayq/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Atilio Garcia</h3>
+            <small><i>The husband of my 7th cousin</i></small><br>
+            <small style="color:#555;">Cercanía: 17</small><br>
+            <small>Futbolista</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(13)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/opdp7/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Pedro Manini Rios</h3>
+            <small><i>The husband of my 5th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 17</small><br>
+            <small>Politico Uruguayo del Partido Colorado</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(14)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/f9j4m/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Juan Carlos Onetti</h3>
+            <small><i>My 8th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 19</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(15)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/h7ynm/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Carlos Paez Vilaro</h3>
+            <small><i>The husband of my 7th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 19</small><br>
+            <small>Artista</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(16)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/4g8ts/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Gabriela Mistral</h3>
+            <small><i>My wife's 6th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 19</small><br>
+            <small>Poeta Chilena</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(17)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/xkaas/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jose Gervasio Artigas</h3>
+            <small><i>The husband of my 5th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 20</small><br>
+            <small>Procer</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(18)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/x9frq/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Eladio Dieste</h3>
+            <small><i>My 8th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 20</small><br>
+            <small>Ingeniero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(19)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/x33gt/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Juscelino Kubitschek</h3>
+            <small><i>My 7th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 20</small><br>
+            <small>Presidente de Brasil</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(20)"
+            data-co-parent="false">
+            <img src="None" alt="Mini" width="120">
+            <h3>Sebastian Carrasco</h3>
+            <small><i>The husband of my 4th cousin ten times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 21</small><br>
+            <small>Primer morador de Carrasco</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(21)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/w91lr/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Horacio Quiroga</h3>
+            <small><i>My 9th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(22)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1f2ws/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Gordo Macia</h3>
+            <small><i>The husband of my 9th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Hincha</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(23)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/t2p9q/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Pedro Varela</h3>
+            <small><i>My 8th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(24)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/cu12a/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Juan Maria Bordaberry</h3>
+            <small><i>The husband of my 8th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(25)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/3o16q/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jorge Luis Borges</h3>
+            <small><i>My 8th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(26)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/qh9j6/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Raul Montero Bustamante</h3>
+            <small><i>My 9th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Historiador</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(27)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/dft1g/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Carlos Reyles</h3>
+            <small><i>My wife's 9th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 22</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(28)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/bk52n/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jose Batlle y Ordonez</h3>
+            <small><i>The husband of my 8th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 23</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(29)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/5v65k/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Damaso Antonio Larranaga</h3>
+            <small><i>My 8th cousin six times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 24</small><br>
+            <small>Botanico</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(30)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/f5v4s/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Miguel de Cervantes</h3>
+            <small><i>My wife's 4th cousin thirteen times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 24</small><br>
+            <small>Escritor Espanol</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(31)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/maigt/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Alberto Zum Felde</h3>
+            <small><i>The husband of my 9th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 24</small><br>
+            <small>Historiador</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(32)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/if4lj/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Liber Seregni</h3>
+            <small><i>The husband of my 11th cousin</i></small><br>
+            <small style="color:#555;">Cercanía: 25</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(33)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/ks0us/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Pele</h3>
+            <small><i>My 11th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 25</small><br>
+            <small>Futbolista</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(34)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/7d5xb/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Alfredo Vasquez</h3>
+            <small><i>The husband of my 10th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(35)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/onfqr/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Peron</h3>
+            <small><i>My 11th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Presidente Argentino</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(36)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/9wg3q/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Joao Pessoa</h3>
+            <small><i>My 11th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Politico Brasilero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(37)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/v50xg/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Francisco Bauza</h3>
+            <small><i>My 9th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 27</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:#fc9999;"
+            onclick="openPopup(38)"
+            data-co-parent="true">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/1976p/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Luis Alberto de Herrera</h3>
+            <small><i>My wife's 11th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 28</small><br>
+            <small>Politico</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(39)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/06s9t/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Santos Dumont</h3>
+            <small><i>My 11th cousin four times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 28</small><br>
+            <small>Inventor Brasilero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(40)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/82kxs/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Carlos Alberto Fein Perez</h3>
+            <small><i>My 13th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 29</small><br>
+            <small>Dueno de la casa presidencial</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(41)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/p15gt/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Pedro II de Brasil</h3>
+            <small><i>My 10th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 29</small><br>
+            <small>Rey Brasilero</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(42)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/dgp5s/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Acevedo Diaz</h3>
+            <small><i>My 13th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 29</small><br>
+            <small>Escritor</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(43)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/du65k/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Juana de Ibarbourou</h3>
+            <small><i>My 14th cousin</i></small><br>
+            <small style="color:#555;">Cercanía: 30</small><br>
+            <small>Escritora</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(44)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/jjn0g/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Joaquin Requena</h3>
+            <small><i>My 13th cousin twice removed</i></small><br>
+            <small style="color:#555;">Cercanía: 30</small><br>
+            <small>Abogado</small>
+        </div>
+<div class="card"
+            style="background-color:#fccccc;"
+            onclick="openPopup(45)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/gaoes/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jose Rondeau</h3>
+            <small><i>The husband of my 10th cousin seven times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 30</small><br>
+            <small>Militar</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(46)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/pcjrc/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Jorge Luis Batlle Ibanez</h3>
+            <small><i>My 13th cousin three times removed</i></small><br>
+            <small style="color:#555;">Cercanía: 31</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+<div class="card"
+            style="background-color:white;"
+            onclick="openPopup(47)"
+            data-co-parent="false">
+            <img src="https://tree-portraits-pgp.familysearchcdn.org/rn1jk/thumb200s.jpg" alt="Mini" width="120">
+            <h3>Juan Antonio Lavalleja</h3>
+            <small><i>My 14th cousin once removed</i></small><br>
+            <small style="color:#555;">Cercanía: 31</small><br>
+            <small>Presidente del Uruguay</small>
+        </div>
+</div>
+
+<div id="popup" class="popup-overlay" onclick="closePopup(event)">
+  <div class="popup-content" onclick="event.stopPropagation()">
+    <span class="popup-close" onclick="closePopup(event)">&times;</span>
+    <div id="popup-body"></div>
+    <div class="nav-buttons">
+      <button onclick="prevPopup()">← Anterior</button>
+      <button onclick="nextPopup()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Reemplazado por Python
+const arboles = [{"nombre": "Jose Luis Gabriel Terra Leivas", "detalle": "Ignacio José de Leivas Filho (1806–1868) ← Antepasado en común\n|\n├─ Francisca Casilda Leivas (1850–1909)\n|   └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|       └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|               └─ cristian16 (1978–Living)\n|\n└─ María Joaquina Leivas y Caballero (1849–1926)\n    └─ José Luis Gabriel Terra Leivas (1873–1942)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/gc43n/thumb200s.jpg", "relacion": "My 1st cousin three times removed", "cercania": 7, "extra": "Presidente del Uruguay"}, {"nombre": "Duvimioso Terra", "detalle": "Maria Joaquina da Assumpção de Sousa (1769–Deceased) ← Antepasado en común\n|\n├─ Benvinda Benigna Leivas De Souza (1800–1881)\n|   └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|       └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|           └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                   └─ cristian16 (1978–Living)\n|\n└─ Felícia Rosa da Silveira (1793–Deceased)\n    └─ Duvimioso Terra Da Silveira (1809–1869)\n        └─ Duvimioso Terra Barboza (1856–1930)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/8yqkk/thumb200s.jpg", "relacion": "My 2nd cousin three times removed", "cercania": 9, "extra": "Abogado"}, {"nombre": "Jorge Traverso", "detalle": "Felipa CRUZ (1801–1841) ← Antepasado en común\n|\n├─ Fulgencia Gregória González Cruz (1827–Deceased)\n|   └─ Luis Rodriguez Gonzalez (1855–1912)\n|       └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|           └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                   └─ cristian16 (1978–Living)\n|\n└─ Higinia González de la Cruz (1822–Deceased)\n    └─ Gabriela Manuela Martínez González (1848–Deceased)\n        └─ Wenceslada Galo Martinez (1883–1976)\n            └─ Elisa Margarita Denis Galo (1907–1988)\n                └─ Periodista Schubert Jorge Pérez Denis (1947–2025)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/3gpkr/thumb200s.jpg", "relacion": "My 4th cousin once removed", "cercania": 11, "extra": "Periodista"}, {"nombre": "Jose Mujica", "detalle": "Maria Joaquina da Assumpção de Sousa (1769–Deceased) ← Antepasado en común\n|\n├─ Benvinda Benigna Leivas De Souza (1800–1881)\n|   └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|       └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|           └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                   └─ cristian16 (1978–Living)\n|\n└─ Felícia Rosa da Silveira (1793–Deceased)\n    └─ Benvenuto Pereira Terra (1811–1859)\n        └─ Eudoxia Terra (1858–Deceased)\n            └─ Demetrio Mujica Terra (1894–1943)\n                └─ José Alberto Mujica Cordano (1935–2025)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/64ifq/thumb200s.jpg", "relacion": "My 4th cousin once removed", "cercania": 11, "extra": "Presidente del Uruguay"}, {"nombre": "Aparicio Saravia", "detalle": "Ana Machado Fagundes (1722–1814) ← Antepasado en común\n|\n├─ Rosa Maria da Assunção de Souza Machado (1752–1834)\n|   └─ Maria Joaquina da Assumpção de Sousa (1769–Deceased)\n|       └─ Benvinda Benigna Leivas De Souza (1800–1881)\n|           └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|               └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|                   └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                           └─ cristian16 (1978–Living)\n|\n└─ Joana Maria de Souza (1757–Deceased)\n    └─ María das Mercedes da Silva Barreto (1778–Deceased)\n        └─ Maria Angélica Pereira Canedo (1793–Deceased)\n            └─ Francisco Saravia Canedo (1822–1893)\n                └─ Aparicio Saravia Da Rosa (1857–1904)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/z3s2l/thumb200s.jpg", "relacion": "My 4th cousin three times removed", "cercania": 13, "extra": "Politico"}, {"nombre": "Edgardo Torterolo Prado", "detalle": "Vincenzo Torterolo (1757–1811) ← Antepasado en común\n|\n├─ Giovanni Battista Torterolo (1792–1864)\n|   └─ Vincenzo Torterolo Briano (1828–Deceased)\n|       └─ Mariana Torterolo (1871–1920)\n|           └─ Martiniano Abel Perez Torterolo (1891–1966)\n|               └─ Julio Federico Pérez Deposito (1919–2003)\n|                   └─ Carlos Atilio Perez Basso (1949–Living)\n|                       └─ Silvia Liliana Perez Massia (1982–Living)\n|                           |  \n|                          cristian16 (1982–Living)\n|\n└─ Antonio Torterolo (1798–Deceased)\n    └─ Sebastian Torterolo (1835–1896)\n        └─ Asencion Torterolo Manzino (1867–1936)\n            └─ Rosaura María Prado Torterolo (1900–Deceased)\n                └─ Edgardo Gualberto Torterolo Prado (1939–2003)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/1fxgt/thumb200s.jpg", "relacion": "My wife's 4th cousin twice removed", "cercania": 13, "extra": "Doctor"}, {"nombre": "Lucas Piriz", "detalle": "Maria Dutra do Souto (1683–1758) ← Antepasado en común\n|\n├─ Antonia do Carmo de Souto Duarte (1721–1784)\n|   └─ María Antônia Quitéria da Rocha de Souto (1754–1797)\n|       └─ Maria Antônia Muniz Rocha (1763–1870)\n|           └─ Jerônimo Amaro da Silveira (1790–1836)\n|               └─ Israel Amaro Silveira (1815–1893)\n|                   └─ Horácio Amaro da Silveira (1851–1914)\n|                       └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                           └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                   └─ cristian16 (1978–Living)\n|\n└─ Violante de Souto Dutra (1712–1792)\n    └─ Antonia de Jesus Rodriguez de Soto (1742–1821)\n        └─ José Bernardino Piriz Rodriguez (1765–1837)\n            └─ Lucas Piriz Portillo (1806–1865)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/nng67/thumb200s.jpg", "relacion": "My 3rd cousin six times removed", "cercania": 14, "extra": "Militar"}, {"nombre": "Juan Carlos Gomes", "detalle": "Sebastiao Pereira (1680–Deceased) ← Antepasado en común\n|\n├─ Helena dos Santos Pereira (1722–1772)\n|   └─ Antônio da Costa Pereira (1757–1841)\n|       └─ Maria Altina da Costa Pereira (1798–1850)\n|           └─ Belarmina Joaquina Da Cruz Piegas (1821–1879)\n|               └─ Horácio Amaro da Silveira (1851–1914)\n|                   └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                       └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                               └─ cristian16 (1978–Living)\n|\n└─ Antónia dos Santos Pereira (1718–1802)\n    └─ Maria Rodrigues da Silva (1738–1809)\n        └─ Luciana Maria da Silva (1765–Deceased)\n            └─ Ana María Carvallo de Silva (1802–Deceased)\n                └─ Elisa Simona Maturana Carvallo (1823–1846)\n                    |  \n                   Juan Carlos Gómez de la Sierra (1823–1846)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/16lqb/thumb200s.jpg", "relacion": "The husband of my 4th cousin four times removed", "cercania": 15, "extra": "Periodista"}, {"nombre": "Eduardo Galeano", "detalle": "Nicolasa Vera Perdomo Melián (1710–1801) ← Antepasado en común\n|\n├─ Leonor De Mendosa Vera (1732–1817)\n|   └─ Santiago Martin Chiribao Mendoza (1751–1820)\n|       └─ Ignacio CHIRIBAO OLIVERA (1786–Deceased)\n|           └─ Anacleta CHIRIBAO LEDESMA (1833–Deceased)\n|               └─ María Chiribao (1847–1933)\n|                   └─ Santos LÓPEZ CHIRIBAO (1880–1951)\n|                       └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                               └─ cristian16 (1978–Living)\n|\n└─ Santiago Gregorio Montero Vera (1751–Deceased)\n    └─ Jayme Montoro Calleros (Deceased)\n        └─ Ema Montoro Penco (1867–1928)\n            └─ Esther Muñoz Montoro (1883–Deceased)\n                └─ Lucia Esther Galeano Muñoz (1913–Deceased)\n                    └─ Eduardo Germán María Hughes Galeano (1940–2015)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/w98vc/thumb200s.jpg", "relacion": "My 5th cousin three times removed", "cercania": 15, "extra": "Escritor"}, {"nombre": "Baltasar Brum Rodrigues", "detalle": "Mateus Vieira Pereira (1680–1763) ← Antepasado en común\n|\n├─ Antônio Silveira Pereira (1707–1784)\n|   └─ Maria da Silveira (1736–1817)\n|       └─ Joaquim Manoel da Silva filho do \"Mariante\" (1761–1836)\n|           └─ José Joaquim da Silva Mariante (1795–1874)\n|               └─ Engrácia Bernardina da Silva (1831–Deceased)\n|                   └─ João José Da Silva (1871–1924)\n|                       └─ Sandoval Núñez (1916–2002)\n|                           └─ Jesus Roberto Nuñez Trias (Living)\n|                               └─ cristian16 (1978–Living)\n|\n└─ Barbara de São Tomé (1716–Deceased)\n    └─ José Antônio Álvares (1753–1823)\n        └─ Juliana Maria da Pureza (1782–1858)\n            └─ Libania Maria Nogueira Picanço (1811–1881)\n                └─ Cusculina Rodrigues de Almeida (1839–1884)\n                    └─ Auristella Rodrigues de Almeida (1863–1951)\n                        └─ Baltasar Brum Rodríguez (1883–1933)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/e7iqo/thumb200s.jpg", "relacion": "My 6th cousin twice removed", "cercania": 16, "extra": "Presidente del Uruguay"}, {"nombre": "Malba Tahan", "detalle": "Leopoldo da Silveira e Souza (1698–1771) ← Antepasado en común\n|\n├─ Antônia da Silveira e Souza (1744–1824)\n|   └─ Alferes Antonio Ferraz de Oliveira (1770–1863)\n|       └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|           └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|               └─ Basilio Ferraz Méndez (1871–Deceased)\n|                   └─ Petrona Ferraz Fernández (1897–1959)\n|                       └─ Ena Trías Ferraz (1922–1984)\n|                           └─ Jesus Roberto Nuñez Trias (Living)\n|                               └─ cristian16 (1978–Living)\n|\n└─ Maria Miguel da Silveira (1733–1810)\n    └─ Carlos Pedroso da Silveira (1763–1834)\n        └─ Jose Carlos Epifânio da Silveira (1794–1848)\n            └─ Manuel José Carlos da Silveira (1824–Deceased)\n                └─ Maria Carlos da Silveira (Deceased)\n                    └─ Carolina Carlos de Toledo (1866–1925)\n                        └─ Julio Cesar de Mello e Souza (1895–1974)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/lzz6b/thumb200s.jpg", "relacion": "My 6th cousin twice removed", "cercania": 16, "extra": "Escritor"}, {"nombre": "Wilson Ferreira Aldunate", "detalle": "Nicolasa Vera Perdomo Melián (1710–1801) ← Antepasado en común\n|\n├─ Leonor De Mendosa Vera (1732–1817)\n|   └─ Santiago Martin Chiribao Mendoza (1751–1820)\n|       └─ Ignacio CHIRIBAO OLIVERA (1786–Deceased)\n|           └─ Anacleta CHIRIBAO LEDESMA (1833–Deceased)\n|               └─ María Chiribao (1847–1933)\n|                   └─ Santos LÓPEZ CHIRIBAO (1880–1951)\n|                       └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                               └─ cristian16 (1978–Living)\n|\n└─ Micaela Mendoza Vera Perdomo (1738–1794)\n    └─ Estanislada Antonia de León y Mendoza (1774–1827)\n        └─ Juana Vázquez  León (1800–1855)\n            └─ Rita Estanislada Marques Vázquez (1830–1911)\n                └─ Maria Lessa Marques (1856–Deceased)\n                    └─ Raul Natalio Pedro Maria del Carmen Sienra Lessa (1879–Deceased)\n                        └─ Susana Sienra Burmester (1920–2016)\n                            |  \n                           Wilson Ferreira Aldunate (1920–2016)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/1hhu9/thumb200s.jpg", "relacion": "The husband of my 6th cousin twice removed", "cercania": 17, "extra": "Senador"}, {"nombre": "Atilio Garcia", "detalle": "Isabel Maria Alvares (1723–Deceased) ← Antepasado en común\n|\n├─ Manuel Jerônimo de Sousa (1746–1830)\n|   └─ Maria Joaquina da Assumpção de Sousa (1769–Deceased)\n|       └─ Benvinda Benigna Leivas De Souza (1800–1881)\n|           └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|               └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|                   └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                           └─ cristian16 (1978–Living)\n|\n└─ Maria de Sousa (1751–Deceased)\n    └─ Antonia de Sosa (1774–1858)\n        └─ Josefa Valentina Cabral Sosa (1792–1873)\n            └─ José Gregorio Cuadrado Cabral (1816–Deceased)\n                └─ José Gregorio Cuadrado Corbo (1841–Deceased)\n                    └─ Maria Felicia Cuadrado Martinez (1871–1954)\n                        └─ José Ricardo Blois Cuadrado (1893–1932)\n                            └─ Aída Aurora Blois Suarez (1913–1981)\n                                |  \n                               Atilio Ceferino García Pérez (1913–1981)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/43ayq/thumb200s.jpg", "relacion": "The husband of my 7th cousin", "cercania": 17, "extra": "Futbolista"}, {"nombre": "Pedro Manini Rios", "detalle": "Maria Dutra do Souto (1683–1758) ← Antepasado en común\n|\n├─ Antonia do Carmo de Souto Duarte (1721–1784)\n|   └─ María Antônia Quitéria da Rocha de Souto (1754–1797)\n|       └─ Maria Antônia Muniz Rocha (1763–1870)\n|           └─ Jerônimo Amaro da Silveira (1790–1836)\n|               └─ Israel Amaro Silveira (1815–1893)\n|                   └─ Horácio Amaro da Silveira (1851–1914)\n|                       └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                           └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                   └─ cristian16 (1978–Living)\n|\n└─ Violante de Souto Dutra (1712–1792)\n    └─ Ana do Desterro Rodrigues (1744–1834)\n        └─ Josefa de la Cruz Cabral (1773–1861)\n            └─ Serafina Petrona Pereira Cabral (1813–1893)\n                └─ Medardo Rodríguez Pereyra (1840–1914)\n                    └─ Teresa Rodriguez Silva (1880–1943)\n                        |  \n                       Pedro Manini Ríos (1880–1943)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/opdp7/thumb200s.jpg", "relacion": "The husband of my 5th cousin four times removed", "cercania": 17, "extra": "Politico Uruguayo del Partido Colorado"}, {"nombre": "Juan Carlos Onetti", "detalle": "Gaspar Manuel Fagundes (–1695) ← Antepasado en común\n|\n├─ Apolônia Dias de Almeida (1664–Deceased)\n|   └─ Bárbara Nunes de Souza (1703–Deceased)\n|       └─ Francisca de Souza (1725–1824)\n|           └─ Anna Maria Ignacia de Jesus Souza Machado (1762–1819)\n|               └─ José Joaquim da Silva Mariante (1795–1874)\n|                   └─ Engrácia Bernardina da Silva (1831–Deceased)\n|                       └─ João José Da Silva (1871–1924)\n|                           └─ Sandoval Núñez (1916–2002)\n|                               └─ Jesus Roberto Nuñez Trias (Living)\n|                                   └─ cristian16 (1978–Living)\n|\n└─ Antonio Alvares Bello (1665–1745)\n    └─ Manoel do Nascimento (1698–Deceased)\n        └─ Maria de São José (1734–Deceased)\n            └─ Ana Felicia de Jesus (1768–1819)\n                └─ Joaquina Rosa (1801–1889)\n                    └─ Guilhermina Joaquina da Silva (1832–Deceased)\n                        └─ Raquel de Morais Palma de Oliveira (1853–1934)\n                            └─ Honorina Borges de Morais Palma (1879–1947)\n                                └─ Juan Carlos Onetti Borges (1909–1994)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/f9j4m/thumb200s.jpg", "relacion": "My 8th cousin once removed", "cercania": 19, "extra": "Escritor"}, {"nombre": "Carlos Paez Vilaro", "detalle": "Maria Dutra do Souto (1683–1758) ← Antepasado en común\n|\n├─ Antonia do Carmo de Souto Duarte (1721–1784)\n|   └─ María Antônia Quitéria da Rocha de Souto (1754–1797)\n|       └─ Maria Antônia Muniz Rocha (1763–1870)\n|           └─ Jerônimo Amaro da Silveira (1790–1836)\n|               └─ Israel Amaro Silveira (1815–1893)\n|                   └─ Horácio Amaro da Silveira (1851–1914)\n|                       └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                           └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                   └─ cristian16 (1978–Living)\n|\n└─ Violante de Souto Dutra (1712–1792)\n    └─ Ana do Desterro Rodrigues (1744–1834)\n        └─ Josefa de la Cruz Cabral (1773–1861)\n            └─ Serafina Petrona Pereira Cabral (1813–1893)\n                └─ José María Rodríguez Pereira (1839–Deceased)\n                    └─ Corina Eugenia Rodríguez Sosa (1875–1962)\n                        └─ Horacio Rodríguez Rodríguez (1905–1965)\n                            └─ Magdalena Sofía Rodríguez Gómez (1932–2011)\n                                |  \n                               Carlos María Páez Vilaró (1932–2011)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/h7ynm/thumb200s.jpg", "relacion": "The husband of my 7th cousin twice removed", "cercania": 19, "extra": "Artista"}, {"nombre": "Gabriela Mistral", "detalle": "María DE LA TORRE DE ACUÑA (1646–Deceased) ← Antepasado en común\n|\n├─ Cristóbal DE LA TORRE (1676–Deceased)\n|   └─ María TEXERA DE BRITO (1712–Deceased)\n|       └─ Agustín Fernando LIMA (1745–Deceased)\n|           └─ María Rosario Lima Fernández (1803–Deceased)\n|               └─ María Lazo Lima (1825–1907)\n|                   └─ Gregoria Juliana Acevedo Lazo (1847–1934)\n|                       └─ Bernardo José Britos Acevedo (1868–1918)\n|                           └─ Matilde Britos Reyes (1902–1923)\n|                               └─ Juan Pedro Massia Britos (1920–1994)\n|                                   └─ Raquel Beatriz Massia Taro (1956–Living)\n|                                       └─ Silvia Liliana Perez Massia (1982–Living)\n|                                           |  \n|                                          cristian16 (1982–Living)\n|\n└─ María de las Nieves (1675–Deceased)\n    └─ Juliana Torres Castro (1732–1792)\n        └─ Bernardino Barraza Torres (1774–1824)\n            └─ Josefa Barraza Vega (1807–1897)\n                └─ Gregorio Godoy Barraza (1828–Deceased)\n                    └─ Juan Gerónimo Godoy Villanueva (1856–1911)\n                        └─ Lucila de María Godoy Alcayaga (1889–1957)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/4g8ts/thumb200s.jpg", "relacion": "My wife's 6th cousin four times removed", "cercania": 19, "extra": "Poeta Chilena"}, {"nombre": "Jose Gervasio Artigas", "detalle": "Miguel Gerónimo (1590–1634) ← Antepasado en común\n|\n├─ Juana Gómez de Sotomayor (1624–1683)\n|   └─ María Alvarez de Acosta (1639–Deceased)\n|       └─ Juana ÁLVAREZ de ACOSTA de SANTIAGO (1669–Deceased)\n|           └─ Joseph de Cuenca (1694–1748)\n|               └─ Barbara Cuenca Palacios (1715–Deceased)\n|                   └─ Manuel Ramos Cuenca (1767–1812)\n|                       └─ Juana María Ramos Ortega (1792–1856)\n|                           └─ Maria Lorenza del Pilar Amarilla Ramos (1818–Deceased)\n|                               └─ Nicanor María López Amarillo (1837–1923)\n|                                   └─ Santos LÓPEZ CHIRIBAO (1880–1951)\n|                                       └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                               └─ cristian16 (1978–Living)\n|\n└─ Juan Gerónimo de la Cruz (1632–1710)\n    └─ Juana Bermúdez (1664–1746)\n        └─ María Barragán (1686–Deceased)\n            └─ Juan Joseph Faustino Gadea Barragán (1713–1778)\n                └─ Patricio Joseph Gadea (1740–1827)\n                    └─ María Triana Gadea Paredes (1790–1869)\n                        |  \n                       José Gervasio Artigas Pascual (1790–1869)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/xkaas/thumb200s.jpg", "relacion": "The husband of my 5th cousin seven times removed", "cercania": 20, "extra": "Procer"}, {"nombre": "Eladio Dieste", "detalle": "Catarina Correa da Silveira Borges (1642–1737) ← Antepasado en común\n|\n├─ Isabel da Silveira (1663–Deceased)\n|   └─ Agada da Rosa Silveira (1703–1786)\n|       └─ Isabel Maria Alvares (1723–Deceased)\n|           └─ Manuel Jerônimo de Sousa (1746–1830)\n|               └─ Maria Joaquina da Assumpção de Sousa (1769–Deceased)\n|                   └─ Benvinda Benigna Leivas De Souza (1800–1881)\n|                       └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|                           └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|                               └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                                   └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                       └─ cristian16 (1978–Living)\n|\n└─ Ana de Sousa Correia da Silveira (1678–Deceased)\n    └─ Tomé Silveira de Sousa (1700–Deceased)\n        └─ Rita Maria da Silveira (1728–1812)\n            └─ Francisco Jose de Sousa Batista (1762–1822)\n                └─ Ana Clara de Jesus Baptista (1789–1846)\n                    └─ Manoel Gonçalves de Oliveira (1810–1876)\n                        └─ Olegaria Marcelina Gonzalez Silvera (1853–1944)\n                            └─ Eladio Florentino Dieste González (1880–1972)\n                                └─ Eladio Dieste Saint Martin (1917–2000)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/x9frq/thumb200s.jpg", "relacion": "My 8th cousin twice removed", "cercania": 20, "extra": "Ingeniero"}, {"nombre": "Juscelino Kubitschek", "detalle": "Capitão Francisco Álvares Correia (1585–1670) ← Antepasado en común\n|\n├─ Andreza de Castilho (1641–1709)\n|   └─ Bárbara Moreira de Castilho  (1680–Deceased)\n|       └─ Helena da Silva Rosa (1702–1772)\n|           └─ Antônia da Silveira e Souza (1744–1824)\n|               └─ Alferes Antonio Ferraz de Oliveira (1770–1863)\n|                   └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                       └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                           └─ Basilio Ferraz Méndez (1871–Deceased)\n|                               └─ Petrona Ferraz Fernández (1897–1959)\n|                                   └─ Ena Trías Ferraz (1922–1984)\n|                                       └─ Jesus Roberto Nuñez Trias (Living)\n|                                           └─ cristian16 (1978–Living)\n|\n└─ Elias Corrêa de Alvarenga (1690–1750)\n    └─ Helena Corrêa de Alvarenga (1754–1830)\n        └─ José Joaquim de Andrade (1770–1865)\n            └─ Simpliciana Rosa de Andrade (1796–Deceased)\n                └─ Joaquina Simpliciana Coelho de Andrade (1829–1916)\n                    └─ Maria Joaquina Coelho de Andrade (1854–1930)\n                        └─ Júlia Coelho Kubitschek (1873–1971)\n                            └─ Juscelino Kubitschek de Oliveira (1902–1976)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/x33gt/thumb200s.jpg", "relacion": "My 7th cousin four times removed", "cercania": 20, "extra": "Presidente de Brasil"}, {"nombre": "Sebastian Carrasco", "detalle": "María Estevez Martinez (Deceased) ← Antepasado en común\n|\n├─ Catalina RODRÍGUEZ (1550–Deceased)\n|   └─ Andrés DE ADAY (1574–Deceased)\n|       └─ Margarita RUIZ DE ADAY (–1679)\n|           └─ Ines DUMPIERREZ (Deceased)\n|               └─ Clara CHAMORRO (1664–Deceased)\n|                   └─ Josefa del Espíritu Santo BONILLA (1705–1734)\n|                       └─ Augustín de BETANCOR BONILLA (1727–1778)\n|                           └─ Juan BETANCOURT ESTÉVEZ (1757–1852)\n|                               └─ Marcelina Betancor Robayna (1800–Deceased)\n|                                   └─ Juan de la Cruz Antonio RODRÍGUEZ BENTANCOURT (1824–Deceased)\n|                                       └─ Luis Rodriguez Gonzalez (1855–1912)\n|                                           └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                               └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                                   └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Melchor Rodríguez (1563–Deceased)\n    └─ Melchor Rodriguez (1586–1665)\n        └─ Juan Rodríguez Veloso (1635–1708)\n            └─ Ana PÉREZ VELOZO (1678–1722)\n                └─ Ana Pérez Bravo (1712–1768)\n                    |  \n                   Sebastián Carrasco de Melo (1712–1768)", "foto": null, "relacion": "The husband of my 4th cousin ten times removed", "cercania": 21, "extra": "Primer morador de Carrasco"}, {"nombre": "Horacio Quiroga", "detalle": "Maria Pedroso (1620–1681) ← Antepasado en común\n|\n├─ Grácia da Fonseca Rodovalho Neta (1644–Deceased)\n|   └─ Carlos Pedroso da Silveira (1664–1719)\n|       └─ Leopoldo da Silveira e Souza (1698–1771)\n|           └─ Antônia da Silveira e Souza (1744–1824)\n|               └─ Alferes Antonio Ferraz de Oliveira (1770–1863)\n|                   └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                       └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                           └─ Basilio Ferraz Méndez (1871–Deceased)\n|                               └─ Petrona Ferraz Fernández (1897–1959)\n|                                   └─ Ena Trías Ferraz (1922–1984)\n|                                       └─ Jesus Roberto Nuñez Trias (Living)\n|                                           └─ cristian16 (1978–Living)\n|\n└─ Ana Ribeiro Rodovalho (1643–1685)\n    └─ Sebastião Fernandes Correa (1663–1728)\n        └─ Ana Ribeiro Rodovalho (1684–Deceased)\n            └─ Bernarda Pinto de Toledo (Deceased)\n                └─ Maria Ferreira de Andrade (1732–1771)\n                    └─ Manuel Saldanha Ferreira (1760–1840)\n                        └─ Francisco Saldaña (1796–1878)\n                            └─ Francisca Antonia Saldaña Rey (1825–1867)\n                                └─ Juana Pastora Forteza Saldaña (1853–1915)\n                                    └─ Horacio Silvestre Quiroga Forteza (1878–1937)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/w91lr/thumb200s.jpg", "relacion": "My 9th cousin twice removed", "cercania": 22, "extra": "Escritor"}, {"nombre": "Gordo Macia", "detalle": "Ana Goulart (1600–1670) ← Antepasado en común\n|\n├─ Belchior da Cunha Teixeira (1636–1695)\n|   └─ Manuel da Cunha Vieira (1689–Deceased)\n|       └─ Jerônimo de Souza (1725–1810)\n|           └─ Manuel Jerônimo de Sousa (1746–1830)\n|               └─ Maria Joaquina da Assumpção de Sousa (1769–Deceased)\n|                   └─ Benvinda Benigna Leivas De Souza (1800–1881)\n|                       └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|                           └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|                               └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                                   └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                       └─ cristian16 (1978–Living)\n|\n└─ Catarina da Cunha Goulart (1636–1672)\n    └─ Jorge da Cunha Teixeira (1662–1712)\n        └─ Isabel Maria Teixeira de Souza (1693–1771)\n            └─ José de Souza Machado (1737–1827)\n                └─ Antonio José de Souza (1779–1847)\n                    └─ Antonio José de Souza (1810–Deceased)\n                        └─ Candida Maria De SOUZA CARDOZO (1834–1927)\n                            └─ Florisbelo Antonio Motta De Souza (1861–1927)\n                                └─ Filotina Motta Diaz (1879–1904)\n                                    └─ Joaquina Constancia Mendez de Macia (1904–1958)\n                                        |  \n                                       Román Pedro Maciá Traverzoni (1904–1958)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/1f2ws/thumb200s.jpg", "relacion": "The husband of my 9th cousin once removed", "cercania": 22, "extra": "Hincha"}, {"nombre": "Pedro Varela", "detalle": "Miguel Gerónimo (1590–1634) ← Antepasado en común\n|\n├─ Juana Gómez de Sotomayor (1624–1683)\n|   └─ María Alvarez de Acosta (1639–Deceased)\n|       └─ Juana ÁLVAREZ de ACOSTA de SANTIAGO (1669–Deceased)\n|           └─ Joseph de Cuenca (1694–1748)\n|               └─ Barbara Cuenca Palacios (1715–Deceased)\n|                   └─ Manuel Ramos Cuenca (1767–1812)\n|                       └─ Juana María Ramos Ortega (1792–1856)\n|                           └─ Maria Lorenza del Pilar Amarilla Ramos (1818–Deceased)\n|                               └─ Nicanor María López Amarillo (1837–1923)\n|                                   └─ Santos LÓPEZ CHIRIBAO (1880–1951)\n|                                       └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                               └─ cristian16 (1978–Living)\n|\n└─ Juan Gerónimo de la Cruz (1632–1710)\n    └─ Juana Bermúdez (1664–1746)\n        └─ Pedro Barragan Y Bermudes (1688–1746)\n            └─ Juan Francisco Barragan Setien Abascal (1699–Deceased)\n                └─ Petrona Barragan (1722–1781)\n                    └─ Mariano Reyes (1763–Deceased)\n                        └─ Norberta Reyes (1790–Deceased)\n                            └─ Agustina Olivera Reyes (1809–Deceased)\n                                └─ Pedro José Varela Olivera (1837–1906)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/t2p9q/thumb200s.jpg", "relacion": "My 8th cousin four times removed", "cercania": 22, "extra": "Presidente del Uruguay"}, {"nombre": "Juan Maria Bordaberry", "detalle": "Anna de Andrade de Mello (1620–Deceased) ← Antepasado en común\n|\n├─ Catarina De Magalhães (1652–Deceased)\n|   └─ Sebastião de Moura Minhoto (1676–1722)\n|       └─ Manuel de Souza Menezes de Moura (1702–Deceased)\n|           └─ Joaquim Antônio de Menezes e Souza (1741–1835)\n|               └─ Eugenia Maria de Meneses (1765–1845)\n|                   └─ Maria Altina da Costa Pereira (1798–1850)\n|                       └─ Belarmina Joaquina Da Cruz Piegas (1821–1879)\n|                           └─ Horácio Amaro da Silveira (1851–1914)\n|                               └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                                   └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                           └─ cristian16 (1978–Living)\n|\n└─ Antonio de Magalhães Velho (1642–1719)\n    └─ Anna de Mello (1667–Deceased)\n        └─ Isabel Batista de Menezes (1712–Deceased)\n            └─ Florencia Margarida de Morais (1745–1830)\n                └─ Manoel Ferreira Bica (1785–1841)\n                    └─ Manoel Ferreira Bicca (1814–Deceased)\n                        └─ Eloisa Bica Acosta (–1928)\n                            └─ Francisco Jorge Herrán Bica (1895–1969)\n                                └─ María Josefina Herrán Puig (1930–2024)\n                                    |  \n                                   Juan Maria Bordaberry Arocena (1930–2024)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/cu12a/thumb200s.jpg", "relacion": "The husband of my 8th cousin three times removed", "cercania": 22, "extra": "Presidente del Uruguay"}, {"nombre": "Jorge Luis Borges", "detalle": "Antonio González de Acosta (1578–1653) ← Antepasado en común\n|\n├─ Juana Gómez de Sotomayor (1624–1683)\n|   └─ María Alvarez de Acosta (1639–Deceased)\n|       └─ Juana ÁLVAREZ de ACOSTA de SANTIAGO (1669–Deceased)\n|           └─ Joseph de Cuenca (1694–1748)\n|               └─ Barbara Cuenca Palacios (1715–Deceased)\n|                   └─ Manuel Ramos Cuenca (1767–1812)\n|                       └─ Juana María Ramos Ortega (1792–1856)\n|                           └─ Maria Lorenza del Pilar Amarilla Ramos (1818–Deceased)\n|                               └─ Nicanor María López Amarillo (1837–1923)\n|                                   └─ Santos LÓPEZ CHIRIBAO (1880–1951)\n|                                       └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                               └─ cristian16 (1978–Living)\n|\n└─ Domingo González de Acosta (1628–1708)\n    └─ Lucía González de Acosta Marquina (1667–1718)\n        └─ Francisca del Toro (1696–1726)\n            └─ Pedro Ignacio Merlo Toro (1726–1794)\n                └─ María Leonor Merlo Rubio (1758–1835)\n                    └─ Isidoro Ramón Suárez Merlo (1799–1846)\n                        └─ Leonor Suárez Haedo (1837–1918)\n                            └─ Leonor Rita de Acevedo Suárez (1876–1975)\n                                └─ Jorge Francisco Isidoro Luis Borges (1899–1986)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/3o16q/thumb200s.jpg", "relacion": "My 8th cousin four times removed", "cercania": 22, "extra": "Escritor"}, {"nombre": "Raul Montero Bustamante", "detalle": "Miguel RUIZ (1576–1659) ← Antepasado en común\n|\n├─ Sebastián RODRÍGUEZ MOSEGUE (1600–1652)\n|   └─ Jose DE ARMAS (–1740)\n|       └─ Gracia Gabriela GARCÍA (Deceased)\n|           └─ Juana Cabrera (Deceased)\n|               └─ María de las Nieves FALERO (1756–Deceased)\n|                   └─ Felipa CRUZ (1801–1841)\n|                       └─ Fulgencia Gregória González Cruz (1827–Deceased)\n|                           └─ Luis Rodriguez Gonzalez (1855–1912)\n|                               └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                   └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                           └─ cristian16 (1978–Living)\n|\n└─ Juan GUTIÉRREZ NÚÑEZ (1585–Deceased)\n    └─ Catalina de Jesus GUTIÉRREZ (1622–1683)\n        └─ Margarita RUIZ (1649–1730)\n            └─ Lorenzo Calleros De Sosa (1688–1754)\n                └─ Francisco Calleros Cordero (1743–1791)\n                    └─ Maria Narcisa Calleros Conge (1759–Deceased)\n                        └─ Ana Rodríguez Calleros (Deceased)\n                            └─ José Maria Montero Rodriguez (1811–1892)\n                                └─ Juan José Ignacio Montero Wentuises (1844–1905)\n                                    └─ Raúl Montero Bustamante (1881–1958)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/qh9j6/thumb200s.jpg", "relacion": "My 9th cousin twice removed", "cercania": 22, "extra": "Historiador"}, {"nombre": "Carlos Reyles", "detalle": "Juan DE LEÓN CLAVIJO (1634–1726) ← Antepasado en común\n|\n├─ Ana DE CLAVIJO (Deceased)\n|   └─ Antonio Agustín Vicente Clavijo (1720–1801)\n|       └─ Catalina Clavijo Pérez (1765–Deceased)\n|           └─ Narciso de los Reyes Clavijo (1785–Deceased)\n|               └─ Bernabé Reyes Borges (1815–Deceased)\n|                   └─ Gregorio Antonio Reyes Villalba (1836–1917)\n|                       └─ María del Monte Carmelo Reyes (1874–1933)\n|                           └─ Matilde Britos Reyes (1902–1923)\n|                               └─ Juan Pedro Massia Britos (1920–1994)\n|                                   └─ Raquel Beatriz Massia Taro (1956–Living)\n|                                       └─ Silvia Liliana Perez Massia (1982–Living)\n|                                           |  \n|                                          cristian16 (1982–Living)\n|\n└─ Juana DE CLAVIJO (Deceased)\n    └─ Ines Francisca CLAVIJO (–1714)\n        └─ LOPE CLAVIJO (1655–Deceased)\n            └─ Andrés Juan de FRANQUIS (Deceased)\n                └─ Josefa SUAREZ (Deceased)\n                    └─ Tomas RAMON (Deceased)\n                        └─ Ana RAMON CAMEJO (Deceased)\n                            └─ María Santos GUADALUPE CAMEJO (1798–Deceased)\n                                └─ Maria del Carmen Dionisia Gutierrez Guadalupe (1841–1876)\n                                    └─ Carlos Claudio Reyles Gutierrez (1868–1938)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/dft1g/thumb200s.jpg", "relacion": "My wife's 9th cousin once removed", "cercania": 22, "extra": "Escritor"}, {"nombre": "Jose Batlle y Ordonez", "detalle": "Miguel Gerónimo (1590–1634) ← Antepasado en común\n|\n├─ Juana Gómez de Sotomayor (1624–1683)\n|   └─ María Alvarez de Acosta (1639–Deceased)\n|       └─ Juana ÁLVAREZ de ACOSTA de SANTIAGO (1669–Deceased)\n|           └─ Joseph de Cuenca (1694–1748)\n|               └─ Barbara Cuenca Palacios (1715–Deceased)\n|                   └─ Manuel Ramos Cuenca (1767–1812)\n|                       └─ Juana María Ramos Ortega (1792–1856)\n|                           └─ Maria Lorenza del Pilar Amarilla Ramos (1818–Deceased)\n|                               └─ Nicanor María López Amarillo (1837–1923)\n|                                   └─ Santos LÓPEZ CHIRIBAO (1880–1951)\n|                                       └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                               └─ cristian16 (1978–Living)\n|\n└─ Juan Gerónimo de la Cruz (1632–1710)\n    └─ Theodora de la Cruz Cordobés Bermúdez (1662–1748)\n        └─ Ana María Ruíz de Ocaña y de la Cruz Bermúdez (1690–Deceased)\n            └─ Pablo Márquez y Ruíz de Ocaña (1720–1790)\n                └─ María Bartola Márquez de la Torre (1743–1810)\n                    └─ María Plácida Alvarez Marquez (1761–1845)\n                        └─ Maria Dionicia del Rosario Obes Álvarez (1784–1840)\n                            └─ Manuel Serapio Pacheco Obes (1813–1869)\n                                └─ Matilde Irene Pacheco Stewart (1854–1926)\n                                    |  \n                                   José Pablo Torcuato Batlle y Ordóñez (1854–1926)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/bk52n/thumb200s.jpg", "relacion": "The husband of my 8th cousin four times removed", "cercania": 23, "extra": "Presidente del Uruguay"}, {"nombre": "Damaso Antonio Larranaga", "detalle": "Nuno Lourenço Velho Cabral (1515–Deceased) ← Antepasado en común\n|\n├─ Jerônimo Velho Cabral (1564–Deceased)\n|   └─ Branca Velho Leite (1588–1648)\n|       └─ Capitão Henrique Tavares da Silva (1630–1690)\n|           └─ Antônio Tavares de Melo (1657–1736)\n|               └─ Joana da Silva (1693–1761)\n|                   └─ Florência da Silva Bicudo (1719–1768)\n|                       └─ João Monteiro da Silva (1736–1780)\n|                           └─ Rita Maria Angelica dos Santos (1776–1838)\n|                               └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                   └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                       └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                           └─ Petrona Ferraz Fernández (1897–1959)\n|                                               └─ Ena Trías Ferraz (1922–1984)\n|                                                   └─ Jesus Roberto Nuñez Trias (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Matias Nunes Velho Cabral (1549–Deceased)\n    └─ Inês Nunes Cabral de Melo (1575–1621)\n        └─ Juan Cabral de Melo y González (1599–1673)\n            └─ Inés de los Reyes Cabral de Melo (1631–1707)\n                └─ Juana Garcia de Leon (1660–Deceased)\n                    └─ Isabel de Cárdenas García (1682–1757)\n                        └─ Francisca Xaviera Garín Cárdenas (1721–1799)\n                            └─ Bernardina Piris Garín (1748–1813)\n                                └─ Sacerdote Dámaso Antonio Larrañaga Piris (1771–1848)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/5v65k/thumb200s.jpg", "relacion": "My 8th cousin six times removed", "cercania": 24, "extra": "Botanico"}, {"nombre": "Miguel de Cervantes", "detalle": "Juan Arias de Saavedra \"el Famoso\" (1400–1458) ← Antepasado en común\n|\n├─ Hernán Arias de Saavedra y Avellaneda (1450–1496)\n|   └─ Don Sebastián Arias de Saavedra y Ortiz de Guzmán (1460–Deceased)\n|       └─ Don Sebastián Arias de Saavedra-Guzmán y Sanabria (1490–Deceased)\n|           └─ Tomás DE SAAVEDRA (Deceased)\n|               └─ Marcial DE SAAVEDRA FELIPE (1588–1677)\n|                   └─ Lucía DE LUGO (1622–1677)\n|                       └─ Luis de Medina (1638–Deceased)\n|                           └─ María Josepha DE MEDINA (1680–1737)\n|                               └─ Margarita de las Nieves BONILLA MEDINA (1714–Deceased)\n|                                   └─ Barbara Francisca GONZALEZ BONILLA (Deceased)\n|                                       └─ Francisco Xavier PÉREZ (1760–1834)\n|                                           └─ Manuel Pérez (1782–1855)\n|                                               └─ Francisco Pérez Nuñez (1825–1897)\n|                                                   └─ Esteban Pérez García (1865–Deceased)\n|                                                       └─ Martiniano Abel Perez Torterolo (1891–1966)\n|                                                           └─ Julio Federico Pérez Deposito (1919–2003)\n|                                                               └─ Carlos Atilio Perez Basso (1949–Living)\n|                                                                   └─ Silvia Liliana Perez Massia (1982–Living)\n|                                                                       |  \n|                                                                      cristian16 (1982–Living)\n|\n└─ Juana Arias de Saavedra y Avellaneda (1440–1504)\n    └─ Juan de Cervantes Saavedra y Avellaneda (1456–1505)\n        └─ Licenciado Juan de Cervantes Saavedra y Cabrera (1494–1556)\n            └─ Rodrigo de Cervantes Saavedra y Fernández Torreblanca (1509–1585)\n                └─ Don Miguel de Cervantes Saavedra y Cortina (1547–1616)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/f5v4s/thumb200s.jpg", "relacion": "My wife's 4th cousin thirteen times removed", "cercania": 24, "extra": "Escritor Espanol"}, {"nombre": "Alberto Zum Felde", "detalle": "Tomé Gregório Teixeira (1570–1624) ← Antepasado en común\n|\n├─ Catarina Gregorio (1599–Deceased)\n|   └─ Miguel Gonçalves de Lemos (1625–1686)\n|       └─ Antônio Pereira de Lemos (1656–1728)\n|           └─ Lourenço de Sousa Pereira (1700–1770)\n|               └─ João de Souza Pereira (1724–1791)\n|                   └─ Rosa Maria da Assunção de Souza Machado (1752–1834)\n|                       └─ Maria Joaquina da Assumpção de Sousa (1769–Deceased)\n|                           └─ Benvinda Benigna Leivas De Souza (1800–1881)\n|                               └─ Carlos Eusebio Zuasnabar (1843–Deceased)\n|                                   └─ Julio Amalio Zuasnabar Leiva (1887–1969)\n|                                       └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                                           └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                               └─ cristian16 (1978–Living)\n|\n└─ Capitão-Mor Baltazar Gregório Ramalho (1594–Deceased)\n    └─ Maria de Ávila (1663–1733)\n        └─ Luzia de Ávila de Bitancurt (1688–Deceased)\n            └─ Josefa Isabel Bentancourt (1714–1796)\n                └─ Thomas Antonio Perez  Bentancour (1748–1828)\n                    └─ Manuela Isabel Perez Correa (1787–Deceased)\n                        └─ María Carlota del Villar Pérez (1808–1879)\n                            └─ Pedro León Silva del Villar (1837–1914)\n                                └─ Bernabe Gonzalo Silva Medina (1869–Deceased)\n                                    └─ Maria Clara Silva Belizon (1902–1976)\n                                        |  \n                                       Alberto Fernando Zum Felde (1902–1976)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/maigt/thumb200s.jpg", "relacion": "The husband of my 9th cousin three times removed", "cercania": 24, "extra": "Historiador"}, {"nombre": "Liber Seregni", "detalle": "Miguel RUIZ (1576–1659) ← Antepasado en común\n|\n├─ Sebastián RODRÍGUEZ MOSEGUE (1600–1652)\n|   └─ Jose DE ARMAS (–1740)\n|       └─ Gracia Gabriela GARCÍA (Deceased)\n|           └─ Juana Cabrera (Deceased)\n|               └─ María de las Nieves FALERO (1756–Deceased)\n|                   └─ Felipa CRUZ (1801–1841)\n|                       └─ Fulgencia Gregória González Cruz (1827–Deceased)\n|                           └─ Luis Rodriguez Gonzalez (1855–1912)\n|                               └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                   └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                           └─ cristian16 (1978–Living)\n|\n└─ Juan GUTIÉRREZ NÚÑEZ (1585–Deceased)\n    └─ Catalina de Jesus GUTIÉRREZ (1622–1683)\n        └─ Margarita RUIZ (1649–1730)\n            └─ Lorenzo Calleros De Sosa (1688–1754)\n                └─ Jose Calleros Hernandez (1722–1798)\n                    └─ Evarista Antonia Calleros Aldave (1755–1785)\n                        └─ Evarista Francisca López Calleros (1782–1858)\n                            └─ Rafaela Sinforosa Pintos (1810–1876)\n                                └─ Evaristo Cespedes Pintos (1836–1891)\n                                    └─ Brígida Rudecinda CÉSPEDES CABALLERO (1861–1927)\n                                        └─ Mauricio Isidro Lerena Cespedes (1882–Deceased)\n                                            └─ María Lilí Lerena Correa (1915–2012)\n                                                |  \n                                               Liber Seregni Mosquera (1915–2012)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/if4lj/thumb200s.jpg", "relacion": "The husband of my 11th cousin", "cercania": 25, "extra": "Politico"}, {"nombre": "Pele", "detalle": "João do Prado (1540–1597) ← Antepasado en común\n|\n├─ Helena do Prado (1572–1621)\n|   └─ Lucrécia Leme (1598–1672)\n|       └─ Ana Maria da Guerra (1625–1692)\n|           └─ Capitão-Mor Francisco de Brito Peixoto (1650–1735)\n|               └─ Maria de Brito (1698–1773)\n|                   └─ Anna Maria Guterres (1733–Deceased)\n|                       └─ Severa Maria Joaquina Soares Pinto Guterres (1762–1796)\n|                           └─ Domiciana Maria Joaquina Silveira da Rosa (1792–1883)\n|                               └─ Zeferino Henriques da Silva (1825–1903)\n|                                   └─ João José Da Silva (1871–1924)\n|                                       └─ Sandoval Núñez (1916–2002)\n|                                           └─ Jesus Roberto Nuñez Trias (Living)\n|                                               └─ cristian16 (1978–Living)\n|\n└─ Isabel do Prado (1575–1668)\n    └─ Úrsula Pedroso (1595–1675)\n        └─ Maria da Silva Leite (1636–1715)\n            └─ Florência da Silva Naves (1670–1740)\n                └─ João de Almeida Naves Neto (1715–Deceased)\n                    └─ João Naves Damasceno (1760–1831)\n                        └─ Anna Esmeria de Jesus (1814–Deceased)\n                            └─ Rita Esmeria de Jesus (1855–1910)\n                                └─ Jeremias Ferreira Naves (1852–1898)\n                                    └─ Maria Ferreira Naves (1880–1936)\n                                        └─ Celeste Arantes (1922–2024)\n                                            └─ Edson Arantes do Nascimento (1940–2022)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/ks0us/thumb200s.jpg", "relacion": "My 11th cousin once removed", "cercania": 25, "extra": "Futbolista"}, {"nombre": "Alfredo Vasquez", "detalle": "Nuno Lourenço Velho Cabral (1515–Deceased) ← Antepasado en común\n|\n├─ Jerônimo Velho Cabral (1564–Deceased)\n|   └─ Branca Velho Leite (1588–1648)\n|       └─ Capitão Henrique Tavares da Silva (1630–1690)\n|           └─ Antônio Tavares de Melo (1657–1736)\n|               └─ Joana da Silva (1693–1761)\n|                   └─ Florência da Silva Bicudo (1719–1768)\n|                       └─ João Monteiro da Silva (1736–1780)\n|                           └─ Rita Maria Angelica dos Santos (1776–1838)\n|                               └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                   └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                       └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                           └─ Petrona Ferraz Fernández (1897–1959)\n|                                               └─ Ena Trías Ferraz (1922–1984)\n|                                                   └─ Jesus Roberto Nuñez Trias (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Matias Nunes Velho Cabral (1549–Deceased)\n    └─ Inês Nunes Cabral de Melo (1575–1621)\n        └─ Juan Cabral de Melo y González (1599–1673)\n            └─ Inés de los Reyes Cabral de Melo (1631–1707)\n                └─ Juana Garcia de Leon (1660–Deceased)\n                    └─ Isabel de Cárdenas García (1682–1757)\n                        └─ Francisca Xaviera Garín Cárdenas (1721–1799)\n                            └─ Bernardina Piris Garín (1748–1813)\n                                └─ Juana María Larrañaga Piris (1776–1866)\n                                    └─ Benita Gumersinda Berro Larrañaga (1808–1893)\n                                        └─ Juana Luisa Varela Berro (1846–1883)\n                                            |  \n                                           Alfredo Vásquez Acevedo (1846–1883)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/7d5xb/thumb200s.jpg", "relacion": "The husband of my 10th cousin four times removed", "cercania": 27, "extra": "Politico"}, {"nombre": "Peron", "detalle": "Nuno Lourenço Velho Cabral (1515–Deceased) ← Antepasado en común\n|\n├─ Jerônimo Velho Cabral (1564–Deceased)\n|   └─ Branca Velho Leite (1588–1648)\n|       └─ Capitão Henrique Tavares da Silva (1630–1690)\n|           └─ Antônio Tavares de Melo (1657–1736)\n|               └─ Joana da Silva (1693–1761)\n|                   └─ Florência da Silva Bicudo (1719–1768)\n|                       └─ João Monteiro da Silva (1736–1780)\n|                           └─ Rita Maria Angelica dos Santos (1776–1838)\n|                               └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                   └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                       └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                           └─ Petrona Ferraz Fernández (1897–1959)\n|                                               └─ Ena Trías Ferraz (1922–1984)\n|                                                   └─ Jesus Roberto Nuñez Trias (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Matias Nunes Velho Cabral (1549–Deceased)\n    └─ Inês Nunes Cabral de Melo (1575–1621)\n        └─ Maria González Cabral de Melo (1604–Deceased)\n            └─ Bárbara Carlota Machado de Melo (1632–1720)\n                └─ Capitan Juan Thomas de Monsalve Machado (1666–1747)\n                    └─ Margarita de Monsalve Cabrera (1704–Deceased)\n                        └─ José Fausto Sosa Herrera y Monsalve (1741–1808)\n                            └─ Isidoro Sosa Burgos (1775–Deceased)\n                                └─ José Romualdo Sosa Castro (1809–1877)\n                                    └─ Juan Irineo Sosa Martínez (1848–1892)\n                                        └─ Juana Salvadora Sosa Toledo (1874–1953)\n                                            └─ Juan Domingo Perón (1895–1974)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/onfqr/thumb200s.jpg", "relacion": "My 11th cousin three times removed", "cercania": 27, "extra": "Presidente Argentino"}, {"nombre": "Joao Pessoa", "detalle": "Águeda Alvernaz (1600–1655) ← Antepasado en común\n|\n├─ Águeda Alvernaz (–1664)\n|   └─ Isabel Alvernas (–1655)\n|       └─ Isabel Alvernas Ribeiro (1612–1697)\n|           └─ Francisco Alvernaz da Rosa (1647–1705)\n|               └─ Manoel de Medeiros Alvernaz (1681–1754)\n|                   └─ Antonia do Carmo de Souto Duarte (1721–1784)\n|                       └─ María Antônia Quitéria da Rocha de Souto (1754–1797)\n|                           └─ Maria Antônia Muniz Rocha (1763–1870)\n|                               └─ Jerônimo Amaro da Silveira (1790–1836)\n|                                   └─ Israel Amaro Silveira (1815–1893)\n|                                       └─ Horácio Amaro da Silveira (1851–1914)\n|                                           └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                                               └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                                                   └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Francisco Alvernaz (–1689)\n    └─ Antonio Furtado Alvernáz (1637–1672)\n        └─ Valeria Ferreira (1650–1720)\n            └─ Sgt.-Mor João de Sousa Pereira (1675–1737)\n                └─ Teresa Maria de Jesus (1709–1757)\n                    └─ João de Souza Saraiva (1731–1828)\n                        └─ Teresa Maria Saraiva (1771–1810)\n                            └─ Raimunda Bezerra Cavalcante (1810–Deceased)\n                                └─ Francisco Xavier Cavalcanti de Albuquerque (1790–Deceased)\n                                    └─ Romualdo Primo Cavalcanti de Albuquerque (1817–1880)\n                                        └─ Candido Clementino Cavalcanti de Albuquerque (1853–1924)\n                                            └─ João Pessoa Cavalcanti de Albuquerque (1878–1930)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/9wg3q/thumb200s.jpg", "relacion": "My 11th cousin three times removed", "cercania": 27, "extra": "Politico Brasilero"}, {"nombre": "Francisco Bauza", "detalle": "Capitão-Mor Martim Afonso de Sousa (1500–1564) ← Antepasado en común\n|\n├─ Isabel Lopes de Sousa (1517–1545)\n|   └─ Filipa Gomes da Costa (1533–1565)\n|       └─ Filipa Pires da Mota (1549–1608)\n|           └─ Antônio de Oliveira Gago (1570–Deceased)\n|               └─ João Gago Aires de Oliveira (1620–Deceased)\n|                   └─ Capitão Antônio Gago de Oliveira (1656–Deceased)\n|                       └─ Magdalena Pimenta de Oliveira (1680–Deceased)\n|                           └─ Ana Gomes de Sousa (1712–1795)\n|                               └─ João Monteiro Ferraz (1740–1812)\n|                                   └─ Alferes Antonio Ferraz de Oliveira (1770–1863)\n|                                       └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                           └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                               └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                                   └─ Petrona Ferraz Fernández (1897–1959)\n|                                                       └─ Ena Trías Ferraz (1922–1984)\n|                                                           └─ Jesus Roberto Nuñez Trias (Living)\n|                                                               └─ cristian16 (1978–Living)\n|\n└─ Maria De Sousa (1530–Deceased)\n    └─ Francisco Antonio \"o montanhão\" (1580–1614)\n        └─ Antonio Francisco , \"Almocreve\" (1601–1660)\n            └─ Margarida Antonio (1630–1704)\n                └─ Nicolau de Sousa Fernando (1667–1741)\n                    └─ Ana Marques de Sousa (1693–1741)\n                        └─ Teresa Marques de Sousa (1717–1809)\n                            └─ Ana Álvarez Márquez (1758–Deceased)\n                                └─ Rufino José Bauzá Álvarez (1791–1854)\n                                    └─ Francisco Bauzá Argerich (1849–1899)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/v50xg/thumb200s.jpg", "relacion": "My 9th cousin seven times removed", "cercania": 27, "extra": "Politico"}, {"nombre": "Luis Alberto de Herrera", "detalle": "Catalina de Herrera Ocampo (1495–Deceased) ← Antepasado en común\n|\n├─ Tomás DE SAAVEDRA (Deceased)\n|   └─ Marcial DE SAAVEDRA FELIPE (1588–1677)\n|       └─ Lucía DE LUGO (1622–1677)\n|           └─ Luis de Medina (1638–Deceased)\n|               └─ María Josepha DE MEDINA (1680–1737)\n|                   └─ Margarita de las Nieves BONILLA MEDINA (1714–Deceased)\n|                       └─ Barbara Francisca GONZALEZ BONILLA (Deceased)\n|                           └─ Francisco Xavier PÉREZ (1760–1834)\n|                               └─ Manuel Pérez (1782–1855)\n|                                   └─ Francisco Pérez Nuñez (1825–1897)\n|                                       └─ Esteban Pérez García (1865–Deceased)\n|                                           └─ Martiniano Abel Perez Torterolo (1891–1966)\n|                                               └─ Julio Federico Pérez Deposito (1919–2003)\n|                                                   └─ Carlos Atilio Perez Basso (1949–Living)\n|                                                       └─ Silvia Liliana Perez Massia (1982–Living)\n|                                                           |  \n|                                                          cristian16 (1982–Living)\n|\n└─ Diego de Ocampo y Saavedra (Deceased)\n    └─ Nicolás de Ocampo Saavedra (Deceased)\n        └─ Juan Arias de Saavedra (1608–Deceased)\n            └─ Geronimo de Ocampo y Saavedra (1638–Deceased)\n                └─ Maria Dionisia de Saavedra (1671–Deceased)\n                    └─ Ignacio Justo de Gibaja Saavedra (1685–Deceased)\n                        └─ María Josepha Gibaja Cabrera (1713–Deceased)\n                            └─ María Isabel Izaquirre Gibaja Cabrera (1738–Deceased)\n                                └─ Luis Fabián Rufino José De Herrera Izaguirre (1763–1813)\n                                    └─ Luis  Rufino José Maria De Herrera Basavilbaso (1806–1869)\n                                        └─ Juan José Julio de Herrera Pérez (1832–1898)\n                                            └─ Luis Alberto De Herrera Quevedo (1873–1959)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/1976p/thumb200s.jpg", "relacion": "My wife's 11th cousin three times removed", "cercania": 28, "extra": "Politico"}, {"nombre": "Santos Dumont", "detalle": "Isabel Vaz Teixeira (1420–Deceased) ← Antepasado en común\n|\n├─ Maria de Lordelo (1473–Deceased)\n|   └─ Gines Curbelo (1526–Deceased)\n|       └─ Simão Curvelo (1548–Deceased)\n|           └─ Pedro Curbelo (1571–1659)\n|               └─ Pedro Curbelo Perdomo (1618–1690)\n|                   └─ Pedro CURBELO (1654–1733)\n|                       └─ Ana CURBELO CABRERA RODRIGUEZ (1698–Deceased)\n|                           └─ Jose FALERO (Deceased)\n|                               └─ María de las Nieves FALERO (1756–Deceased)\n|                                   └─ Felipa CRUZ (1801–1841)\n|                                       └─ Fulgencia Gregória González Cruz (1827–Deceased)\n|                                           └─ Luis Rodriguez Gonzalez (1855–1912)\n|                                               └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                                   └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                           └─ cristian16 (1978–Living)\n|\n└─ João Fernandes Vaz Lordelo (1471–1541)\n    └─ Pedro Anes Lordello (1550–Deceased)\n        └─ Teresa Vieira (Deceased)\n            └─ Antónia Soares da Mota (–1597)\n                └─ Maria Soares da Mota (–1603)\n                    └─ Tomé Bravo Pereira Osório (–1690)\n                        └─ Clara Soares (Deceased)\n                            └─ Gonçalo Jacinto Dias Braga (1684–1769)\n                                └─ Joaquim José dos Santos (1754–1830)\n                                    └─ Francisco de Paula Santos (1805–1881)\n                                        └─ Francisca de Paula Santos (1835–1902)\n                                            └─ Alberto Santos Dumont (1873–1932)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/06s9t/thumb200s.jpg", "relacion": "My 11th cousin four times removed", "cercania": 28, "extra": "Inventor Brasilero"}, {"nombre": "Carlos Alberto Fein Perez", "detalle": "Nuno Lourenço Velho Cabral (1515–Deceased) ← Antepasado en común\n|\n├─ Jerônimo Velho Cabral (1564–Deceased)\n|   └─ Branca Velho Leite (1588–1648)\n|       └─ Capitão Henrique Tavares da Silva (1630–1690)\n|           └─ Antônio Tavares de Melo (1657–1736)\n|               └─ Joana da Silva (1693–1761)\n|                   └─ Florência da Silva Bicudo (1719–1768)\n|                       └─ João Monteiro da Silva (1736–1780)\n|                           └─ Rita Maria Angelica dos Santos (1776–1838)\n|                               └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                   └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                       └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                           └─ Petrona Ferraz Fernández (1897–1959)\n|                                               └─ Ena Trías Ferraz (1922–1984)\n|                                                   └─ Jesus Roberto Nuñez Trias (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Matias Nunes Velho Cabral (1549–Deceased)\n    └─ Inês Nunes Cabral de Melo (1575–1621)\n        └─ Juan Cabral de Melo y González (1599–1673)\n            └─ Pedro de Melo Cabral (1626–Deceased)\n                └─ María Cabral De Melo (1641–Deceased)\n                    └─ María de los Santos (1660–Deceased)\n                        └─ Margarita Hernández de los Santos (1681–Deceased)\n                            └─ María López de Viveros (1696–Deceased)\n                                └─ Catalina Bustamante López (1712–1819)\n                                    └─ Cecilia Antonia Rada Bustamante (1750–Deceased)\n                                        └─ Maria Luisa Martinez y Rada (1764–1830)\n                                            └─ María Nicolasa Teresa Conde Martínez (1800–Deceased)\n                                                └─ Micaela Leoncia de la Concepción Pérez Gomar, Conde (1834–Deceased)\n                                                    └─ Carlos Alberto Fein Pérez (1854–1919)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/82kxs/thumb200s.jpg", "relacion": "My 13th cousin once removed", "cercania": 29, "extra": "Dueno de la casa presidencial"}, {"nombre": "Pedro II de Brasil", "detalle": "Infante Fernando de Portugal (1433–1470) ← Antepasado en común\n|\n├─ Salvador Fernandes Zarco (1451–1506)\n|   └─ Isabel Fernandes Enriquez (1490–1550)\n|       └─ Margarida Affonso (1510–1560)\n|           └─ Manuel Fernandes Faleiro (1540–1610)\n|               └─ Belchior Fernandes Velho (1577–Deceased)\n|                   └─ Isabel Tomé (1617–Deceased)\n|                       └─ Capitão Manoel de Moura (1648–Deceased)\n|                           └─ Sebastião de Moura Minhoto (1676–1722)\n|                               └─ Manuel de Souza Menezes de Moura (1702–Deceased)\n|                                   └─ Joaquim Antônio de Menezes e Souza (1741–1835)\n|                                       └─ Eugenia Maria de Meneses (1765–1845)\n|                                           └─ Maria Altina da Costa Pereira (1798–1850)\n|                                               └─ Belarmina Joaquina Da Cruz Piegas (1821–1879)\n|                                                   └─ Horácio Amaro da Silveira (1851–1914)\n|                                                       └─ Lujan Aida Amaro Da Silveira Piegas (1899–1993)\n|                                                           └─ Aida Zuasnábar Amaro da Silveira (1920–2015)\n|                                                               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                                   └─ cristian16 (1978–Living)\n|\n└─ Rei Manuel I de Portugal (1469–1521)\n    └─ Duque Eduardo Duarte I (1515–1540)\n        └─ Catharina de Avis (1540–1614)\n            └─ Teodósio II Duque de Bragança (1568–1630)\n                └─ Rey D. João Bragança IV, \"O Restaurador\", de Portugal (1604–1656)\n                    └─ Rey D. Pedro II de Portugal \"O Pacífico\" (1648–1706)\n                        └─ Rei João V de Portugal (1689–1750)\n                            └─ Pedro III de Bragança \" O Edificador\" (1717–1786)\n                                └─ Dom João Maria José Francisco Xavier de Paula Luiz Antonio Domingos Raphael de Portugal \"O Clemente\" (1767–1826)\n                                    └─ Imperador Dom Pedro I do Brasil (1798–1834)\n                                        └─ Imperador Pedro II do Brasil (1825–1891)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/p15gt/thumb200s.jpg", "relacion": "My 10th cousin seven times removed", "cercania": 29, "extra": "Rey Brasilero"}, {"nombre": "Acevedo Diaz", "detalle": "Nuno Lourenço Velho Cabral (1515–Deceased) ← Antepasado en común\n|\n├─ Jerônimo Velho Cabral (1564–Deceased)\n|   └─ Branca Velho Leite (1588–1648)\n|       └─ Capitão Henrique Tavares da Silva (1630–1690)\n|           └─ Antônio Tavares de Melo (1657–1736)\n|               └─ Joana da Silva (1693–1761)\n|                   └─ Florência da Silva Bicudo (1719–1768)\n|                       └─ João Monteiro da Silva (1736–1780)\n|                           └─ Rita Maria Angelica dos Santos (1776–1838)\n|                               └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                   └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                       └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                           └─ Petrona Ferraz Fernández (1897–1959)\n|                                               └─ Ena Trías Ferraz (1922–1984)\n|                                                   └─ Jesus Roberto Nuñez Trias (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Matias Nunes Velho Cabral (1549–Deceased)\n    └─ Inês Nunes Cabral de Melo (1575–1621)\n        └─ Juan Cabral de Melo y González (1599–1673)\n            └─ Pedro de Melo Cabral (1626–Deceased)\n                └─ María Cabral De Melo (1641–Deceased)\n                    └─ María de los Santos (1660–Deceased)\n                        └─ Margarita Hernández de los Santos (1681–Deceased)\n                            └─ María López de Viveros (1696–Deceased)\n                                └─ Maria Dominga Bustamante López (1723–1797)\n                                    └─ María Manuela de los Remedios Mascarenhas Bustamante (1752–1846)\n                                        └─ Cayetana Tadea Torres Mascarenhas (1771–1836)\n                                            └─ María Dionisia Gómez Soriano y Torres (1799–Deceased)\n                                                └─ Fátima Díaz, Gómez Soriano (1821–1880)\n                                                    └─ Eduardo Inés Acevedo Díaz (1851–1921)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/dgp5s/thumb200s.jpg", "relacion": "My 13th cousin once removed", "cercania": 29, "extra": "Escritor"}, {"nombre": "Juana de Ibarbourou", "detalle": "Diego de Cabrera Solier y Dumpiérrez III (1458–1530) ← Antepasado en común\n|\n├─ Maria Francisca De Cabrera Solier y Luzardo de Franchi (1510–1591)\n|   └─ Leonor Leme de Barros y Cabrera Luzardo (1540–Deceased)\n|       └─ Juana Perdomo Leme Cabrera Luzardo (1579–1629)\n|           └─ Pedro Curbelo Perdomo (1618–1690)\n|               └─ Pedro CURBELO (1654–1733)\n|                   └─ Ana CURBELO CABRERA RODRIGUEZ (1698–Deceased)\n|                       └─ Jose FALERO (Deceased)\n|                           └─ María de las Nieves FALERO (1756–Deceased)\n|                               └─ Felipa CRUZ (1801–1841)\n|                                   └─ Fulgencia Gregória González Cruz (1827–Deceased)\n|                                       └─ Luis Rodriguez Gonzalez (1855–1912)\n|                                           └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                               └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                                   └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Ginés de CABRERA SOLIER DE TAPIA (1505–Deceased)\n    └─ Gaspar Béthencourt Cabrera Soler (1475–Deceased)\n        └─ Mencía Cabrera Soler Tapia Béthencourt (1505–1600)\n            └─ Catalina Cabrera Martín Zurita Soler Tapia (1522–1612)\n                └─ Inés de Quintana Cabrera (1556–Deceased)\n                    └─ María ROJAS Y QUINTANA (1652–Deceased)\n                        └─ Clara Rojas (1673–Deceased)\n                            └─ Isidro Pérez de Rojas (1691–1773)\n                                └─ Maria Felipa Pérez de Roxas (1723–1777)\n                                    └─ Joaquín Benito Ortuño Pérez (1741–Deceased)\n                                        └─ Bernardino Ortuño Benitez (1787–1894)\n                                            └─ Modesta del Pilar Ortuño Pérez (1810–1851)\n                                                └─ Modesto Morales Ortuño (1832–1911)\n                                                    └─ Valentina del Pilar Morales Sánchez (1858–1949)\n                                                        └─ Juana Fernández Morales (1892–1979)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/du65k/thumb200s.jpg", "relacion": "My 14th cousin", "cercania": 30, "extra": "Escritora"}, {"nombre": "Joaquin Requena", "detalle": "Pedro Gonçalves da Clara (1458–1508) ← Antepasado en común\n|\n├─ Catharina de Barros (1470–1526)\n|   └─ Rui Leme de Barros (1503–1566)\n|       └─ Leonor Leme de Barros y Cabrera Luzardo (1540–Deceased)\n|           └─ Juana Perdomo Leme Cabrera Luzardo (1579–1629)\n|               └─ Pedro Curbelo Perdomo (1618–1690)\n|                   └─ Pedro CURBELO (1654–1733)\n|                       └─ Ana CURBELO CABRERA RODRIGUEZ (1698–Deceased)\n|                           └─ Jose FALERO (Deceased)\n|                               └─ María de las Nieves FALERO (1756–Deceased)\n|                                   └─ Felipa CRUZ (1801–1841)\n|                                       └─ Fulgencia Gregória González Cruz (1827–Deceased)\n|                                           └─ Luis Rodriguez Gonzalez (1855–1912)\n|                                               └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                                   └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                                       └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                           └─ cristian16 (1978–Living)\n|\n└─ Rodrigo Gonzalvez Barros (1470–Deceased)\n    └─ Juan Rodriguez de Barrios Goncalves de Llera (1506–1564)\n        └─ Francisco Rodriguez de Barrios Goncalves de Llera (1530–Deceased)\n            └─ Catalina RODRÍGUEZ DE BARRIOS (1550–1600)\n                └─ María RODRÍGUEZ (1574–Deceased)\n                    └─ Francisca González (1605–Deceased)\n                        └─ Antonia Suárez de León (1643–1736)\n                            └─ María Antonia Suárez de León (1689–1774)\n                                └─ Agustina Antonia de Saa y Suárez de León (1710–1774)\n                                    └─ Sebastiana Antonia Delgado Melilla y Saa (1732–1777)\n                                        └─ Juana María Bordón y Delgado Melilla (1747–1833)\n                                            └─ Mónica Benita Mentasti Bordón (1768–1806)\n                                                └─ Francisca Xaviera Costa Mentasti (1788–1877)\n                                                    └─ Joaquín Jose Anastasio Requena Costa (1808–1901)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/jjn0g/thumb200s.jpg", "relacion": "My 13th cousin twice removed", "cercania": 30, "extra": "Abogado"}, {"nombre": "Jose Rondeau", "detalle": "Inés de Casañas (1440–Deceased) ← Antepasado en común\n|\n├─ Rufina Martel de Tapia (1460–1520)\n|   └─ Ginés de CABRERA SOLIER DE TAPIA (1505–Deceased)\n|       └─ Marta Perdomo (1450–Deceased)\n|           └─ Lucas GUTIERREZ PERDOMO (1484–Deceased)\n|               └─ Ines Grimanesa MELIAN (1535–Deceased)\n|                   └─ Lucas GUTIÉRREZ CABRERA (1558–1673)\n|                       └─ Francisco DE MORALES UMPIÉRREZ (1598–1675)\n|                           └─ Bartolomé de UMPIÉRREZ de la CRUZ (1620–1722)\n|                               └─ Jose UMPIERREZ GUTIERREZ (1680–1752)\n|                                   └─ Miguel DE UMPIÉRREZ BARRETO (1718–Deceased)\n|                                       └─ Margarita UMPIÉRREZ (Deceased)\n|                                           └─ Antonio Rodríguez Umpiérrez (1796–Deceased)\n|                                               └─ Juan de la Cruz Antonio RODRÍGUEZ BENTANCOURT (1824–Deceased)\n|                                                   └─ Luis Rodriguez Gonzalez (1855–1912)\n|                                                       └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                                           └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                                               └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                                   └─ cristian16 (1978–Living)\n|\n└─ Juan Perdigón (1470–Deceased)\n    └─ Luis González  Martel (1505–1577)\n        └─ Ana De León (1548–Deceased)\n            └─ María Arbaniés (1585–Deceased)\n                └─ María Casañas (1600–Deceased)\n                    └─ Lucía DE LEÓN (1638–Deceased)\n                        └─ María DE MORALES ARTEAGA (1662–1735)\n                            └─ Nicolasa Padrón y Quinteros (1695–Deceased)\n                                └─ Antonia Josefa de Vera Suárez y Quinteros (1728–1768)\n                                    └─ Juan Miguel Laguna y de Vera (1743–1788)\n                                        └─ Rufina Isabel Laguna Lugo (1774–Deceased)\n                                            |  \n                                           José Casimiro Rondeau (1774–Deceased)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/gaoes/thumb200s.jpg", "relacion": "The husband of my 10th cousin seven times removed", "cercania": 30, "extra": "Militar"}, {"nombre": "Jorge Luis Batlle Ibanez", "detalle": "Capitão-Mor Martim Afonso de Sousa (1500–1564) ← Antepasado en común\n|\n├─ Isabel Lopes de Sousa (1517–1545)\n|   └─ Filipa Gomes da Costa (1533–1565)\n|       └─ Filipa Pires da Mota (1549–1608)\n|           └─ Antônio de Oliveira Gago (1570–Deceased)\n|               └─ João Gago Aires de Oliveira (1620–Deceased)\n|                   └─ Capitão Antônio Gago de Oliveira (1656–Deceased)\n|                       └─ Magdalena Pimenta de Oliveira (1680–Deceased)\n|                           └─ Ana Gomes de Sousa (1712–1795)\n|                               └─ João Monteiro Ferraz (1740–1812)\n|                                   └─ Alferes Antonio Ferraz de Oliveira (1770–1863)\n|                                       └─ Antônio José Ferraz de Oliveira (1794–Deceased)\n|                                           └─ José Antonio Ferraz de Oliveira (1828–Deceased)\n|                                               └─ Basilio Ferraz Méndez (1871–Deceased)\n|                                                   └─ Petrona Ferraz Fernández (1897–1959)\n|                                                       └─ Ena Trías Ferraz (1922–1984)\n|                                                           └─ Jesus Roberto Nuñez Trias (Living)\n|                                                               └─ cristian16 (1978–Living)\n|\n└─ Maria De Sousa (1530–Deceased)\n    └─ Francisco Antonio \"o montanhão\" (1580–1614)\n        └─ Antonio Francisco , \"Almocreve\" (1601–1660)\n            └─ Margarida Antonio (1630–1704)\n                └─ Nicolau de Sousa Fernando (1667–1741)\n                    └─ Ana Marques de Sousa (1693–1741)\n                        └─ Teresa Marques de Sousa (1717–1809)\n                            └─ Ana Álvarez Márquez (1758–Deceased)\n                                └─ Simona Tadea Bauzá Álvarez (1782–Deceased)\n                                    └─ María Tadea Duval  Bauzá (1803–1871)\n                                        └─ Amalia Ordoñez Duval (1829–1887)\n                                            └─ Luis Geremías Batlle y Ordóñez (1861–1908)\n                                                └─ Luis Conrado Batlle Berres (1896–1964)\n                                                    └─ Jorge Luis Batlle Ibáñez (1927–2016)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/pcjrc/thumb200s.jpg", "relacion": "My 13th cousin three times removed", "cercania": 31, "extra": "Presidente del Uruguay"}, {"nombre": "Juan Antonio Lavalleja", "detalle": "Isabel Sánchez Morales (1435–1552) ← Antepasado en común\n|\n├─ Francisco Morales de Umpiérrez (1530–1629)\n|   └─ Melchor Morales De Umpiérrez Chaqueda (1550–1644)\n|       └─ María DE UMPIÉRREZ (1575–Deceased)\n|           └─ Francisco DE MORALES UMPIÉRREZ (1598–1675)\n|               └─ Bartolomé de UMPIÉRREZ de la CRUZ (1620–1722)\n|                   └─ Jose UMPIERREZ GUTIERREZ (1680–1752)\n|                       └─ Miguel DE UMPIÉRREZ BARRETO (1718–Deceased)\n|                           └─ Margarita UMPIÉRREZ (Deceased)\n|                               └─ Antonio Rodríguez Umpiérrez (1796–Deceased)\n|                                   └─ Juan de la Cruz Antonio RODRÍGUEZ BENTANCOURT (1824–Deceased)\n|                                       └─ Luis Rodriguez Gonzalez (1855–1912)\n|                                           └─ Anselma Elvira Rodriguez Areosa (1889–1923)\n|                                               └─ Carlos Ovidio Lopez Rodriguez (1913–1987)\n|                                                   └─ Jenier Kyra Lopez Zuasnabar (Living)\n|                                                       └─ cristian16 (1978–Living)\n|\n└─ Catalina D’UMPIERREZ (1450–Deceased)\n    └─ Catalina de CABRERA SOLIER i D' UMPIERREZ (1480–1549)\n        └─ Ana Perdomo Cabrera (1470–Deceased)\n            └─ María Perdomo (1489–Deceased)\n                └─ Juan Mexía Mirabal (1511–1595)\n                    └─ Hernán Mexía Mirabal y Méndez de Sosa (1531–1596)\n                        └─ Clara Leonor Mexia Mirabal (1550–1612)\n                            └─ María de Tejeda Mexía Mirabal (1576–Deceased)\n                                └─ Lazaro Del Peso de Tejeda (1615–Deceased)\n                                    └─ Juana del Peso de Tejeda Fernandez Montiel (1647–Deceased)\n                                        └─ María Magdalena de Albertayn de Tejeda del Peso (1667–1737)\n                                            └─ Santiago de Hereñú y Albertayn (1690–Deceased)\n                                                └─ Valeriana Elena Hereñú y Osorio (1719–1770)\n                                                    └─ Maria Josefa Abalos y Hereñú (1742–Deceased)\n                                                        └─ Ramona Justina de la Torre Abalos (1764–1849)\n                                                            └─ Juan Antonio Lavalleja De La Torre (1784–1853)", "foto": "https://tree-portraits-pgp.familysearchcdn.org/rn1jk/thumb200s.jpg", "relacion": "My 14th cousin once removed", "cercania": 31, "extra": "Presidente del Uruguay"}];
+
+let currentIndex = 0;
+
+function openPopup(i) {
+    currentIndex = i;
+    showPopup();
+    document.getElementById('popup').style.display = 'flex';
+}
+
+function closePopup(e) {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function showPopup() {
+    const a = arboles[currentIndex];
+    document.getElementById('popup-body').innerHTML = `
+        <h3>${a.nombre}</h3>
+        <img src="${a.foto}" width="200">
+        <p><i>${a.relacion}</i></p>
+        <p><b>Cercanía:</b> ${a.cercania}</p>
+        <p>${a.extra}</p>
+        <pre>${a.detalle}</pre>`;
+}
+
+function nextPopup() {
+    currentIndex = (currentIndex + 1) % arboles.length;
+    showPopup();
+}
+
+function prevPopup() {
+    currentIndex = (currentIndex - 1 + arboles.length) % arboles.length;
+    showPopup();
+}
+
+// Toggle coParentIsPathPerson
+document.addEventListener("DOMContentLoaded", function() {
+    const toggleBtn = document.getElementById("toggleCoParents");
+    let hidden = false;
+    toggleBtn.addEventListener("click", function() {
+        document.querySelectorAll(".card").forEach(c => {
+            if(c.dataset.coParent === "true") c.style.display = hidden ? "block" : "none";
+        });
+        hidden = !hidden;
+        toggleBtn.textContent = hidden
+            ? "+ Mostrar parentescos de mi cónyuge"
+            : "- Ocultar parentescos de mi cónyuge";
+    });
+});
+</script>
+</body>
+</html>
+
+
+</body>
+</html>
