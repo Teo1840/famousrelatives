@@ -3,21 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <title>Famous Relatives</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Open+Sans&display=swap" rel="stylesheet">
 <style>
-.grid-container { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; justify-items:center; margin:20px auto; max-width:1000px;}
+body {
+  font-family: "Open Sans", sans-serif;
+  background-color: #f8f9fa;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+/* Títulos principales */
+h1, h2 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  text-align: center;
+  color: #111;
+  margin-top: 20px;
+}
+
+/* Tarjetas */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  justify-items: center;
+  margin: 20px auto;
+  max-width: 1000px;
+}
 @media (max-width:900px){.grid-container{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:600px){.grid-container{grid-template-columns:1fr;}}
-.card { cursor:pointer; border-radius:10px; padding:10px; width:90%; max-width:280px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.15); transition:0.2s; background:white; }
-.card:hover { transform:translateY(-4px); box-shadow:0 4px 10px rgba(0,0,0,0.25); }
-.popup-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
-.popup-content { background:white; border-radius:12px; padding:20px; width:85%; max-width:900px; max-height:80%; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.3); position:relative; }
-.popup-content img { border-radius:10px; margin-bottom:10px; }
-.popup-content pre { background:#f8f8f8; padding:10px; border-radius:8px; white-space:pre-wrap; }
-.popup-close { position:absolute; top:8px; right:12px; cursor:pointer; font-weight:bold; font-size:20px; color:#333; }
-.nav-buttons { display:flex; justify-content:space-between; margin-top:10px; }
-.nav-buttons button { background:#007bff; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; }
-.nav-buttons button:hover { background:#0056b3; }
-button#toggleCoParents { margin:10px; padding:5px 10px; }
+
+.card {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 12px;
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: 0.2s;
+  font-family: "Open Sans", sans-serif;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+.card h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Popup */
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.popup-content {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  width: 85%;
+  max-width: 900px;
+  max-height: 80%;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  position: relative;
+  font-family: "Open Sans", sans-serif;
+}
+.popup-content h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 1.6em;
+  color: #222;
+  margin-bottom: 10px;
+}
+.popup-content pre {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+}
+
+/* Botones */
+.nav-buttons button, #toggleCoParents {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+}
+.nav-buttons button:hover, #toggleCoParents:hover {
+  background: #0056b3;
+}
+.popup-close {
+  position: absolute;
+  top: 8px; right: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+  color: #333;
+}
+.popup-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,123,255,0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1010;
+}
+
+.popup-nav:hover {
+  background: #0056b3;
+}
+
+.popup-nav.left {
+  left: -20px; /* ajusta según quieras que sobresalga */
+}
+
+.popup-nav.right {
+  right: -20px;
+}
 </style>
 </head>
 <body>
@@ -33,11 +155,12 @@ button#toggleCoParents { margin:10px; padding:5px 10px; }
 <div id="popup" class="popup-overlay" onclick="closePopup(event)">
   <div class="popup-content" onclick="event.stopPropagation()">
     <span class="popup-close" onclick="closePopup(event)">&times;</span>
+    
+    <!-- Botones a los lados -->
+    <button class="popup-nav left" onclick="prevPopup()">&#8592;</button>
+    <button class="popup-nav right" onclick="nextPopup()">&#8594;</button>
+
     <div id="popup-body"></div>
-    <div class="nav-buttons">
-      <button onclick="prevPopup()">← Anterior</button>
-      <button onclick="nextPopup()">Siguiente →</button>
-    </div>
   </div>
 </div>
 
