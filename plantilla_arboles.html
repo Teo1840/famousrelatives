@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Famous Relatives</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Open+Sans&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <style>
 body {
   font-family: "Open Sans", sans-serif;
@@ -13,7 +14,7 @@ body {
   padding: 0;
 }
 
-/* Títulos principales */
+/* Títulos */
 h1, h2 {
   font-family: "Poppins", sans-serif;
   font-weight: 600;
@@ -31,7 +32,7 @@ h1, h2 {
   margin: 20px auto;
   max-width: 1000px;
 }
-@media (max-width:900px){.grid-container{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:900px){.grid-container{grid-template-columns:repeat(2,1fr);} }
 @media (max-width:600px){.grid-container{grid-template-columns:1fr;}}
 
 .card {
@@ -44,7 +45,6 @@ h1, h2 {
   background: white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   transition: 0.2s;
-  font-family: "Open Sans", sans-serif;
 }
 .card:hover {
   transform: translateY(-4px);
@@ -67,18 +67,20 @@ h1, h2 {
   align-items: center;
   z-index: 1000;
 }
+
 .popup-content {
   background: white;
   border-radius: 12px;
   padding: 20px;
   width: 85%;
-  max-width: 900px;
-  max-height: 80%;
+  max-width: 1000px;
+  max-height: 85%;
   overflow-y: auto;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   position: relative;
   font-family: "Open Sans", sans-serif;
 }
+
 .popup-content h3 {
   font-family: "Poppins", sans-serif;
   font-weight: 600;
@@ -86,6 +88,7 @@ h1, h2 {
   color: #222;
   margin-bottom: 10px;
 }
+
 .popup-content pre {
   background: #f8f8f8;
   padding: 10px;
@@ -93,8 +96,17 @@ h1, h2 {
   white-space: pre-wrap;
 }
 
+/* Contenedor del grafo */
+#mynetwork {
+  width: 100%;
+  height: 500px;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
 /* Botones */
-.nav-buttons button, #toggleCoParents {
+#toggleCoParents {
   background: #007bff;
   color: white;
   border: none;
@@ -103,7 +115,7 @@ h1, h2 {
   cursor: pointer;
   font-family: "Poppins", sans-serif;
 }
-.nav-buttons button:hover, #toggleCoParents:hover {
+#toggleCoParents:hover {
   background: #0056b3;
 }
 .popup-close {
@@ -114,19 +126,21 @@ h1, h2 {
   font-size: 20px;
   color: #333;
 }
+
+/* Botones de navegación externos */
 .popup-nav {
-  position: absolute;
+  position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0,123,255,0.8);
+  background: rgba(0,123,255,0.85);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
+  width: 50px;
+  height: 50px;
+  font-size: 22px;
   cursor: pointer;
-  z-index: 1010;
+  z-index: 1100;
 }
 
 .popup-nav:hover {
@@ -134,11 +148,11 @@ h1, h2 {
 }
 
 .popup-nav.left {
-  left: -20px; /* ajusta según quieras que sobresalga */
+  left: 40px;
 }
 
 .popup-nav.right {
-  right: -20px;
+  right: 40px;
 }
 </style>
 </head>
@@ -149,71 +163,147 @@ h1, h2 {
 <button id="toggleCoParents">- Ocultar parentescos de mi cónyuge</button>
 
 <div class="grid-container">
-{{TARJETAS}}
+  {{TARJETAS}}
 </div>
 
 <div id="popup" class="popup-overlay" onclick="closePopup(event)">
+  <button class="popup-nav left" onclick="prevPopup(event)">&#8592;</button>
+  <button class="popup-nav right" onclick="nextPopup(event)">&#8594;</button>
+
   <div class="popup-content" onclick="event.stopPropagation()">
     <span class="popup-close" onclick="closePopup(event)">&times;</span>
-    
-    <!-- Botones a los lados -->
-    <button class="popup-nav left" onclick="prevPopup()">&#8592;</button>
-    <button class="popup-nav right" onclick="nextPopup()">&#8594;</button>
-
     <div id="popup-body"></div>
+    <div id="mynetwork"></div>
   </div>
 </div>
 
 <script>
-// Reemplazado por Python
-const arboles = [];
-
+// ====================
+// Variables globales
+// ====================
 let currentIndex = 0;
 
+// ====================
+// Array de arboles reemplazado por Python
+// ====================
+// const arboles = {{ARBOL_JS}}; // <-- Python debe reemplazar este marcador con JSON válido
+
+// ====================
+// Funciones Popup
+// ====================
 function openPopup(i) {
-    currentIndex = i;
-    showPopup();
-    document.getElementById('popup').style.display = 'flex';
+  if(!arboles || arboles.length === 0) return;
+  currentIndex = i;
+  showPopup();
+  document.getElementById('popup').style.display = 'flex';
 }
 
 function closePopup(e) {
-    document.getElementById('popup').style.display = 'none';
+  document.getElementById('popup').style.display = 'none';
 }
 
+function nextPopup(e) {
+  e.stopPropagation();
+  if(!arboles || arboles.length === 0) return;
+  currentIndex = (currentIndex + 1) % arboles.length;
+  showPopup();
+}
+
+function prevPopup(e) {
+  e.stopPropagation();
+  if(!arboles || arboles.length === 0) return;
+  currentIndex = (currentIndex - 1 + arboles.length) % arboles.length;
+  showPopup();
+}
+
+// ====================
+// Mostrar Popup + Grafo
+// ====================
 function showPopup() {
-    const a = arboles[currentIndex];
-    document.getElementById('popup-body').innerHTML = `
-        <h3>${a.nombre}</h3>
-        <img src="${a.foto}" width="200">
-        <p><i>${a.relacion}</i></p>
-        <p><b>Cercanía:</b> ${a.cercania}</p>
-        <p>${a.extra}</p>
-        <pre>${a.detalle}</pre>`;
-}
+  const a = arboles[currentIndex];
 
-function nextPopup() {
-    currentIndex = (currentIndex + 1) % arboles.length;
-    showPopup();
-}
+  // Info textual
+  document.getElementById('popup-body').innerHTML = `
+    <h3>${a.nombre}</h3>
+    <img src="${a.foto || 'https://via.placeholder.com/200'}" width="200">
+    <p><i>${a.relacion || ''}</i></p>
+    <p><b>Cercanía:</b> ${a.cercania || ''}</p>
+    <p>${a.extra || ''}</p>
+    <pre>${a.detalle || ''}</pre>`;
 
-function prevPopup() {
-    currentIndex = (currentIndex - 1 + arboles.length) % arboles.length;
-    showPopup();
-}
+  const nodes = [];
+  const edges = [];
 
-// Toggle coParentIsPathPerson
-document.addEventListener("DOMContentLoaded", function() {
-    const toggleBtn = document.getElementById("toggleCoParents");
-    let hidden = false;
-    toggleBtn.addEventListener("click", function() {
-        document.querySelectorAll(".card").forEach(c => {
-            if(c.dataset.coParent === "true") c.style.display = hidden ? "block" : "none";
-        });
-        hidden = !hidden;
-        toggleBtn.textContent = hidden
-            ? "+ Mostrar parentescos de mi cónyuge"
-            : "- Ocultar parentescos de mi cónyuge";
+  // Nodo raíz (antepasado común) abajo, ya que usamos "DU"
+  const rootId = a.antepasado_comun?.id || crypto.randomUUID();
+  nodes.push({
+    id: rootId,
+    label: `${a.antepasado_comun?.nombre || 'Desconocido'}\n${a.antepasado_comun?.lifespan || ''}`,
+    shape: 'image',
+    image: a.antepasado_comun?.foto || 'https://via.placeholder.com/100',
+    font: { size: 16 },
+    color: { border: 'red', background: '#ffe6e6' }
+  });
+
+  // Rama ascendente: conectada en cadena hacia la raíz
+  const ascendingNodes = (a.camino_ascendente || []).slice()//.reverse(); // invertir para que el nodo más lejano quede arriba
+  let previousId = rootId;
+  ascendingNodes.forEach(p => {
+    const id = p.id || crypto.randomUUID();
+    nodes.push({
+      id,
+      label: `${p.nombre}\n${p.lifespan || ''}`,
+      shape: 'image',
+      image: p.foto || 'https://via.placeholder.com/100',
+      font: { size: 16 }
     });
+    edges.push({ from: id, to: previousId }); // conectar con el nodo anterior (o raíz)
+    previousId = id; // siguiente nodo se conecta a este
+  });
+
+  // Rama descendente: conectada directamente a la raíz
+  let previousDescId = rootId;
+  (a.camino_descendente || []).forEach(p => {
+    const id = p.id || crypto.randomUUID();
+    nodes.push({
+      id,
+      label: `${p.nombre}\n${p.lifespan || ''}`,
+      shape: 'image',
+      image: p.foto || 'https://via.placeholder.com/100',
+      font: { size: 16 }
+    });
+    edges.push({ from: previousDescId, to: id });
+    previousDescId = id;
+  });
+
+  // Renderizar con vis.js
+  const container = document.getElementById('mynetwork');
+  if (window.network) window.network.destroy(); // destruir grafo anterior
+  const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+  const options = {
+    layout: { hierarchical: { direction: "DU", sortMethod: "directed", nodeSpacing: 150 } },
+    nodes: { borderWidth: 2, shape: "image", brokenImage: "https://via.placeholder.com/100" },
+    edges: { smooth: false, color: { color: "#888" } },
+    physics: false
+  };
+  window.network = new vis.Network(container, data, options);
+}
+
+// ====================
+// Toggle coParentIsPathPerson
+// ====================
+document.addEventListener("DOMContentLoaded", function() {
+  const toggleBtn = document.getElementById("toggleCoParents");
+  let hidden = false;
+  toggleBtn.addEventListener("click", function() {
+    document.querySelectorAll(".card").forEach(c => {
+      if(c.dataset.coParent === "true") c.style.display = hidden ? "block" : "none";
+    });
+    hidden = !hidden;
+    toggleBtn.textContent = hidden
+      ? "+ Mostrar parentescos de mi cónyuge"
+      : "- Ocultar parentescos de mi cónyuge";
+  });
 });
 </script>
 </body>

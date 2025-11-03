@@ -7,7 +7,7 @@ import datetime
 
 # Configuración REQUEST
 CSV_PATH = "C:/Users/Usuario/Desktop/famousrelatives/famosos.csv"
-TOKEN = "p0-vzSa~4Cbv_B.WWSamOZQG3n"
+TOKEN = "p0-BGVO4kZgEKO.Q82M4MFOchR"
 
 headers = {
     "Authorization": f"Bearer {TOKEN}",

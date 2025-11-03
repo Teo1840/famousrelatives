@@ -60,49 +60,21 @@ def get_info(person_obj,coParentIsTargetPerson=False):
 
 # ---------------------------------------------------------------
 
-def generar_arbol_texto(antepasado, ascendente, descendente):
-
-    lines = [f"{antepasado['nombre']} ({antepasado['lifespan']}) ← Antepasado en común"]
-    lines.append("|") # Espacio
-
-    for i, persona in enumerate(ascendente): # Rama ascendente
-        prefijo = ("|   " + "    " * (i-1) + "└─ " if i != 0 else "├─ ")
-        lines.append(f"{prefijo}{persona['nombre']} ({persona['lifespan']})")
-        if persona.get("coParentIsPathPerson"):
-            n=len(ascendente)
-            prefijo = ("|   " + "    " * (n-2) + "|  ")
-            lines.append(prefijo)
-            prefijo = ("|   " + "    " * (n-3) + "   ")
-            lines.append(f"{prefijo}{ascendente[n-1]['nombre']} ({persona['lifespan']})")
-            break
-
-    lines.append("|") # Espacio
-
-    for i, persona in enumerate(descendente): # Rama descendente
-        prefijo = "    " * (i-1) + ("└─ " if i == 0 else "    └─ ")
-        lines.append(prefijo + f"{persona['nombre']} ({persona['lifespan']})")
-        if persona.get("coParentIsTargetPerson"):
-            n=len(descendente)
-            prefijo = ("    " + "    " * (n-2) + "|  ")
-            lines.append(prefijo)
-            prefijo = ("    " + "    " * (n-3) + "   ")
-            lines.append(f"{prefijo}{descendente[n-1]['nombre']} ({persona['lifespan']})")
-            break
-
-    return "\n".join(lines)
-
-# ---------------------------------------------------------------
-
 import json
 
 def generar_arbol_html(arboles_ordenados):
-    # Tarjetas HTML
+    """
+    Genera el HTML final de los árboles familiares con popups y grafo vis.js.
+    - arboles_ordenados: lista de diccionarios con la info de cada persona.
+    - plantilla_path: ruta al archivo plantilla HTML.
+    """
+    # 1️⃣ Generar tarjetas HTML
     tarjetas = "\n".join(
         f"""<div class="card"
             style="background-color:{'#fc9999' if a.get('coParentIsPathPerson') else '#fccccc' if a.get('parentescoPolitico') else 'white'};"
-            onclick="openPopup({i})"
+            onclick="openPopup({i}); event.stopPropagation();"
             data-co-parent="{str(a.get('coParentIsPathPerson', False)).lower()}">
-            <img src="{a.get('portraitUrl','')}" alt="Mini" width="120">
+            <img src="{a.get('portraitUrl','https://via.placeholder.com/120')}" alt="Mini" width="120">
             <h3>{a['codigo'].split(';')[1].strip()}</h3>
             <small><i>{a.get('relationshipDescription','')}</i></small><br>
             <small style="color:#555;">Cercanía: {a.get('cercania','')}</small><br>
@@ -110,25 +82,33 @@ def generar_arbol_html(arboles_ordenados):
         </div>""" for i, a in enumerate(arboles_ordenados)
     )
 
-    # Generar array JS de árboles como JSON
+    # 2️⃣ Generar array JS de árboles (JSON)
     arboles_js = json.dumps([
         {
             "nombre": a['codigo'].split(';')[1].strip(),
-            "detalle": a.get('texto',''),
             "foto": a.get('portraitUrl',''),
             "relacion": a.get('relationshipDescription',''),
             "cercania": a.get('cercania',''),
-            "extra": a['codigo'].split(';')[2].strip()
+            "extra": a['codigo'].split(';')[2].strip(),
+            "detalle": a.get('texto',''),
+            "camino_ascendente": a.get("camino_ascendente", []),
+            "camino_descendente": a.get("camino_descendente", []),
+            "antepasado_comun": a.get("antepasado_comun", {})
         } for a in arboles_ordenados
     ], ensure_ascii=False)
 
-    # Leer plantilla HTML
+    # 3️⃣ Leer plantilla
     with open(r"C:\Users\Usuario\Desktop\famousrelatives\plantilla_arboles.html", "r", encoding="utf-8") as f:
         template = f.read()
 
-    # Reemplazar marcador de tarjetas y de array JS
+    # 4️⃣ Reemplazar marcador de tarjetas
     html = template.replace("{{TARJETAS}}", tarjetas)
-    html = html.replace("const arboles = [];", f"const arboles = {arboles_js};")
+
+    # 5️⃣ Reemplazar marcador de arboles JS dentro del comentario
+    html = html.replace(
+        "// const arboles = {{ARBOL_JS}}; // <-- Python debe reemplazar este marcador con JSON válido",
+        f"const arboles = {arboles_js};"
+    )
 
     return html
 
@@ -138,9 +118,12 @@ import requests
 
 def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[dict]:
     mini_arboles = []
-    current=0
-    total=len(codigos)
+    current = 0
+    total = len(codigos)
+
     for codigo in codigos:
+        if codigo == "LZ6T-MWF;Carlos Gardel;Cantante":
+            break
         persona_id = codigo.split(';')[0]
         url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true"
 
@@ -156,36 +139,42 @@ def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[d
 
             if not generations:
                 print(f"No hay generaciones para {codigo}")
+                current += 1
                 continue
 
             target = data.get("targetPerson", {})
             camino_ascendente, camino_descendente, antepasado_comun = procesar_generaciones(generations)
-            texto_arbol = generar_arbol_texto(antepasado_comun, camino_ascendente, camino_descendente)
 
             parentesco_politico = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE")
 
             mini_arboles.append({
                 "codigo": codigo,
-                "texto": texto_arbol,
                 "cercania": len(camino_ascendente) + len(camino_descendente),
                 "relationshipDescription": data.get("relationshipDescription"),
                 "portraitUrl": target.get("portraitUrl"),
                 "coParentIsPathPerson": (
                     camino_ascendente[-2].get("coParentIsPathPerson")
-                    if len(camino_ascendente) >= 2 else None
+                    if len(camino_ascendente) >= 2 else False
                 ),
                 "parentescoPolitico": parentesco_politico,
+                "camino_ascendente": camino_ascendente,
+                "camino_descendente": camino_descendente,
+                "antepasado_comun": antepasado_comun or {}
             })
-            current+=1
+
+            current += 1
             print(f"{current}/{total}")
+
         elif response.status_code == 204:
-            current+=1
+            current += 1
             print(f"No hay parentesco disponible para {codigo.split(';')[1]}")
+
         elif response.status_code == 401:
             print("⚠️ La sesión expiró. Interrumpiendo proceso.")
             break
+
         else:
             print(f"Error {response.status_code} para {codigo}: {response.text}")
-    print(f"{len(mini_arboles)}/{total}")
 
+    print(f"{len(mini_arboles)}/{total} mini árboles procesados")
     return mini_arboles
