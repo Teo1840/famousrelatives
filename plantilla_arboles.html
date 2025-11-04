@@ -225,7 +225,7 @@ function showPopup() {
   // Info textual
   document.getElementById('popup-body').innerHTML = `
     <h3>${a.nombre}</h3>
-    <img src="${a.foto || 'https://via.placeholder.com/200'}" width="200">
+    <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
     <p><i>${a.relacion || ''}</i></p>
     <p><b>Cercanía:</b> ${a.cercania || ''}</p>
     <p>${a.extra || ''}</p>
@@ -240,7 +240,7 @@ function showPopup() {
     id: rootId,
     label: `${a.antepasado_comun?.nombre || 'Desconocido'}\n${a.antepasado_comun?.lifespan || ''}`,
     shape: 'image',
-    image: a.antepasado_comun?.foto || 'https://via.placeholder.com/100',
+    image: a.antepasado_comun?.portraitUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
     font: { size: 16 },
     color: { border: 'red', background: '#ffe6e6' }
   });
@@ -254,7 +254,7 @@ function showPopup() {
       id,
       label: `${p.nombre}\n${p.lifespan || ''}`,
       shape: 'image',
-      image: p.foto || 'https://via.placeholder.com/100',
+      image: p.portraitUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
       font: { size: 16 }
     });
     edges.push({ from: id, to: previousId }); // conectar con el nodo anterior (o raíz)
@@ -269,7 +269,7 @@ function showPopup() {
       id,
       label: `${p.nombre}\n${p.lifespan || ''}`,
       shape: 'image',
-      image: p.foto || 'https://via.placeholder.com/100',
+      image: p.portraitUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
       font: { size: 16 }
     });
     edges.push({ from: previousDescId, to: id });

@@ -1,5 +1,3 @@
-# --------------------------------- Funciones auxiliares de procesamiento de arboles
-
 def procesar_generaciones(generations):
 
     camino_ascendente = []
@@ -63,30 +61,24 @@ def get_info(person_obj,coParentIsTargetPerson=False):
 import json
 
 def generar_arbol_html(arboles_ordenados):
-    """
-    Genera el HTML final de los árboles familiares con popups y grafo vis.js.
-    - arboles_ordenados: lista de diccionarios con la info de cada persona.
-    - plantilla_path: ruta al archivo plantilla HTML.
-    """
-    # 1️⃣ Generar tarjetas HTML
+
     tarjetas = "\n".join(
         f"""<div class="card"
             style="background-color:{'#fc9999' if a.get('coParentIsPathPerson') else '#fccccc' if a.get('parentescoPolitico') else 'white'};"
             onclick="openPopup({i}); event.stopPropagation();"
             data-co-parent="{str(a.get('coParentIsPathPerson', False)).lower()}">
-            <img src="{a.get('portraitUrl','https://via.placeholder.com/120')}" alt="Mini" width="120">
+            <img src="{a.get('portraitUrl','https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" alt="Mini" width="120">
             <h3>{a['codigo'].split(';')[1].strip()}</h3>
             <small><i>{a.get('relationshipDescription','')}</i></small><br>
             <small style="color:#555;">Cercanía: {a.get('cercania','')}</small><br>
             <small>{a['codigo'].split(';')[2].strip()}</small>
         </div>""" for i, a in enumerate(arboles_ordenados)
-    )
+    ) #TARJETEAS POPUP
 
-    # 2️⃣ Generar array JS de árboles (JSON)
     arboles_js = json.dumps([
         {
             "nombre": a['codigo'].split(';')[1].strip(),
-            "foto": a.get('portraitUrl',''),
+            "portraitUrl": a.get('portraitUrl','https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'),
             "relacion": a.get('relationshipDescription',''),
             "cercania": a.get('cercania',''),
             "extra": a['codigo'].split(';')[2].strip(),
@@ -97,18 +89,13 @@ def generar_arbol_html(arboles_ordenados):
         } for a in arboles_ordenados
     ], ensure_ascii=False)
 
-    # 3️⃣ Leer plantilla
     with open(r"C:\Users\Usuario\Desktop\famousrelatives\plantilla_arboles.html", "r", encoding="utf-8") as f:
         template = f.read()
-
-    # 4️⃣ Reemplazar marcador de tarjetas
     html = template.replace("{{TARJETAS}}", tarjetas)
-
-    # 5️⃣ Reemplazar marcador de arboles JS dentro del comentario
     html = html.replace(
         "// const arboles = {{ARBOL_JS}}; // <-- Python debe reemplazar este marcador con JSON válido",
         f"const arboles = {arboles_js};"
-    )
+    ) #IMPORTANTE, por algun omtivo no se hacerlo de otra manera.
 
     return html
 
@@ -122,8 +109,8 @@ def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[d
     total = len(codigos)
 
     for codigo in codigos:
-        if codigo == "LZ6T-MWF;Carlos Gardel;Cantante":
-            break
+        #if codigo == "LZ6T-MWF;Carlos Gardel;Cantante": #tests
+        #    break
         persona_id = codigo.split(';')[0]
         url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true"
 
