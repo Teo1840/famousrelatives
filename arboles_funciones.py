@@ -70,7 +70,7 @@ def generar_arbol_html(arboles_ordenados):
             <img src="{a.get('portraitUrl','https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" alt="Mini" width="120">
             <h3>{a['codigo'].split(';')[1].strip()}</h3>
             <small><i>{a.get('relationshipDescription','')}</i></small><br>
-            <small style="color:#555;">Cercanía: {a.get('cercania','')}</small><br>
+            <small>Cercanía: {a.get('cercania','')}</small><br>
             <small>{a['codigo'].split(';')[2].strip()}</small>
         </div>""" for i, a in enumerate(arboles_ordenados)
     ) #TARJETEAS POPUP

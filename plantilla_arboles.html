@@ -12,9 +12,130 @@ body {
   color: #222;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Títulos */
+/* ======== Modo oscuro ======== */
+body.dark-mode {
+  background-color: #1f1f1f;
+  color: #eee;
+}
+
+/* Tarjetas y texto */
+body.dark-mode .card {
+  background: #1f1f1f;       /* más oscuro, acorde al fondo general */
+  color: #707070;            /* texto más claro */
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;    /* sutil borde para distinguir las tarjetas */
+}
+
+body.dark-mode .card:hover {
+  background: #292929;       /* un poco más claro al pasar el mouse */
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+
+/* Popup general */
+body.dark-mode .popup-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .popup-content {
+  background: #2a2a2a;
+  color: #ddd;
+  box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+}
+
+body.dark-mode .popup-content h3 {
+  color: #fff;
+}
+
+body.dark-mode .popup-content pre {
+  background: #3b3b3b;
+  color: #ddd;
+  border: 1px solid #444;
+}
+
+/* Botones dentro de popup */
+body.dark-mode .popup-close {
+  color: #eee;
+}
+
+body.dark-mode .popup-nav {
+  background: rgba(59,130,246,0.8);
+}
+
+body.dark-mode .popup-nav:hover {
+  background: rgba(59,130,246,1);
+}
+
+/* Marco del grafo */
+body.dark-mode #mynetwork {
+  border-color: #555;
+  background-color: #202020;
+}
+
+/* ======== Contenedor de toggles ======== */
+.toggle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Toggle estilo switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-label {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: 0.3s;
+}
+
+.toggle-label:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle-input:checked + .toggle-label {
+  background-color: #3b82f6;
+}
+
+.toggle-input:checked + .toggle-label:before {
+  transform: translateX(22px);
+}
+
+.status-text {
+  font-size: 14px;
+  user-select: none;
+}
+
+/* ======== Títulos y tarjetas ======== */
 h1, h2 {
   font-family: "Poppins", sans-serif;
   font-weight: 600;
@@ -23,7 +144,10 @@ h1, h2 {
   margin-top: 20px;
 }
 
-/* Tarjetas */
+body.dark-mode h1, body.dark-mode h2 {
+  color: #fff;
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -56,7 +180,7 @@ h1, h2 {
   margin-bottom: 6px;
 }
 
-/* Popup */
+/* ======== Popup ======== */
 .popup-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -96,33 +220,17 @@ h1, h2 {
   white-space: pre-wrap;
 }
 
-/* Contenedor del grafo */
+/* ======== Grafo ======== */
 #mynetwork {
   width: 100%;
   height: 500px;
   border: 1px solid #ddd;
   margin-top: 10px;
   border-radius: 8px;
+  background: #fff;
 }
 
-/* Botones */
-#toggleCoParents {
-  background-color: #f3f7fe;
-  color: #3b82f6;
-  border: none;
-  cursor: pointer;
-  border-radius: 8px;
-  width: 300px;
-  height: 45px;
-  transition: 0.3s;
-  padding: 6px 12px;
-  font-family: "Poppins", sans-serif;
-}
-#toggleCoParents:hover {
-  background-color: #3b82f6;
-  box-shadow: 0 0 0 5px #3b83f65f;
-  color: #fff;
-}
+/* ======== Botones navegación ======== */
 .popup-close {
   position: absolute;
   top: 8px; right: 12px;
@@ -130,9 +238,13 @@ h1, h2 {
   font-weight: bold;
   font-size: 20px;
   color: #333;
+  transition: 0.3s;
 }
 
-/* Botones de navegación externos */
+.popup-close:hover {
+  color: #ff5555;
+}
+
 .popup-nav {
   position: fixed;
   top: 50%;
@@ -146,26 +258,38 @@ h1, h2 {
   font-size: 22px;
   cursor: pointer;
   z-index: 1100;
+  transition: 0.3s;
 }
-
 .popup-nav:hover {
   background: #0056b3;
 }
-
-.popup-nav.left {
-  left: 40px;
-}
-
-.popup-nav.right {
-  right: 40px;
-}
+.popup-nav.left { left: 40px; }
+.popup-nav.right { right: 40px; }
 </style>
+
 </head>
+
 <body>
+  
 <h1>Famous Relatives</h1>
 <h2>*En rosado claro se encuentran los parentescos políticos y en rosado oscuro parentescos de mi cónyuge*</h2>
 
-<button id="toggleCoParents">- Ocultar parentescos de mi cónyuge</button>
+<!-- ✅ NUEVOS TOGGLES -->
+<div class="toggle-container">
+  <!-- Toggle 1: Parentescos -->
+  <div class="toggle-switch">
+    <input type="checkbox" id="toggleCoParents" class="toggle-input">
+    <label for="toggleCoParents" class="toggle-label"></label>
+  </div>
+  <span class="status-text">Parentescos de mi cónyuge</span>
+
+  <!-- Toggle 2: Modo oscuro -->
+  <div class="toggle-switch">
+    <input type="checkbox" id="toggleDarkMode" class="toggle-input">
+    <label for="toggleDarkMode" class="toggle-label"></label>
+  </div>
+  <span id="darkModeText" class="status-text">Modo claro</span>
+</div>
 
 <div class="grid-container">
   {{TARJETAS}}
@@ -285,29 +409,47 @@ function showPopup() {
   const container = document.getElementById('mynetwork');
   if (window.network) window.network.destroy(); // destruir grafo anterior
   const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
-  const options = {
-    layout: { hierarchical: { direction: "DU", sortMethod: "directed", nodeSpacing: 150 } },
-    nodes: { borderWidth: 2, shape: "image", brokenImage: "https://via.placeholder.com/100" },
-    edges: { smooth: false, color: { color: "#888" } },
-    physics: false
-  };
+  // Detectar modo oscuro actual
+const darkMode = document.body.classList.contains("dark-mode");
+const fontColor = darkMode ? "#eee" : "#000";
+const edgeColor = darkMode ? "#aaa" : "#888";
+
+const options = {
+  layout: { hierarchical: { direction: "DU", sortMethod: "directed", nodeSpacing: 150 } },
+  nodes: {
+    borderWidth: 2,
+    shape: "image",
+    brokenImage: "https://via.placeholder.com/100",
+    font: { color: fontColor, size: 16, face: "Poppins" } // 👈 color de texto
+  },
+  edges: { smooth: false, color: { color: edgeColor } },
+  physics: false
+};
   window.network = new vis.Network(container, data, options);
 }
 
 // ====================
-// Toggle coParentIsPathPerson
+// Toggles (parentescos + modo oscuro)
 // ====================
 document.addEventListener("DOMContentLoaded", function() {
-  const toggleBtn = document.getElementById("toggleCoParents");
+  // Toggle parentescos
+  const toggle = document.getElementById("toggleCoParents");
   let hidden = false;
-  toggleBtn.addEventListener("click", function() {
+  toggle.addEventListener("change", function() {
     document.querySelectorAll(".card").forEach(c => {
-      if(c.dataset.coParent === "true") c.style.display = hidden ? "block" : "none";
+      if (c.dataset.coParent === "true") c.style.display = hidden ? "block" : "none";
     });
     hidden = !hidden;
-    toggleBtn.textContent = hidden
-      ? "+ Mostrar parentescos de mi cónyuge"
-      : "- Ocultar parentescos de mi cónyuge";
+  });
+
+  // Toggle modo oscuro
+  const darkToggle = document.getElementById("toggleDarkMode");
+  const darkText = document.getElementById("darkModeText");
+  darkToggle.addEventListener("change", function() {
+    document.body.classList.toggle("dark-mode");
+    darkText.textContent = document.body.classList.contains("dark-mode")
+      ? "Modo oscuro"
+      : "Modo claro";
   });
 });
 </script>
