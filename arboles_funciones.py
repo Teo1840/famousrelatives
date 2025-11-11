@@ -154,7 +154,8 @@ def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[d
 
         elif response.status_code == 204:
             current += 1
-            print(f"No hay parentesco disponible para {codigo.split(';')[1]}")
+            print(f"{current}/{total}")
+            #print(f"No hay parentesco disponible para {codigo.split(';')[1]}")
 
         elif response.status_code == 401:
             print("⚠️ La sesión expiró. Interrumpiendo proceso.")

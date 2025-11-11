@@ -364,7 +364,9 @@ function showPopup() {
   const edges = [];
 
   // Nodo raíz (antepasado común) abajo, ya que usamos "DU"
-  const rootId = a.antepasado_comun?.id || crypto.randomUUID();
+  const rootId = a.antepasado_comun?.id || self.crypto?.randomUUID ? self.crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+  (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+);
   nodes.push({
     id: rootId,
     label: `${a.antepasado_comun?.nombre || 'Desconocido'}\n${a.antepasado_comun?.lifespan || ''}`,
@@ -378,7 +380,9 @@ function showPopup() {
   const ascendingNodes = (a.camino_ascendente || []).slice()//.reverse(); // invertir para que el nodo más lejano quede arriba
   let previousId = rootId;
   ascendingNodes.forEach(p => {
-    const id = p.id || crypto.randomUUID();
+    const id = p.id || self.crypto?.randomUUID ? self.crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+  (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+);
     nodes.push({
       id,
       label: `${p.nombre}\n${p.lifespan || ''}`,
@@ -393,7 +397,9 @@ function showPopup() {
   // Rama descendente: conectada directamente a la raíz
   let previousDescId = rootId;
   (a.camino_descendente || []).forEach(p => {
-    const id = p.id || crypto.randomUUID();
+    const id = p.id || self.crypto?.randomUUID ? self.crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+  (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+);
     nodes.push({
       id,
       label: `${p.nombre}\n${p.lifespan || ''}`,
