@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Famous Relatives</title>
+  <style>
+    body { font-family: Poppins, sans-serif; background: #f4f4f4; text-align: center; padding-top: 50px; }
+    input, button { padding: 10px; font-size: 1em; margin: 5px; }
+    button { background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h1>🔐 Ingresá tu token de FamilySearch</h1>
+  <form method="POST" action="/procesar">
+    <input type="text" name="token" placeholder="Pegá aquí tu token..." required size="50">
+    <br>
+    <button type="submit">Procesar grados familiares</button>
+  </form>
+</body>
+</html>
