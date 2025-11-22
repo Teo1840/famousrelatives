@@ -1,40 +1,40 @@
-def procesar_generaciones(generations):
+def procesar_generacion(generations):
 
     camino_ascendente = []
     camino_descendente = []
-    antepasado_comun = get_info(None)  # vacío por defecto
+    antepasado_comun = simplificar_info(None)  # vacío por defecto
 
     for gen in generations:
         
         if "apex" in gen: # Antepasado común
             persona = gen["apex"].get("person")
             if persona.get("commonAncestor", False):
-                antepasado_comun = get_info(persona)
+                antepasado_comun = simplificar_info(persona)
             else:
-                camino_ascendente.append(get_info(persona))
+                camino_ascendente.append(simplificar_info(persona))
             continue  # sigue con la siguiente generación
 
         asc_side = gen.get("ascendingSide") # Ascendentes
         if asc_side:
             if asc_side.get("coParentIsPathPerson", False):  # Parentesco político
-                camino_ascendente.append(get_info(asc_side.get("coParent")))
-                camino_ascendente.append(get_info(asc_side.get("person")))
+                camino_ascendente.append(simplificar_info(asc_side.get("coParent")))
+                camino_ascendente.append(simplificar_info(asc_side.get("person")))
             else:
-                camino_ascendente.append(get_info(asc_side.get("person")))
+                camino_ascendente.append(simplificar_info(asc_side.get("person")))
 
         desc_side = gen.get("descendingSide") # Descendentes
         if desc_side:
             if desc_side.get("coParentIsTargetPerson", False):  # Parentesco político
-                camino_descendente.append(get_info(desc_side.get("person"),True))
-                camino_descendente.append(get_info(desc_side.get("coParent")))
+                camino_descendente.append(simplificar_info(desc_side.get("person"),True))
+                camino_descendente.append(simplificar_info(desc_side.get("coParent")))
             else:
-                camino_descendente.append(get_info(desc_side.get("person")))
+                camino_descendente.append(simplificar_info(desc_side.get("person")))
 
     return camino_ascendente, camino_descendente, antepasado_comun
 
 # ---------------------------------------------------------------
 
-def get_info(person_obj,coParentIsTargetPerson=False):
+def simplificar_info(person_obj,coParentIsTargetPerson=False):
     if not person_obj:
         return {
             "nombre": "Desconocido",
@@ -44,15 +44,11 @@ def get_info(person_obj,coParentIsTargetPerson=False):
             "coParentIsTargetPerson": False
         }
 
-    # Conseguir el nombre de la persona
-    name_details = person_obj.get("nameConclusion", {}).get("details", {})
-    full_text = name_details.get("fullText", "Desconocido")
-
     return {
-        "nombre": full_text,
+        "nombre": person_obj.get("nameConclusion", {}).get("details", {}).get("fullText", "Desconocido"),
         "lifespan": person_obj.get("lifespan", ""),
         "portraitUrl": person_obj.get("portraitUrl", None),
-        "coParentIsPathPerson": person_obj.get("relationshipToPrevious") in ("HUSBAND", "WIFE"),
+        "coParentIsPathPerson": person_obj.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"),
         "coParentIsTargetPerson": coParentIsTargetPerson
     }
 
@@ -130,20 +126,18 @@ def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[d
                 continue
 
             target = data.get("targetPerson", {})
-            camino_ascendente, camino_descendente, antepasado_comun = procesar_generaciones(generations)
-
-            parentesco_politico = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE")
+            camino_ascendente, camino_descendente, antepasado_comun = procesar_generacion(generations)
 
             mini_arboles.append({
                 "codigo": codigo,
                 "cercania": len(camino_ascendente) + len(camino_descendente),
                 "relationshipDescription": data.get("relationshipDescription"),
-                "portraitUrl": target.get("portraitUrl"),
+                "portraitUrl": target.get("portraitUrl",'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'),
                 "coParentIsPathPerson": (
                     camino_ascendente[-2].get("coParentIsPathPerson")
                     if len(camino_ascendente) >= 2 else False
-                ),
-                "parentescoPolitico": parentesco_politico,
+                ), #Pariente de mi conyugue
+                "parentescoPolitico": target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"), #Conyugue de mi pariente
                 "camino_ascendente": camino_ascendente,
                 "camino_descendente": camino_descendente,
                 "antepasado_comun": antepasado_comun or {}
@@ -155,7 +149,6 @@ def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[d
         elif response.status_code == 204:
             current += 1
             print(f"{current}/{total}")
-            #print(f"No hay parentesco disponible para {codigo.split(';')[1]}")
 
         elif response.status_code == 401:
             print("⚠️ La sesión expiró. Interrumpiendo proceso.")

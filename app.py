@@ -48,3 +48,60 @@ def procesar():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+import os
+import mysql.connector
+import json
+
+def get_connection():
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+    )
+
+def init_db():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS arboles (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            persona_id VARCHAR(255),
+            data_json LONGTEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+def guardar_arbol(persona_id, data):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    query = "INSERT INTO arboles (persona_id, data_json) VALUES (%s, %s)"
+    cur.execute(query, (persona_id, json.dumps(data)))
+
+    conn.commit()
+    conn.close()
+
+def obtener_arbol(persona_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    query = """
+      SELECT data_json FROM arboles
+      WHERE persona_id = %s
+      ORDER BY created_at DESC
+      LIMIT 1
+    """
+    cur.execute(query, (persona_id,))
+    row = cur.fetchone()
+
+    conn.close()
+
+    if row:
+        return json.loads(row[0])
+    return None
