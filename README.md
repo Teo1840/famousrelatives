@@ -28,7 +28,7 @@ Tokens are used exclusively to perform relationship queries via the FamilySearch
 - The relationship path is parsed and normalized
 
 3. The processed data is rendered in a web interface for visualization and analysis
-4. The date is temporarely stored in a DB to reduce the amount of requests to the FamilySearch servers
+4. The data is temporarely stored in a DB to reduce the amount of requests to the FamilySearch servers
 
 
 🛠️ **Technologies Used**
