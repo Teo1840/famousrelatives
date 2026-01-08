@@ -1,8 +1,8 @@
 **FamousRelatives**
 
-_Python application that uses REST APIs to retrieve and structure genealogical data._
-_Focused on data processing, API integration, and clean data organization._
-_Built to strengthen backend fundamentals and practical Python skills._
+  _Python application that uses REST APIs to retrieve and structure genealogical data._
+  _Focused on data processing, API integration, and clean data organization._
+  _Built to strengthen backend fundamentals and practical Python skills._
 
 FamousRelatives is a web application that uses the FamilySearch API to compute and visualize genealogical relationships between a user and historically or culturally significant individuals.
 
@@ -23,37 +23,27 @@ Tokens are used exclusively to perform relationship queries via the FamilySearch
 ⚙️ **Core Workflow**
 
 1. The application loads a CSV file containing multiple FamilySearch person IDs
-
-
 2. For each person ID:
-
-A relationship query is sent to the FamilySearch API
-
-The relationship path is parsed and normalized
-
+- A relationship query is sent to the FamilySearch API
+- The relationship path is parsed and normalized
 
 3. The processed data is rendered in a web interface for visualization and analysis
+4. The date is temporarely stored in a DB to reduce the amount of requests to the FamilySearch servers
 
 
 🛠️ **Technologies Used**
 
-Python (backend logic and API interaction)
-
-HTML/CSS (frontend templates)
-
-Docker (containerized deployment – early implementation)
+- Python (backend logic and API interaction)
+- HTML/CSS (frontend templates)
+- Docker (containerized deployment – early implementation)
 
 
 🚧 **Project Status**
 
 This project is currently under active development.
 Planned improvements include:
-
-Enhanced data visualization
-
-Better error handling and validation
-
-Expanded documentation and examples
-
-Improved Docker configuration
+- Enhanced data visualization
+- Better error handling and validation
+- Expanded documentation and examples
+- Improved Docker configuration
 
