@@ -1,12 +1,12 @@
 FamousRelatives
 
-_Python application that uses REST APIs to retrieve and structure genealogical data.-
+_Python application that uses REST APIs to retrieve and structure genealogical data._
 _Focused on data processing, API integration, and clean data organization._
 _Built to strengthen backend fundamentals and practical Python skills._
 
 FamousRelatives is a web application that uses the FamilySearch API to compute and visualize genealogical relationships between a user and historically or culturally significant individuals.
 
-The project highlights how people are deeply interconnected through shared ancestry, often linking users to figures of local, regional, or historical importance—not only globally famous personalities.
+The project highlights how people are deeply interconnected through shared ancestry, often linking users to figures of local, regional, or historical importance.
 
 ---
 
