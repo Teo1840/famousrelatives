@@ -1,4 +1,4 @@
-FamousRelatives
+*FamousRelatives*
 
 _Python application that uses REST APIs to retrieve and structure genealogical data._
 _Focused on data processing, API integration, and clean data organization._
@@ -8,7 +8,7 @@ FamousRelatives is a web application that uses the FamilySearch API to compute a
 
 The project highlights how people are deeply interconnected through shared ancestry, often linking users to figures of local, regional, or historical importance.
 
----
+--
 
 🔐 Authentication & Security
 
@@ -21,7 +21,7 @@ No credentials or tokens are stored permanently
 Tokens are used exclusively to perform relationship queries via the FamilySearch API
 
 
----
+--
 
 ⚙️ Core Workflow
 
@@ -35,13 +35,10 @@ A relationship query is sent to the FamilySearch API
 The relationship path is parsed and normalized
 
 
-
 3. The processed data is rendered in a web interface for visualization and analysis
 
 
-
-
----
+--
 
 🛠️ Technologies Used
 
@@ -51,11 +48,8 @@ HTML/CSS (frontend templates)
 
 Docker (containerized deployment – early implementation)
 
-FamilySearch API
 
-
-
----
+--
 
 🚧 Project Status
 
