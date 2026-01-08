@@ -1,4 +1,4 @@
-##FamousRelatives
+**FamousRelatives**
 
 ```
 Python application that uses REST APIs to retrieve and structure genealogical data.
