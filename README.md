@@ -13,13 +13,10 @@ The project highlights how people are deeply interconnected through shared ances
 
 🔐 **Authentication & Security**
 
-FamousRelatives requires a valid FamilySearch access token provided by the user.
-
-Tokens are supplied manually by the user
-
-No credentials or tokens are stored permanently
-
-Tokens are used exclusively to perform relationship queries via the FamilySearch API
+- FamousRelatives requires a valid FamilySearch access token provided by the user.
+- Tokens are supplied manually by the user
+- No credentials or tokens are stored permanently
+- Tokens are used exclusively to perform relationship queries via the FamilySearch API
 
 
 ⚙️ **Core Workflow**
