@@ -9,7 +9,7 @@ FamousRelatives is a web application that uses the FamilySearch API to compute a
 The project highlights how people are deeply interconnected through shared ancestry, often linking users to figures of local, regional, or historical importance.
 
 
-🔐 *Authentication & Security*
+🔐 **Authentication & Security**
 
 FamousRelatives requires a valid FamilySearch access token provided by the user.
 
@@ -20,7 +20,7 @@ No credentials or tokens are stored permanently
 Tokens are used exclusively to perform relationship queries via the FamilySearch API
 
 
-⚙️ *Core Workflow*
+⚙️ **Core Workflow**
 
 1. The application loads a CSV file containing multiple FamilySearch person IDs
 
@@ -35,7 +35,7 @@ The relationship path is parsed and normalized
 3. The processed data is rendered in a web interface for visualization and analysis
 
 
-🛠️ *Technologies Used*
+🛠️ **Technologies Used**
 
 Python (backend logic and API interaction)
 
@@ -44,7 +44,7 @@ HTML/CSS (frontend templates)
 Docker (containerized deployment – early implementation)
 
 
-🚧 *Project Status*
+🚧 **Project Status**
 
 This project is currently under active development.
 Planned improvements include:
