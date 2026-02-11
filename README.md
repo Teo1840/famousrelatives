@@ -4,6 +4,19 @@ A small web app that uses the FamilySearch API to compute and visualize relation
 
 *Focus:* API integration, reliability patterns (timeouts/retries), caching to reduce external calls, and containerized deployment (Docker).
 
+## Why this project
+The original FamilySearch “Famous Relatives” feature is intentionally limited and subjective, with a small, non-controversial list of historically important people.
+
+This project was created to explore an alternative approach:
+allowing users to define their *own curated lists of culturally relevant figures*, with a regional or personal focus, making the experience more meaningful and engaging.
+
+At the same time, the project was designed to practice real-world backend challenges, including:
+- Working with an external API (latency, failures, rate limits)
+- Reducing request volume via caching to protect upstream services
+- Handling transient errors safely (timeouts, retries, clear error messages)
+- Shipping a reproducible environment using Docker
+
+The result is a product-driven idea combined with real engineering constraints.
 
 🔐 **Authentication & Security**
 
