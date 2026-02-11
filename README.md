@@ -18,6 +18,11 @@ At the same time, the project was designed to practice real-world backend challe
 
 The result is a product-driven idea combined with real engineering constraints.
 
+## Demo
+- Screenshot: relationship result page
+- 
+- Screenshot: CSV upload + results table
+
 🔐 **Authentication & Security**
 
 - FamousRelatives requires a valid FamilySearch access token provided by the user.
