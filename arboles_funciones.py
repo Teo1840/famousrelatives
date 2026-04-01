@@ -56,7 +56,7 @@ def simplificar_info(person_obj,coParentIsTargetPerson=False):
 
 import json
 
-def generar_arbol_html(arboles_ordenados):
+def generar_arbol_html(PATH,arboles_ordenados):
 
     tarjetas = "\n".join(
         f"""<div class="card"
@@ -85,7 +85,7 @@ def generar_arbol_html(arboles_ordenados):
         } for a in arboles_ordenados
     ], ensure_ascii=False)
 
-    with open(r"C:\Users\Usuario\Desktop\famousrelatives\plantilla_arboles.html", "r", encoding="utf-8") as f:
+    with open(PATH+r"plantilla_arboles.html", "r", encoding="utf-8") as f:
         template = f.read()
     html = template.replace("{{TARJETAS}}", tarjetas)
     html = html.replace(
@@ -99,7 +99,7 @@ def generar_arbol_html(arboles_ordenados):
 
 import requests
 
-def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[dict]:
+def procesar_codigos(codigos: list[str], params: dict, headers: dict, cookies: dict) -> list[dict]:
     mini_arboles = []
     current = 0
     total = len(codigos)
@@ -111,7 +111,11 @@ def procesar_codigos(codigos: list[str], headers: dict, cookies: dict) -> list[d
         url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true"
 
         try:
-            response = requests.get(url, headers=headers, cookies=cookies)
+            response = requests.get(url,
+            params=params,
+            cookies=cookies,
+            headers=headers,
+        )
         except requests.RequestException as e:
             print(f"Error de conexión para {codigo}: {e}")
             continue
