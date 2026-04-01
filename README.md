@@ -20,7 +20,8 @@ The result is a product-driven idea combined with real engineering constraints.
 
 ## Demo
 - Screenshot: Insert TOKEN page
-
+You have to check requirements.
+Create your own .env with your own value of USER_AGENT
 - Screenshot: CSV upload + results table
 
 ## Core workflow
