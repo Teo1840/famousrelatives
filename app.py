@@ -1,15 +1,14 @@
-#py app.py
-
-#Futuras implementaciones:
-#Flask.session
-
+#Futuras implementaciones:Flask.session
+from dotenv import load_dotenv
+import os
 from flask import Response, Flask, render_template, request
 from arboles_funciones import procesar_codigos, generar_arbol_html
 import csv
 
 app = Flask(__name__)
 
-CSV_PATH = "C:/Users/Usuario/Desktop/famousrelatives/famosos.csv"
+PATH = "C:/Users/abc/Desktop/famousrelatives/"
+CSV_PATH = PATH+"famosos.csv"
 
 @app.route('/')
 def index():
@@ -18,15 +17,24 @@ def index():
 
 @app.route('/procesar', methods=['POST'])
 def procesar():
-    token = request.form['token']
-
     # Headers y cookies con el token del usuario
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/140.0.0.0 Safari/537.36",
-        "Accept": "application/json",
+    token = request.form['token']
+    load_dotenv()
+    import requests
+
+    cookies = {
+        'fssessionid': token,
     }
-    cookies = {"fssessionid": token}
+
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'User-Agent': os.getenv("USER_AGENT"),
+    }
+
+    params = {
+        'showPortraits': 'true',
+        'enforceTemplePolicyEx': 'true',
+    }
 
     # Leer códigos desde CSV
     codigos = []
@@ -37,11 +45,11 @@ def procesar():
                 codigos.append(row[0])
 
     # Procesar datos
-    mini_arboles = procesar_codigos(codigos, headers, cookies)
+    mini_arboles = procesar_codigos(codigos, params, headers, cookies)
     mini_arboles_ordenados = sorted(mini_arboles, key=lambda a: a["cercania"])
 
     # Generar HTML final con tu plantilla
-    html_content = generar_arbol_html(mini_arboles_ordenados)
+    html_content = generar_arbol_html(PATH,mini_arboles_ordenados)
 
     # ✅ Devolver directamente el HTML generado al usuario
     return Response(html_content, mimetype='text/html')
