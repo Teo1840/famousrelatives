@@ -1,4 +1,6 @@
 #Futuras implementaciones:Flask.session
+#venv\Scripts\activate
+
 from dotenv import load_dotenv
 import os
 from flask import Response, Flask, render_template, request
