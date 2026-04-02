@@ -51,26 +51,53 @@ def process_json(generations):
 
 # --Generar un Arbol por codigo incluyendo su JSON respectivo--
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+def get_session():
+    session = requests.Session()
+
+    retries = Retry(
+        total=3,  # 🔁 reintenta hasta 3 veces
+        connect=3,   # 🔥 retry si no conecta
+        read=3,      # 🔥 retry si timeout leyendo
+        backoff_factor=1,  # ⏱️ espera: 1s, 2s, 4s
+        status_forcelist=[500, 502, 503, 504],  # solo errores de servidor
+        allowed_methods=["GET"]
+    )
+
+    adapter = HTTPAdapter(max_retries=retries)
+    session.mount("https://", adapter)
+
+    return session
+
+import time
+import random
+
 def generate_trees(codigos: list[str], params: dict, headers: dict, cookies: dict) -> list[dict]:
+    session = get_session()
     trees = []
     current = 0
     total = len(codigos)
 
     for codigo in codigos:
         #tests
-        if "LZ6T-MWF" in codigo: break
-
+        #if "LZ6T-MWF" in codigo: break
+        time.sleep(random.random())
         persona_id = codigo.split(';')[0]
-        url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true"
+        url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}"
         try:
-            response = requests.get(url,
-            params=params,
-            cookies=cookies,
-            headers=headers,
-            timeout=20, #10 seems too short
-        )
-        except requests.RequestException as e:
-            print(f"Error de conexión para {codigo}: {e}")
+            response = session.get(url,
+                params=params,
+                cookies=cookies,
+                headers=headers,
+                timeout=20, #10 seems too short
+            )
+        except requests.exceptions.Timeout:
+            print(f"⏱️ Timeout para {codigo}")
+            continue
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error de conexión para {codigo}: {e}")
             continue
 
         if response.status_code == 200:
