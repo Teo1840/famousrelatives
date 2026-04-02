@@ -4,12 +4,13 @@
 from dotenv import load_dotenv
 import os
 from flask import Response, Flask, render_template, request
-from arboles_funciones import procesar_codigos, generar_arbol_html
+from tree_functions import generate_trees, generate_html
 import csv
 
 app = Flask(__name__)
 
 PATH = "C:/Users/abc/Desktop/famousrelatives/"
+TEMPLATE_PATH = PATH+"templates/plantilla_arboles.html"
 CSV_PATH = PATH+"famosos.csv"
 
 @app.route('/')
@@ -17,12 +18,11 @@ def index():
     # Página inicial donde el usuario inserta su token
     return render_template('index.html')
 
-@app.route('/procesar', methods=['POST'])
-def procesar():
+@app.route('/famousrelatives', methods=['POST'])
+def famousrelatives():
     # Headers y cookies con el token del usuario
     token = request.form['token']
     load_dotenv()
-    import requests
 
     cookies = {
         'fssessionid': token,
@@ -47,11 +47,11 @@ def procesar():
                 codigos.append(row[0])
 
     # Procesar datos
-    mini_arboles = procesar_codigos(codigos, params, headers, cookies)
+    mini_arboles = generate_trees(codigos, params, headers, cookies)
     mini_arboles_ordenados = sorted(mini_arboles, key=lambda a: a["cercania"])
 
     # Generar HTML final con tu plantilla
-    html_content = generar_arbol_html(PATH,mini_arboles_ordenados)
+    html_content = generate_html(TEMPLATE_PATH,mini_arboles_ordenados)
 
     # ✅ Devolver directamente el HTML generado al usuario
     return Response(html_content, mimetype='text/html')
@@ -59,7 +59,6 @@ def procesar():
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
 
-import os
 import mysql.connector
 import json
 
