@@ -1,6 +1,6 @@
 # MAIN
 import csv
-from arboles_funciones import procesar_codigos, generar_arbol_html
+from tree_functions import procesar_codigos, generar_arbol_html
 import webbrowser
 import os
 import datetime
