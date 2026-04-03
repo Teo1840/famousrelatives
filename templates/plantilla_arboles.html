@@ -320,13 +320,6 @@ let currentIndex = 0;
 // ====================
 // Funciones Popup
 // ====================
-function openPopup(i) {
-  if(!arboles || arboles.length === 0) return;
-  currentIndex = i;
-  showPopup();
-  document.getElementById('popup').style.display = 'flex';
-}
-
 function closePopup(e) {
   document.getElementById('popup').style.display = 'none';
 }
@@ -348,6 +341,32 @@ function prevPopup(e) {
 // ====================
 // Mostrar Popup + Grafo
 // ====================
+function generarUUID() {
+  if (typeof self.crypto?.randomUUID === 'function') {
+    // Usa la función nativa si está disponible
+    return self.crypto.randomUUID();
+  } else {
+    // Fallback: genera un UUID estilo v4 manualmente
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+  }
+}
+
+// Asignar click a todas las cards
+document.querySelectorAll('.card').forEach((card, i) => {
+  // Asignar un id único si no tiene
+  card.dataset.id = card.dataset.id || generarUUID();
+
+  // Listener para abrir popup
+  card.addEventListener('click', (event) => {
+    event.stopPropagation();
+    currentIndex = i; // o usa card.dataset.id si prefieres
+    showPopup();
+    document.getElementById('popup').style.display = 'flex';
+  });
+});
+
 function showPopup() {
   const a = arboles[currentIndex];
 
@@ -364,9 +383,7 @@ function showPopup() {
   const edges = [];
 
   // Nodo raíz (antepasado común) abajo, ya que usamos "DU"
-  const rootId = a.antepasado_comun?.id || self.crypto?.randomUUID ? self.crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-  (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-);
+  const rootId = a.antepasado_comun?.id || generarUUID();
   nodes.push({
     id: rootId,
     label: `${a.antepasado_comun?.nombre || 'Desconocido'}\n${a.antepasado_comun?.lifespan || ''}`,
@@ -381,9 +398,7 @@ function showPopup() {
   const ascendingNodes = (a.camino_ascendente || []).slice()//.reverse(); // invertir para que el nodo más lejano quede arriba
   let previousId = rootId;
   ascendingNodes.forEach(p => {
-    const id = p.id || self.crypto?.randomUUID ? self.crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-  (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-);
+    const id = p.id || generarUUID();
     nodes.push({
       id,
       label: `${p.nombre}\n${p.lifespan || ''}`,
@@ -398,9 +413,7 @@ function showPopup() {
   // Rama descendente: conectada directamente a la raíz
   let previousDescId = rootId;
   (a.camino_descendente || []).forEach(p => {
-    const id = p.id || self.crypto?.randomUUID ? self.crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-  (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-);
+    const id = p.id || generarUUID();
     nodes.push({
       id,
       label: `${p.nombre}\n${p.lifespan || ''}`,
