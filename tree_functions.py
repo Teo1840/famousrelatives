@@ -84,20 +84,17 @@ import random
 from datetime import datetime, timedelta
 from db import obtener_arbol, guardar_arbol
 
-def generate_trees(codigos: list[str], params: dict, headers: dict, cookies: dict) -> list[dict]:
+def generate_trees(codigos: list[str], token: str) -> list[dict]:
     session = get_session()
     trees = []
     current = 0
     total = len(codigos)
-    TTL_SECONDS = 86400  # 24 horas
+    TTL_SECONDS = 604800  # 1 week
     viewer_person_id=None
 
     for codigo in codigos:
-        #tests
-        if "LZ6T-MWF" in codigo: break
-        time.sleep(random.random()) #evitar ser blockeado?
+        if "LZ6T-MWF" in codigo: break #tests
         persona_id = codigo.split(';')[0]
-        """
         if viewer_person_id!=None:
             cached_data, created_at = obtener_arbol(persona_id, viewer_person_id)
             if cached_data and created_at:
@@ -108,17 +105,11 @@ def generate_trees(codigos: list[str], params: dict, headers: dict, cookies: dic
                     continue
                 else:
                     print(f"♻️ Cache expirado para {codigo}", flush=True)
-        """
         print(f"🌐 Request a API para {persona_id}", flush=True)
-        url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}"
-        #https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true
+        time.sleep(random.random()) #evitar ser blockeado?
+        url = f"http://host.docker.internal:5001/proxy/{persona_id}?token={token}"
         try:
-            response = session.get(url,
-                params=params,
-                cookies=cookies,
-                headers=headers,
-                timeout=20, #10 seems too short
-            )
+            response = session.get(url, timeout=20) #10 seems too short
         except requests.exceptions.Timeout:
             print(f"⏱️ Timeout para {codigo}", flush=True)
             continue

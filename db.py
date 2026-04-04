@@ -5,17 +5,29 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+import time
+import mysql.connector
+import os
+
+#docker exec -it famousrelatives-db-1 mysql -u root -p
+
 def get_connection():
-    #print("DB_HOST:", os.getenv("DB_HOST"),flush=True)
-    #print("DB_USER:", os.getenv("DB_USER"),flush=True)
-    #print("DB_PASSWORD:", os.getenv("DB_PASSWORD"),flush=True)
-    return mysql.connector.connect(
-        host=os.getenv("DB_HOST","localhost"),      # "db" en docker-compose
-        user=os.getenv("DB_USER"),      # "root"
-        password=os.getenv("DB_PASSWORD"),  # "secret"
-        database=os.getenv("DB_NAME"),       # "famousrelatives"
-        port=3306
-    )
+    for i in range(10):  # intenta 10 veces
+        try:
+            conn = mysql.connector.connect(
+                host=os.getenv("DB_HOST", "localhost"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                database=os.getenv("DB_NAME"),
+                port=3306
+            )
+            print("✅ Conectado a MySQL",flush=True)
+            return conn
+        except Exception as e:
+            print(f"⏳ Esperando MySQL... intento {i+1}",flush=True)
+            time.sleep(2)
+
+    raise Exception("❌ No se pudo conectar a MySQL",flush=True)
 
 def init_db():
     conn = get_connection()
