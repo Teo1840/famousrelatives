@@ -66,8 +66,8 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 - Dockerfile — app container definition
 
 ## Roadmap
-- [ ] Add default timeouts + safe retries for API calls
-- [ ] Add TTL-based cache invalidation
+- [x] Add default timeouts + safe retries for API calls
+- [x] Add TTL-based cache invalidation
 - [ ] Add input validation + CSV schema checks
 - [ ] Add basic rate limiting (per session)
 - [ ] Add tests for parsing/normalization utilities

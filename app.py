@@ -1,6 +1,7 @@
 #Futuras implementaciones:Flask.session
 
 #venv\Scripts\activate
+#python fs_proxy.py
 #py app.py
 
 #docker-compose build app
@@ -35,18 +36,7 @@ def index():
 def famousrelatives():
     # Headers y cookies con el token del usuario
     token = request.form['token']
-    cookies = {
-        'fssessionid': token,
-    }
-    headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'User-Agent': os.getenv("USER_AGENT"),
-    }
-    params = {
-        'showPortraits': 'true',
-        'enforceTemplePolicyEx': 'true',
-    }
-
+    
     # Leer códigos desde CSV
     codigos = []
     with open(CSV_PATH, encoding="cp1252") as f:
@@ -56,7 +46,7 @@ def famousrelatives():
                 codigos.append(row[0])
 
     # Procesar datos
-    mini_arboles = generate_trees(codigos, params, headers, cookies)
+    mini_arboles = generate_trees(codigos, token)
     mini_arboles_ordenados = sorted(mini_arboles, key=lambda a: a["cercania"])
 
     # Generar HTML final con tu plantilla y devolver al usuario
