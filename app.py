@@ -1,13 +1,3 @@
-#Futuras implementaciones:Flask.session
-
-#venv\Scripts\activate
-#python fs_proxy.py
-#py app.py
-
-#docker-compose build app
-#docker-compose up -d
-#docker logs -f famousrelatives-app-1
-
 from dotenv import load_dotenv
 import os
 from flask import Response, Flask, render_template, request
@@ -15,8 +5,9 @@ from tree_functions import generate_trees, generate_html
 import csv
 
 load_dotenv()
+
 #Levantar BD
-from db import init_db
+from mysql.db import init_db
 init_db()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # carpeta /app en el contenedor
@@ -34,6 +25,12 @@ def index():
 
 @app.route('/famousrelatives', methods=['POST'])
 def famousrelatives():
+    #LOADING page
+    token = request.form['token']
+    return render_template("loading.html", token=token)
+
+@app.route('/process', methods=['POST'])
+def process():
     # Headers y cookies con el token del usuario
     token = request.form['token']
     

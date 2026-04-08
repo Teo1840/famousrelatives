@@ -82,7 +82,7 @@ def get_session():
 import time
 import random
 from datetime import datetime, timedelta
-from db import obtener_arbol, guardar_arbol
+from mysql.db import obtener_arbol, guardar_arbol
 
 def generate_trees(codigos: list[str], token: str) -> list[dict]:
     session = get_session()
@@ -93,37 +93,41 @@ def generate_trees(codigos: list[str], token: str) -> list[dict]:
     viewer_person_id=None
 
     for codigo in codigos:
-        if "LZ6T-MWF" in codigo: break #tests
+        #if "LZ6T-MWF" in codigo: break #tests
         persona_id = codigo.split(';')[0]
         if viewer_person_id!=None:
             cached_data, created_at = obtener_arbol(persona_id, viewer_person_id)
             if cached_data and created_at:
                 if datetime.now() - created_at < timedelta(seconds=TTL_SECONDS):
-                    print(f"💾 Cache válido para {codigo}", flush=True)
+                    print(f"💾 Cache válido para {persona_id}", flush=True)
                     trees.append(cached_data)
+                    current+=1
                     print(f"{current}/{total} (cache)", flush=True)
                     continue
                 else:
-                    print(f"♻️ Cache expirado para {codigo}", flush=True)
+                    print(f"♻️ Cache expirado para {persona_id}", flush=True)
+
         print(f"🌐 Request a API para {persona_id}", flush=True)
         time.sleep(random.random()) #evitar ser blockeado?
         url = f"http://host.docker.internal:5001/proxy/{persona_id}?token={token}"
+
         try:
             response = session.get(url, timeout=20) #10 seems too short
         except requests.exceptions.Timeout:
             print(f"⏱️ Timeout para {codigo}", flush=True)
+            current+=1
             continue
         except requests.exceptions.RequestException as e:
             print(f"❌ Error de conexión para {codigo}: {e}", flush=True)
+            current+=1
             continue
 
         if response.status_code == 200:
             data = response.json()
             generations = data.get("generations", [])
-
             if not generations:
-                print(f"No hay generaciones para {codigo}", flush=True)
-                current += 1
+                print(f"No hay generaciones para {persona_id}", flush=True)
+                current+=1
                 continue
 
             target = data.get("targetPerson", {})
@@ -145,17 +149,18 @@ def generate_trees(codigos: list[str], token: str) -> list[dict]:
             }
             guardar_arbol(persona_id, viewer_person_id, tree_data)
             trees.append(tree_data)
-            current += 1
+            current+=1
             print(f"{current}/{total}", flush=True)
 
         elif response.status_code == 204:
-            current += 1
+            current+=1
             print(f"{current}/{total}", flush=True)
         elif response.status_code == 401:
             print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
             break
         else:
             print(f"Error {response.status_code} para {codigo}: {response.text}", flush=True)
+            current+=1
 
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
     return trees
