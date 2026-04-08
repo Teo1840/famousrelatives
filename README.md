@@ -19,6 +19,14 @@ At the same time, the project was designed to practice real-world backend challe
 The result is a product-driven idea combined with real engineering constraints.
 
 ## Demo
+###Activate PROXY
+*venv\Scripts\activate*
+*python fs_proxy.py*
+###Run DOCKER
+*docker-compose build app*
+*docker-compose up -d*
+*docker logs -f famousrelatives-app-1*
+
 - Screenshot: Insert TOKEN page
 You have to check requirements.
 Create your own .env with your own value of USER_AGENT

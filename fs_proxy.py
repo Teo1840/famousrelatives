@@ -27,7 +27,7 @@ def proxy(persona_id):
     }
     url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}"
     #https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true
-
+    #https://www.familysearch.org/service/tree/tree-data/r9/family-members/person/MYH5-6P2?includePhotos=true&treeId=PRIVATE
     try:
         resp = requests.get(url, headers=headers, cookies=cookies, params=params, timeout=20)
         return Response(
