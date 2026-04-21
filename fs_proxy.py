@@ -3,6 +3,8 @@ import requests
 import os
 from dotenv import load_dotenv
 
+import time
+
 load_dotenv()
 USER_AGENT=os.getenv("USER_AGENT")
 
@@ -30,6 +32,8 @@ def proxy(persona_id):
     #https://www.familysearch.org/service/tree/tree-data/r9/family-members/person/MYH5-6P2?includePhotos=true&treeId=PRIVATE
     try:
         resp = requests.get(url, headers=headers, cookies=cookies, params=params, timeout=20)
+        time.sleep(0.25) #evitar ser blockeado?
+        #https://developers.familysearch.org/main/docs/throttling#testing-throttling
         return Response(
             resp.content,
             status=resp.status_code,
@@ -37,6 +41,7 @@ def proxy(persona_id):
         )
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)}), 500
+        #https://developers.familysearch.org/main/docs/http-status-codes
 
 if __name__ == "__main__":
     # Correr proxy local en el puerto 5001 (puedes cambiarlo)

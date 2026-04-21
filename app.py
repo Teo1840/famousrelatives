@@ -1,13 +1,14 @@
 from dotenv import load_dotenv
 import os
 from flask import Response, Flask, render_template, request
-from tree_functions import generate_trees, generate_html
+from services.tree_functions import generate_trees, generate_html
 import csv
+from services.validators import validate_row
 
 load_dotenv()
 
 #Levantar BD
-from mysql.db import init_db
+from db.db import init_db
 init_db()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # carpeta /app en el contenedor
@@ -21,6 +22,12 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR)
 @app.route('/')
 def index():
     # Página inicial donde el usuario inserta su token
+    try:
+        with open(CSV_PATH, encoding="utf-8") as f:
+            f.read()
+        print("Es UTF-8")
+    except:
+        print("No es UTF-8, probá cp1252")
     return render_template("index.html")
 
 @app.route('/famousrelatives', methods=['POST'])
@@ -35,19 +42,23 @@ def process():
     token = request.form['token']
     
     # Leer códigos desde CSV
-    codigos = []
-    with open(CSV_PATH, encoding="cp1252") as f:
-        reader = csv.reader(f)
+    rows = []
+    with open(CSV_PATH, encoding="utf-8") as f:
+        reader = csv.DictReader(f, delimiter=";")
         for row in reader:
-            if row and row[0] != "codigo_persona;nombre;info":
-                codigos.append(row[0])
+            try:
+                fila_validada = validate_row(row)
+                rows.append(fila_validada)
+            except ValueError as e:
+                print(f"Fila ignorada por error: {e}")
+    #print(f"Filas válidas cargadas: {len(rows)}")
 
     # Procesar datos
-    mini_arboles = generate_trees(codigos, token)
-    mini_arboles_ordenados = sorted(mini_arboles, key=lambda a: a["cercania"])
+    arboles = generate_trees(rows, token)
+    arboles_ordenados = sorted(arboles, key=lambda a: a["cercania"])
 
     # Generar HTML final con tu plantilla y devolver al usuario
-    html_content = generate_html(TEMPLATE_PATH,mini_arboles_ordenados)
+    html_content = generate_html(TEMPLATE_PATH,arboles_ordenados)
     return Response(html_content, mimetype='text/html')
 
 if __name__ == '__main__':

@@ -22,11 +22,11 @@
       animation: cover 5s ease-in-out infinite;
     }
     .book {
-      background-color: hsl(268, 90%, 65%);
+      background-color: rgb(199, 243, 146);
       border-radius: 0.25em;
       box-shadow:
         0 0.25em 0.5em hsla(0, 0%, 0%, 0.3),
-        0 0 0 0.25em hsl(278, 100%, 57%) inset;
+        0 0 0 0.25em rgb(159, 201, 107) inset;
       padding: 0.25em;
       perspective: 37.5em;
       position: relative;
@@ -85,8 +85,8 @@
     .book__pg--5 { animation-name: pg5; }
 
     @keyframes cover {
-      from,5%,45%,55%,95%,to { animation-timing-function: ease-out; background-color: hsl(278, 84%, 67%); }
-      10%,40%,60%,90% { animation-timing-function: ease-in; background-color: hsl(271, 90%, 45%); }
+      from,5%,45%,55%,95%,to { animation-timing-function: ease-out; background-color: rgb(159, 201, 107); }
+      10%,40%,60%,90% { animation-timing-function: ease-in; background-color: rgba(132, 185, 67); }
     }
     @keyframes shadow {
       from,10.01%,20.01%,30.01%,40.01% { animation-timing-function: ease-in; transform: translate3d(0,0,1px) scaleY(0) rotateY(0); }
