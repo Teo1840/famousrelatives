@@ -21,13 +21,13 @@ def get_connection():
                 database=os.getenv("DB_NAME"),
                 port=3306
             )
-            print("✅ Conectado a MySQL",flush=True)
+            print("-> 🐳 Conectado a MySQL",flush=True)
             return conn
         except Exception as e:
-            print(f"⏳ Esperando MySQL... intento {i+1}",flush=True)
+            print(f"-> ⏳ Esperando MySQL... intento {i+1}",flush=True)
             time.sleep(2)
 
-    raise Exception("❌ No se pudo conectar a MySQL",flush=True)
+    raise Exception("-> ❌ No se pudo conectar a MySQL",flush=True)
 
 def init_db():
     conn = get_connection()

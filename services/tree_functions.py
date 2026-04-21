@@ -1,58 +1,57 @@
-# --Simplificar JSON para (en el futuro) guardar en la BD--
-def simplify_info(person,coParentIsTargetPerson=False):
+# --Simplificar JSON--
+def simplify_person(person):
     if not person:
         return {
-            "nombre": "Desconocido",
+            "nombre": "",
             "id": "",
             "lifespan": "",
-            "portraitUrl": None,
-            "coParentIsPathPerson": False,
-            "coParentIsTargetPerson": False
+            "portraitUrl": None
         }
     return {
-        "nombre": person.get("nameConclusion", {}).get("details", {}).get("fullText", "Desconocido"),
-        "id": person.get("id"),
+        "nombre": person.get("nameConclusion", {}).get("details", {}).get("fullText", ""),
+        "id": person.get("id",""),
         "lifespan": person.get("lifespan", ""),
-        "portraitUrl": person.get("portraitUrl", None),
-        "coParentIsPathPerson": person.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"),
-        "coParentIsTargetPerson": coParentIsTargetPerson
+        "portraitUrl": person.get("portraitUrl", None)
     }
 
 # --Pasar de JSON a lists--
 def process_json(generations):
-    viewer_person_id = None
     camino_ascendente = []
     camino_descendente = []
-    antepasado_comun = simplify_info(None)  # vacío por defecto
+    antepasado_comun = simplify_person(None) 
+    viewer_person_id = None
 
     for gen in generations:
         if "apex" in gen: # Antepasado común
             persona = gen["apex"].get("person")
             if persona.get("commonAncestor", False):
-                antepasado_comun = simplify_info(persona)
+                antepasado_comun = simplify_person(persona)
             else:
-                camino_ascendente.append(simplify_info(persona))
+                camino_ascendente.append(simplify_person(persona))
             continue  # sigue con la siguiente generación
 
         asc_side = gen.get("ascendingSide") # Ascendentes
         if asc_side:
-            person=simplify_info(asc_side.get("person"))
-            if asc_side.get("coParentIsPathPerson", False):  # Parentesco político
-                coParent=simplify_info(asc_side.get("coParent"))
+            person=simplify_person(asc_side.get("person"))
+            if asc_side.get("coParentIsPathPerson", False):  # Target Person es pariente de mi conyugue
+                coParent=simplify_person(asc_side.get("coParent"))
                 camino_ascendente.append(coParent)
                 camino_ascendente.append(person)
             else:
                 camino_ascendente.append(person)
-            if asc_side.get("indexInPath")==0:
-                viewer_person_id=person.get("id")
+
+            if asc_side.get("indexInPath")==0: # Puedo preguntar por la ultima persona en asc_side??
+                viewer_person_id=person.get("id") # Obtener viewer_person_id
 
         desc_side = gen.get("descendingSide") # Descendentes
         if desc_side:
-            if desc_side.get("coParentIsTargetPerson", False):  # Parentesco político
-                camino_descendente.append(simplify_info(desc_side.get("person"),True))
-                camino_descendente.append(simplify_info(desc_side.get("coParent")))
+            person=simplify_person(desc_side.get("person"))
+            if desc_side.get("coParentIsTargetPerson", False):  # Target Person es conyugue de mi pariente
+                camino_descendente.append(person)
+                coParent=simplify_person(desc_side.get("coParent"))
+                camino_descendente.append(coParent)
             else:
-                camino_descendente.append(simplify_info(desc_side.get("person")))
+                camino_descendente.append(simplify_person(desc_side.get("person")))
 
     return camino_ascendente, camino_descendente, antepasado_comun, viewer_person_id
 
@@ -79,10 +78,8 @@ def get_session():
     return session
 
 # --Generar un Arbol por codigo incluyendo su JSON respectivo--
-import time
-import random
 from datetime import datetime, timedelta
-from mysql.db import obtener_arbol, guardar_arbol
+from db.db import obtener_arbol, guardar_arbol
 
 def generate_trees(codigos: list[str], token: str) -> list[dict]:
     session = get_session()
@@ -93,22 +90,23 @@ def generate_trees(codigos: list[str], token: str) -> list[dict]:
     viewer_person_id=None
 
     for codigo in codigos:
-        #if "LZ6T-MWF" in codigo: break #tests
-        persona_id = codigo.split(';')[0]
+        persona_id = codigo["person_code"]
         if viewer_person_id!=None:
             cached_data, created_at = obtener_arbol(persona_id, viewer_person_id)
             if cached_data and created_at:
                 if datetime.now() - created_at < timedelta(seconds=TTL_SECONDS):
-                    print(f"💾 Cache válido para {persona_id}", flush=True)
-                    trees.append(cached_data)
-                    current+=1
-                    print(f"{current}/{total} (cache)", flush=True)
-                    continue
+                    if cached_data.get("name","")!="" and cached_data.get("person_code","")!="":
+                        print(f"💾 Cache válido para {persona_id}", flush=True)
+                        trees.append(cached_data)
+                        current+=1
+                        print(f"{current}/{total} (cache)", flush=True)
+                        continue
+                    else:
+                        print(f"♻️ Cache invalido para {persona_id}", flush=True)
                 else:
                     print(f"♻️ Cache expirado para {persona_id}", flush=True)
 
         print(f"🌐 Request a API para {persona_id}", flush=True)
-        time.sleep(random.random()) #evitar ser blockeado?
         url = f"http://host.docker.internal:5001/proxy/{persona_id}?token={token}"
 
         try:
@@ -134,19 +132,23 @@ def generate_trees(codigos: list[str], token: str) -> list[dict]:
             camino_ascendente, camino_descendente, antepasado_comun, viewer_person_id = process_json(generations)
 
             tree_data={
-                "codigo": codigo,
+                "person_code": persona_id,
+                "name": codigo["name"],
+                "parent_code": codigo["parent_code"],
+                "info": codigo["info"],
                 "cercania": len(camino_ascendente) + len(camino_descendente),
                 "relationshipDescription": data.get("relationshipDescription"),
                 "portraitUrl": target.get("portraitUrl",'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'),
                 "coParentIsPathPerson": (
                     camino_ascendente[-2].get("coParentIsPathPerson")
                     if len(camino_ascendente) >= 2 else False
-                ), #Pariente de mi conyugue
-                "parentescoPolitico": target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"), #Conyugue de mi pariente
+                ), #Mi conyugue es pariente de la persona
+                "coParentIsTargetPerson": target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"), #Soy pariente del conyuge de la perona
                 "camino_ascendente": camino_ascendente,
                 "camino_descendente": camino_descendente,
                 "antepasado_comun": antepasado_comun or {}
             }
+            print(f"{tree_data.get("name")}", flush=True)
             guardar_arbol(persona_id, viewer_person_id, tree_data)
             trees.append(tree_data)
             current+=1
@@ -168,26 +170,27 @@ def generate_trees(codigos: list[str], token: str) -> list[dict]:
 # --Generar Tarjetas e Inserirlas en template--
 import json
 def generate_html(TEMPLATE_PATH,arboles_ordenados):
+    defaultPortraitUrl='https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'
     #TARJETEAS POPUP
     tarjetas = "\n".join(
         f"""<div class="card"
-            style="background-color:{'#fc9999' if a.get('coParentIsPathPerson') else '#fccccc' if a.get('parentescoPolitico') else 'white'};"
+            style="background-color:{'#fc9999' if a.get('coParentIsPathPerson') else '#fccccc' if a.get('coParentIsTargetPerson') else 'white'};"
             data-co-parent="{str(a.get('coParentIsPathPerson', False)).lower()}">
-            <img src="{a.get('portraitUrl','https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" alt="Mini" width="120">
-            <h3>{a['codigo'].split(';')[1].strip()}</h3>
+            <img src="{a.get('portraitUrl',defaultPortraitUrl)}" alt="Mini" width="150">
+            <h3>{a.get('name')}</h3>
             <small><i>{a.get('relationshipDescription','')}</i></small><br>
-            <small>Cercanía: {a.get('cercania','')}</small><br>
-            <small>{a['codigo'].split(';')[2].strip()}</small>
-        </div>""" for i, a in enumerate(arboles_ordenados)
+            <small>Cercanía: {a.get('cercania',0)}</small><br>
+            <small>{a.get('info')}</small>
+        </div>""" for i, a in enumerate(arboles_ordenados) # Necesario?? Todo un solo for??
     )
 
     arboles_js = json.dumps([
         {
-            "nombre": a['codigo'].split(';')[1].strip(),
-            "portraitUrl": a.get('portraitUrl','https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'),
+            "nombre": a.get('name',''),
+            "portraitUrl": a.get('portraitUrl',defaultPortraitUrl),
             "relacion": a.get('relationshipDescription',''),
-            "cercania": a.get('cercania',''),
-            "extra": a['codigo'].split(';')[2].strip(),
+            "cercania": a.get('cercania',0),
+            "extra": a.get('info',''),
             "detalle": a.get('texto',''),
             "camino_ascendente": a.get("camino_ascendente", []),
             "camino_descendente": a.get("camino_descendente", []),
@@ -196,11 +199,7 @@ def generate_html(TEMPLATE_PATH,arboles_ordenados):
     ], ensure_ascii=False)
 
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
-        template = f.read()
-    html = template.replace("{{TARJETAS}}", tarjetas)
-    html = html.replace(
-        "// const arboles = {{ARBOL_JS}}; // <-- Python debe reemplazar este marcador con JSON válido",
-        f"const arboles = {arboles_js};"
-    ) #IMPORTANTE, por algun omtivo no se hacerlo de otra manera.
-
+        html = f.read()
+    html = html.replace("{{TARJETAS}}", tarjetas)
+    html = html.replace("// const arboles = {{ARBOL_JS}};", f"const arboles = {arboles_js};") #Por algun motivo no pude hacerlo de otra manera.
     return html

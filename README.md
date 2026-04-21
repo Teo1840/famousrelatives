@@ -19,13 +19,19 @@ At the same time, the project was designed to practice real-world backend challe
 The result is a product-driven idea combined with real engineering constraints.
 
 ## Demo
-###Activate PROXY
-*venv\Scripts\activate*
-*python fs_proxy.py*
-###Run DOCKER
-*docker-compose build app*
-*docker-compose up -d*
-*docker logs -f famousrelatives-app-1*
+##Activate PROXY
+venv\Scripts\activate
+python fs_proxy.py
+
+##Run DOCKER
+docker-compose build app
+docker-compose up -d
+docker logs -f famousrelatives-app-1
+
+extra:
+docker compose down
+docker compose up --build
+docker logs -f famousrelatives-app-1
 
 - Screenshot: Insert TOKEN page
 You have to check requirements.

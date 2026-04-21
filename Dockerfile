@@ -7,10 +7,11 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copiar archivos del proyecto
 COPY app.py /app/app.py
-COPY tree_functions.py /app/tree_functions.py
-COPY db.py /app/db.py
+COPY services /app/services
+COPY db /app/db
 COPY famosos.csv /app/famosos.csv
 COPY templates /app/templates
+COPY static /app/static
 
 WORKDIR /app
 

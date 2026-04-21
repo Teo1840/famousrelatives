@@ -1,0 +1,63 @@
+/* ======== Modo oscuro ======== */
+body.dark-mode {
+  background-color: #1f1f1f;
+  color: #eee;
+}
+
+body.dark-mode h1, body.dark-mode h2 {
+  color: #fff;
+}
+
+/* Tarjetas y texto */
+body.dark-mode .card {
+  background: #1f1f1f;       /* más oscuro, acorde al fondo general */
+  color: #707070;            /* texto más claro */
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;    /* sutil borde para distinguir las tarjetas */
+}
+
+body.dark-mode .card:hover {
+  background: #292929;       /* un poco más claro al pasar el mouse */
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+
+/* Popup general */
+body.dark-mode .popup-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .popup-content {
+  background: #2a2a2a;
+  color: #ddd;
+  box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+}
+
+body.dark-mode .popup-content h3 {
+  color: #fff;
+}
+
+body.dark-mode .popup-content pre {
+  background: #3b3b3b;
+  color: #ddd;
+  border: 1px solid #444;
+}
+
+/* Botones dentro de popup */
+body.dark-mode .popup-close {
+  color: #eee;
+}
+
+body.dark-mode .popup-nav {
+  background: rgba(59,130,246,0.8);
+}
+
+body.dark-mode .popup-nav:hover {
+  background: rgba(59,130,246,1);
+}
+
+/* Marco del grafo */
+body.dark-mode #mynetwork {
+  border-color: #555;
+  background-color: #202020;
+}
