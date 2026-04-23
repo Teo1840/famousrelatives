@@ -201,5 +201,5 @@ def generate_html(TEMPLATE_PATH,arboles_ordenados):
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
         html = f.read()
     html = html.replace("{{TARJETAS}}", tarjetas)
-    html = html.replace("// const arboles = {{ARBOL_JS}};", f"const arboles = {arboles_js};") #Por algun motivo no pude hacerlo de otra manera.
+    html = html.replace("// const arboles = {{ARBOL_JS}};", f"window.arboles = {arboles_js};") #Por algun motivo no pude hacerlo de otra manera.
     return html

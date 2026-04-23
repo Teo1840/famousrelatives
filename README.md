@@ -68,6 +68,7 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 ## Tech stack
 - Python (backend + API client + parsing)
 - HTML/CSS (server-rendered templates)
+- vis.js (Graphs)
 - MySQL (temporary cache)
 - Docker + docker-compose (reproducible local environment)
 
