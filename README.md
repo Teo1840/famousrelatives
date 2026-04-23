@@ -18,17 +18,30 @@ At the same time, the project was designed to practice real-world backend challe
 
 The result is a product-driven idea combined with real engineering constraints.
 
+## Project structure
+- reference/
+- db/ — DB initialization + cache schema
+- services/
+- static/
+- templates/ — HTML templates
+- app.py — web server + routes
+- tree_funtions.py — relationship parsing/normalization utilities
+- docker-compose.yml — local environment orchestration
+- Dockerfile — app container definition
+- fs_proxy.py
+- famosos.csv
+
 ## Demo
-##Activate PROXY
+##Commands to Activate PROXY
 venv\Scripts\activate
 python fs_proxy.py
 
-##Run DOCKER
+##Commands to Run DOCKER
 docker-compose build app
 docker-compose up -d
 docker logs -f famousrelatives-app-1
 
-extra:
+##Extra DOCKER commands:
 docker compose down
 docker compose up --build
 docker logs -f famousrelatives-app-1
@@ -71,14 +84,6 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 - vis.js (Graphs)
 - MySQL (temporary cache)
 - Docker + docker-compose (reproducible local environment)
-
-## Project structure
-- app.py — web server + routes
-- arboles_funciones.py — relationship parsing/normalization utilities
-- templates/ — HTML templates
-- mysql/ — DB initialization / cache schema
-- docker-compose.yml — local environment orchestration
-- Dockerfile — app container definition
 
 ## Roadmap
 - [x] Add default timeouts + safe retries for API calls
