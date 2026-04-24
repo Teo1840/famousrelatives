@@ -1,21 +1,33 @@
 # --Simplificar JSON--
-def simplify_person(person):
+def build_person(person):
     if not person:
         return {"nombre": "", "id": "", "lifespan": "", "portraitUrl": None}
-    name=person.get("nameConclusion", {})
-    details=name.get("details", {})
+
+    name = person.get("nameConclusion", {})
+    details = name.get("details", {})
+
+    person_id = person.get("id", "")
+    is_me = person.get("relationshipToPrevious") == "ME"
+
+    portrait = (
+        f"https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+        if is_me
+        else person.get("portraitUrl")
+    )
+    #https://sg30p0.familysearch.org/service/memories/tps/persons/{person_id}/portrait/original
+
     return {
         "nombre": details.get("fullText", ""),
-        "id": person.get("id",""),
+        "id": person_id,
         "lifespan": person.get("lifespan", ""),
-        "portraitUrl": person.get("portraitUrl")
+        "portraitUrl": portrait
     }
 
 # --Pasar de JSON a lists--
 def process_json(generations):
     asc = []
     desc = []
-    ancestor = simplify_person(None) 
+    ancestor = build_person(None) 
     viewer_person_id = None
 
     for gen in generations:
@@ -23,16 +35,16 @@ def process_json(generations):
         if "apex" in gen:
             person = gen["apex"].get("person", {})
             if person.get("commonAncestor", False):
-                ancestor = simplify_person(person)
+                ancestor = build_person(person)
             else:
-                asc.append(simplify_person(person))
+                asc.append(build_person(person))
             continue
         # Ascendentes
         asc_side = gen.get("ascendingSide")
         if asc_side:
-            person=simplify_person(asc_side.get("person"))
+            person=build_person(asc_side.get("person"))
             if asc_side.get("coParentIsPathPerson", False):  # Target Person es pariente de mi conyugue
-                coParent=simplify_person(asc_side.get("coParent"))
+                coParent=build_person(asc_side.get("coParent"))
                 asc.append(coParent)
                 asc.append(person)
             else:
@@ -43,9 +55,9 @@ def process_json(generations):
         # Descendentes
         desc_side = gen.get("descendingSide")
         if desc_side:
-            person=simplify_person(desc_side.get("person"))
+            person=build_person(desc_side.get("person"))
             if desc_side.get("coParentIsTargetPerson", False):  # Target Person es conyugue de mi pariente
-                coParent=simplify_person(desc_side.get("coParent"))
+                coParent=build_person(desc_side.get("coParent"))
                 desc.append(person)
                 desc.append(coParent)
             else:
