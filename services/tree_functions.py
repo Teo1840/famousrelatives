@@ -79,133 +79,159 @@ def get_session():
 from datetime import datetime, timedelta
 from db.db import obtener_arbol, guardar_arbol
 
-def generate_trees(codigos: list[str], token: str) -> list[dict]:
+def generate_trees(codigos, token):
     session = get_session()
     trees = []
+
     current = 0
     total = len(codigos)
-    TTL_SECONDS = 604800  # 1 week
-    viewer_person_id=None
+
+    viewer_person_id = None  # ⚠️
 
     for codigo in codigos:
         persona_id = codigo["person_code"]
-        if viewer_person_id!=None:
-            cached_data, created_at = obtener_arbol(persona_id, viewer_person_id)
-            if cached_data and created_at:
-                if datetime.now() - created_at < timedelta(seconds=TTL_SECONDS):
-                    if cached_data.get("name","")!="" and cached_data.get("person_code","")!="":
-                        print(f"💾 Cache válido para {persona_id}", flush=True)
-                        trees.append(cached_data)
-                        current+=1
-                        print(f"{current}/{total} (cache)", flush=True)
-                        continue
-                    else:
-                        print(f"♻️ Cache invalido para {persona_id}", flush=True)
-                else:
-                    print(f"♻️ Cache expirado para {persona_id}", flush=True)
 
-        print(f"🌐 Request a API para {persona_id}", flush=True)
-        url = f"http://host.docker.internal:5001/proxy/{persona_id}?token={token}"
+        # 🔹 Cache
+        cached = get_cached_tree(persona_id, viewer_person_id)
+        if cached:
+            trees.append(cached)
+            current += 1
+            print(f"{current}/{total} (cache)", flush=True)
+            continue
 
+        # 🔹 API
         try:
-            response = session.get(url, timeout=20) #10 seems too short
-        except requests.exceptions.Timeout:
-            print(f"⏱️ Timeout para {codigo}", flush=True)
-            current+=1
-            continue
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Error de conexión para {codigo}: {e}", flush=True)
-            current+=1
+            data = fetch_tree_from_api(session, persona_id, token)
+        except Exception as e:
+            if str(e) == "SESSION_EXPIRED":
+                print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
+                break
             continue
 
-        if response.status_code == 200:
-            data = response.json()
-            generations = data.get("generations", [])
-            if not generations:
-                print(f"No hay generaciones para {persona_id}", flush=True)
-                current+=1
-                continue
-
-            target = data.get("targetPerson", {})
-            camino_ascendente, camino_descendente, antepasado_comun, viewer_person_id = process_json(generations)
-
-            tree_data={
-                "person_code": persona_id,
-                "name": codigo["name"],
-                "parent_code": codigo["parent_code"],
-                "info": codigo["info"],
-                "cercania": len(camino_ascendente) + len(camino_descendente),
-                "relationshipDescription": data.get("relationshipDescription"),
-                "portraitUrl": target.get("portraitUrl",'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'),
-                "coParentIsPathPerson": (
-                    camino_ascendente[-2].get("coParentIsPathPerson")
-                    if len(camino_ascendente) >= 2 else False
-                ), #Mi conyugue es pariente de la persona
-                "coParentIsTargetPerson": target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"), #Soy pariente del conyuge de la perona
-                "camino_ascendente": camino_ascendente,
-                "camino_descendente": camino_descendente,
-                "antepasado_comun": antepasado_comun or {}
-            }
-            print(f"{tree_data.get("name")}", flush=True)
-            guardar_arbol(persona_id, viewer_person_id, tree_data)
-            trees.append(tree_data)
-            current+=1
+        if not data:
+            current += 1
             print(f"{current}/{total}", flush=True)
+            continue
 
-        elif response.status_code == 204:
-            current+=1
-            print(f"{current}/{total}", flush=True)
-        elif response.status_code == 401:
-            print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
-            break
-        else:
-            print(f"Error {response.status_code} para {codigo}: {response.text}", flush=True)
-            current+=1
+        # 🔹 Parse
+        parsed = parse_tree_data(data)
+        if not parsed:
+            current += 1
+            continue
+
+        # ⚠️ actualizar viewer_id dinámicamente
+        viewer_person_id = parsed["viewer_id"]
+
+        # 🔹 Build
+        tree = build_tree_data(parsed, codigo)
+
+        # 🔹 Save
+        save_tree(persona_id, viewer_person_id, tree)
+
+        trees.append(tree)
+
+        current += 1
+        print(f"{current}/{total}", flush=True)
 
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
     return trees
 
-# --Generar Tarjetas e Inserirlas en template--
-import json
-def get_card_color(a):
-    if a.get('coParentIsPathPerson'):
-        return '#fc9999'
-    if a.get('coParentIsTargetPerson'):
-        return '#fccccc'
-    return 'white'
+#CACHE
+from datetime import datetime, timedelta
+from db.db import obtener_arbol, guardar_arbol
 
-def generate_html(TEMPLATE_PATH,arboles_ordenados):
-    defaultPortraitUrl='https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'
-    #TARJETEAS POPUP
-    tarjetas = "\n".join(
-        f"""<div class="card"
-            style="background-color:{get_card_color(a)};"
-            data-co-parent="{str(a.get('coParentIsPathPerson', False)).lower()}">
-            <img src="{a.get('portraitUrl',defaultPortraitUrl)}" alt="Mini" width="150">
-            <h3>{a.get('name')}</h3>
-            <small><i>{a.get('relationshipDescription','')}</i></small><br>
-            <small>Cercanía: {a.get('cercania',0)}</small><br>
-            <small>{a.get('info')}</small>
-        </div>"""
-        for a in arboles_ordenados
-    )
+TTL_SECONDS = 604800  # 1 semana
 
-    arboles_js = json.dumps([
-        {
-            "nombre": a.get('name',''),
-            "portraitUrl": a.get('portraitUrl',defaultPortraitUrl),
-            "relacion": a.get('relationshipDescription',''),
-            "cercania": a.get('cercania',0),
-            "extra": a.get('info',''),
-            "detalle": a.get('texto',''),
-            "camino_ascendente": a.get("camino_ascendente", []),
-            "camino_descendente": a.get("camino_descendente", []),
-            "antepasado_comun": a.get("antepasado_comun", {})
-        } for a in arboles_ordenados
-    ], ensure_ascii=False)
+def get_cached_tree(persona_id, viewer_person_id):
+    if not viewer_person_id:
+        return None
 
-    with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
-        html = f.read()
-    html = html.replace("{{TARJETAS}}", tarjetas)
-    html = html.replace("// const arboles = {{ARBOL_JS}};", f"window.arboles = {arboles_js};") #Por algun motivo no pude hacerlo de otra manera.
-    return html
+    cached_data, created_at = obtener_arbol(persona_id, viewer_person_id)
+
+    if not cached_data or not created_at:
+        return None
+
+    if datetime.now() - created_at > timedelta(seconds=TTL_SECONDS):
+        print(f"♻️ Cache expirado para {persona_id}", flush=True)
+        return None
+
+    if cached_data.get("name") and cached_data.get("person_code"):
+        print(f"💾 Cache válido para {persona_id}", flush=True)
+        return cached_data
+
+    print(f"♻️ Cache inválido para {persona_id}", flush=True)
+    return None
+
+
+def save_tree(persona_id, viewer_person_id, tree_data):
+    guardar_arbol(persona_id, viewer_person_id, tree_data)
+
+#FETCHING API
+import requests
+
+def fetch_tree_from_api(session, person_id, token):
+    url = f"http://host.docker.internal:5001/proxy/{person_id}?token={token}"
+
+    try:
+        response = session.get(url, timeout=20)
+    except requests.exceptions.Timeout:
+        print(f"⏱️ Timeout para {person_id}", flush=True)
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error de conexión para {person_id}: {e}", flush=True)
+        return None
+
+    if response.status_code == 200:
+        return response.json()
+
+    if response.status_code == 204:
+        return None
+
+    if response.status_code == 401:
+        raise Exception("SESSION_EXPIRED")
+
+    print(f"❌ Error {response.status_code}: {response.text}", flush=True)
+    return None
+
+#PARSER
+def parse_tree_data(data):
+    generations = data.get("generations", [])
+    if not generations:
+        return None
+
+    asc, desc, ancestor, viewer_id = process_json(generations)
+
+    return {
+        "asc": asc,
+        "desc": desc,
+        "ancestor": ancestor,
+        "viewer_id": viewer_id,
+        "target": data.get("targetPerson", {}),
+        "relationship": data.get("relationshipDescription")
+    }
+
+#BUILDER
+def build_tree_data(parsed, codigo):
+    asc = parsed["asc"]
+    desc = parsed["desc"]
+    target = parsed["target"]
+
+    return {
+        "person_code": codigo["person_code"],
+        "name": codigo["name"],
+        "parent_code": codigo["parent_code"],
+        "info": codigo["info"],
+        "cercania": len(asc) + len(desc),
+        "relationshipDescription": parsed["relationship"],
+        "portraitUrl": target.get(
+            "portraitUrl",
+            "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+        ),
+        "coParentIsPathPerson": (
+            asc[-2].get("coParentIsPathPerson") if len(asc) >= 2 else False
+        ),
+        "coParentIsTargetPerson": target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"),
+        "camino_ascendente": asc,
+        "camino_descendente": desc,
+        "antepasado_comun": parsed["ancestor"] or {}
+    }
