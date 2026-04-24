@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import os
 from flask import Response, Flask, render_template, request
-from services.tree_functions import generate_trees, generate_html
+from services.tree_functions import generate_trees
+from services.cards import generate_html
 import csv
 from services.validators import validate_row
 
