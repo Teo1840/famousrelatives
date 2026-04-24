@@ -41,10 +41,9 @@ docker-compose build app
 docker-compose up -d
 docker logs -f famousrelatives-app-1
 
-##Extra DOCKER commands:
+##Delete DB DOCKER commands:
 docker compose down
 docker compose up --build
-docker logs -f famousrelatives-app-1
 
 - Screenshot: Insert TOKEN page
 You have to check requirements.

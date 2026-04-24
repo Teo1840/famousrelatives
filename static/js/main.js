@@ -10,10 +10,7 @@ window.closePopup = closePopup;
 // Estado global
 window.currentIndex = 0;
 
-// Wrapper para mantener compatibilidad con tu HTML
-window.showPopup = () => {
-  showPopup(window.arboles, window.currentIndex, generarUUID);
-};
+showPopup(window.arboles, window.currentIndex, generarUUID);
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
@@ -26,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       event.stopPropagation();
 
       window.currentIndex = i;
-      window.showPopup();
+      showPopup(window.arboles, window.currentIndex, generarUUID);
 
       document.getElementById('popup').style.display = 'flex';
     });

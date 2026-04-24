@@ -1,4 +1,5 @@
 import { buildGraph } from '/static/js/graph.js';
+import { generarUUID } from './utils.js';
 
 export function showPopup(arboles, currentIndex, generarUUID) {
   const a = arboles[currentIndex];
@@ -49,7 +50,7 @@ export function nextPopup(e) {
   if (!window.arboles || window.arboles.length === 0) return;
 
   window.currentIndex = (window.currentIndex + 1) % window.arboles.length;
-  window.showPopup();
+  showPopup(window.arboles, window.currentIndex, generarUUID);
 }
 
 export function prevPopup(e) {
@@ -59,5 +60,5 @@ export function prevPopup(e) {
   window.currentIndex =
     (window.currentIndex - 1 + window.arboles.length) % window.arboles.length;
 
-  window.showPopup();
+  showPopup(window.arboles, window.currentIndex, generarUUID);
 }
