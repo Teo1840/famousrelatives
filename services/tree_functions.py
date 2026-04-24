@@ -1,59 +1,57 @@
 # --Simplificar JSON--
 def simplify_person(person):
     if not person:
-        return {
-            "nombre": "",
-            "id": "",
-            "lifespan": "",
-            "portraitUrl": None
-        }
+        return {"nombre": "", "id": "", "lifespan": "", "portraitUrl": None}
+    name=person.get("nameConclusion", {})
+    details=name.get("details", {})
     return {
-        "nombre": person.get("nameConclusion", {}).get("details", {}).get("fullText", ""),
+        "nombre": details.get("fullText", ""),
         "id": person.get("id",""),
         "lifespan": person.get("lifespan", ""),
-        "portraitUrl": person.get("portraitUrl", None)
+        "portraitUrl": person.get("portraitUrl")
     }
 
 # --Pasar de JSON a lists--
 def process_json(generations):
-    camino_ascendente = []
-    camino_descendente = []
-    antepasado_comun = simplify_person(None) 
+    asc = []
+    desc = []
+    ancestor = simplify_person(None) 
     viewer_person_id = None
 
     for gen in generations:
-        if "apex" in gen: # Antepasado común
-            persona = gen["apex"].get("person")
-            if persona.get("commonAncestor", False):
-                antepasado_comun = simplify_person(persona)
+        #ANTEPASADO COMUN
+        if "apex" in gen:
+            person = gen["apex"].get("person", {})
+            if person.get("commonAncestor", False):
+                ancestor = simplify_person(person)
             else:
-                camino_ascendente.append(simplify_person(persona))
-            continue  # sigue con la siguiente generación
-
-        asc_side = gen.get("ascendingSide") # Ascendentes
+                asc.append(simplify_person(person))
+            continue
+        # Ascendentes
+        asc_side = gen.get("ascendingSide")
         if asc_side:
             person=simplify_person(asc_side.get("person"))
             if asc_side.get("coParentIsPathPerson", False):  # Target Person es pariente de mi conyugue
                 coParent=simplify_person(asc_side.get("coParent"))
-                camino_ascendente.append(coParent)
-                camino_ascendente.append(person)
+                asc.append(coParent)
+                asc.append(person)
             else:
-                camino_ascendente.append(person)
+                asc.append(person)
 
             if asc_side.get("indexInPath")==0: # Puedo preguntar por la ultima persona en asc_side??
-                viewer_person_id=person.get("id") # Obtener viewer_person_id
-
-        desc_side = gen.get("descendingSide") # Descendentes
+                viewer_id=person.get("id") # Obtener viewer_person_id
+        # Descendentes
+        desc_side = gen.get("descendingSide")
         if desc_side:
             person=simplify_person(desc_side.get("person"))
             if desc_side.get("coParentIsTargetPerson", False):  # Target Person es conyugue de mi pariente
-                camino_descendente.append(person)
                 coParent=simplify_person(desc_side.get("coParent"))
-                camino_descendente.append(coParent)
+                desc.append(person)
+                desc.append(coParent)
             else:
-                camino_descendente.append(simplify_person(desc_side.get("person")))
+                desc.append(person)
 
-    return camino_ascendente, camino_descendente, antepasado_comun, viewer_person_id
+    return asc, desc, ancestor, viewer_id
 
 # --Generar Session--
 import requests
@@ -169,19 +167,27 @@ def generate_trees(codigos: list[str], token: str) -> list[dict]:
 
 # --Generar Tarjetas e Inserirlas en template--
 import json
+def get_card_color(a):
+    if a.get('coParentIsPathPerson'):
+        return '#fc9999'
+    if a.get('coParentIsTargetPerson'):
+        return '#fccccc'
+    return 'white'
+
 def generate_html(TEMPLATE_PATH,arboles_ordenados):
     defaultPortraitUrl='https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'
     #TARJETEAS POPUP
     tarjetas = "\n".join(
         f"""<div class="card"
-            style="background-color:{'#fc9999' if a.get('coParentIsPathPerson') else '#fccccc' if a.get('coParentIsTargetPerson') else 'white'};"
+            style="background-color:{get_card_color(a)};"
             data-co-parent="{str(a.get('coParentIsPathPerson', False)).lower()}">
             <img src="{a.get('portraitUrl',defaultPortraitUrl)}" alt="Mini" width="150">
             <h3>{a.get('name')}</h3>
             <small><i>{a.get('relationshipDescription','')}</i></small><br>
             <small>Cercanía: {a.get('cercania',0)}</small><br>
             <small>{a.get('info')}</small>
-        </div>""" for i, a in enumerate(arboles_ordenados) # Necesario?? Todo un solo for??
+        </div>"""
+        for a in arboles_ordenados
     )
 
     arboles_js = json.dumps([
