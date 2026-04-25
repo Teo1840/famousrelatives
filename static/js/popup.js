@@ -1,8 +1,17 @@
 import { buildGraph } from '/static/js/graph.js';
 import { generarUUID } from './utils.js';
 
-export function showPopup(arboles, currentIndex, generarUUID) {
-  const a = arboles[currentIndex];
+export function getActiveList() {
+  const toggle = document.getElementById("switch-coParentIsTargetPerson");
+
+  return toggle.checked
+    ? window.coParentIsTargetPersonList
+    : window.fullList;
+}
+
+export function showPopup(currentIndex) {
+  const list = getActiveList();
+  const a = list[currentIndex];
 
   // Info textual
   document.getElementById('popup-body').innerHTML = `
@@ -10,11 +19,18 @@ export function showPopup(arboles, currentIndex, generarUUID) {
     <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
     <p><i>${a.relacion || ''}</i></p>
     <p><b>Cercanía:</b> ${a.cercania || ''}</p>
-    <p>${a.extra || ''}</p>
+    <p>${a.detalle || ''}</p>
     <pre>${a.detalle || ''}</pre>`;
 
   // Renderizar grafo
-  const { nodes, edges } = buildGraph(a, generarUUID);
+  const toggle = document.getElementById("switch-coParentIsTargetPerson");
+
+  const { nodes, edges } = buildGraph(
+    a,
+    generarUUID,
+    toggle.checked
+  );
+  
   const container = document.getElementById('mynetwork');
 
   if (window.network) window.network.destroy();
@@ -47,18 +63,23 @@ export function closePopup() {
 
 export function nextPopup(e) {
   e.stopPropagation();
-  if (!window.arboles || window.arboles.length === 0) return;
 
-  window.currentIndex = (window.currentIndex + 1) % window.arboles.length;
-  showPopup(window.arboles, window.currentIndex, generarUUID);
+  const list = getActiveList();
+  if (!list?.length) return;
+
+  window.currentIndex = (window.currentIndex + 1) % list.length;
+
+  showPopup(window.currentIndex);
 }
 
 export function prevPopup(e) {
   e.stopPropagation();
-  if (!window.arboles || window.arboles.length === 0) return;
+
+  const list = getActiveList();
+  if (!list?.length) return;
 
   window.currentIndex =
-    (window.currentIndex - 1 + window.arboles.length) % window.arboles.length;
+    (window.currentIndex - 1 + list.length) % list.length;
 
-  showPopup(window.arboles, window.currentIndex, generarUUID);
+  showPopup(window.currentIndex);
 }
