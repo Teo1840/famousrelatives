@@ -1,4 +1,5 @@
 # --Simplificar JSON--
+#def viewer_person
 def build_person(person):
     if not person:
         return {"nombre": "", "id": "", "lifespan": "", "portraitUrl": None}
@@ -223,15 +224,16 @@ def parse_tree_data(data):
     }
 
 #BUILDER
-def build_tree_data(parsed, codigo):
+def build_tree_data(parsed, codigo, extra_parsed=None):
     asc = parsed["asc"]
     desc = parsed["desc"]
     target = parsed["target"]
-
+    coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
+    extra_asc = extra_parsed["asc"] if extra_parsed else []
+    extra_desc = extra_parsed["desc"] if extra_parsed else []
     return {
         "person_code": codigo["person_code"],
         "name": codigo["name"],
-        "parent_code": codigo["parent_code"],
         "info": codigo["info"],
         "cercania": len(asc) + len(desc),
         "relationshipDescription": parsed["relationship"],
@@ -242,8 +244,12 @@ def build_tree_data(parsed, codigo):
         "coParentIsPathPerson": (
             asc[-2].get("coParentIsPathPerson") if len(asc) >= 2 else False
         ),
-        "coParentIsTargetPerson": target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE"),
-        "camino_ascendente": asc,
-        "camino_descendente": desc,
+        "coParentIsTargetPerson": coParentIsTargetPerson,
+        "mainPath": {"asc": asc, "desc": desc},
+        "directPath": (
+            {"asc": extra_asc, "desc": extra_desc}
+            if coParentIsTargetPerson and extra_parsed
+            else None
+        ),
         "antepasado_comun": parsed["ancestor"] or {}
     }

@@ -2,13 +2,20 @@ export function buildGraph(a, generarUUID) {
   const nodes = [];
   const edges = [];
 
-  const BLOCK_SIZE = 5;
+  const BLOCK_SIZE = 4;
   const GAP_X = 250;
   const GAP_Y = 150;
 
   const rootId = a.antepasado_comun?.id || generarUUID();
+  const useDirect =
+    a.coParentIsTargetPerson === true &&
+    a.directPath != null;
 
-  nodes.push({
+  const path = useDirect
+    ? a.directPath
+    : (a.mainPath || {});
+
+    nodes.push({
     id: rootId,
     shape: "image",
     image:
@@ -24,7 +31,7 @@ export function buildGraph(a, generarUUID) {
   // ======================
   // ASC (izquierda)
   // ======================
-  const asc = a.camino_ascendente || [];
+  const asc = path.asc || [];
   asc.forEach((p, i) => {
     const id = p.id || generarUUID();
     p._id = id;
@@ -59,7 +66,7 @@ export function buildGraph(a, generarUUID) {
   // ======================
   // DESC (derecha)
   // ======================
-  const desc = a.camino_descendente || [];
+  const desc = path.desc || [];
   desc.forEach((p, i) => {
     const id = p.id || generarUUID();
     p._id = id;

@@ -8,9 +8,16 @@ window.nextPopup = nextPopup;
 window.closePopup = closePopup;
 
 // Estado global
-window.currentIndex = 0;
+window.fullList = window.arboles;
+window.coParentIsTargetPersonList = window.fullList.filter(a => {
+  const isTarget = a.coParentIsTargetPerson;
+  const hasDirect = a.directPath != null;
 
-showPopup(window.arboles, window.currentIndex, generarUUID);
+  return !(isTarget && !hasDirect);
+});
+
+window.currentIndex = 0;
+showPopup(window.currentIndex);
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
       event.stopPropagation();
 
       window.currentIndex = i;
-      showPopup(window.arboles, window.currentIndex, generarUUID);
+      showPopup(window.currentIndex);
 
       document.getElementById('popup').style.display = 'flex';
     });
