@@ -1,4 +1,5 @@
-import { showPopup, getActiveList } from './popup.js';
+import { showPopup } from './popup.js';
+import { getActiveList } from './main.js';
 import { generarUUID } from './utils.js';
 
 export function initSwitches() {
@@ -22,9 +23,6 @@ export function initSwitches() {
 
     // 2. reset index
     window.currentIndex = 0;
-
-    // 3. render usando lista activa
-    showPopup(window.currentIndex);
   });
 
   // MODO OSCURO

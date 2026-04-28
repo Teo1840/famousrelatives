@@ -1,39 +1,42 @@
 import { buildGraph } from '/static/js/graph.js';
+import { getActiveList } from './main.js';
 import { generarUUID } from './utils.js';
-
-export function getActiveList() {
-  const toggle = document.getElementById("switch-coParentIsTargetPerson");
-
-  return toggle.checked
-    ? window.coParentIsTargetPersonList
-    : window.fullList;
-}
 
 export function showPopup(currentIndex) {
   const list = getActiveList();
   const a = list[currentIndex];
+  console.log(currentIndex);
+  if (!a) return;
 
-  // Info textual
-  document.getElementById('popup-body').innerHTML = `
-    <h3>${a.nombre}</h3>
-    <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
-    <p><i>${a.relacion || ''}</i></p>
-    <p><b>Cercanía:</b> ${a.cercania || ''}</p>
-    <p>${a.detalle || ''}</p>
-    <pre>${a.detalle || ''}</pre>`;
-
-  // Renderizar grafo
   const toggle = document.getElementById("switch-coParentIsTargetPerson");
+
+  renderPopupInfo(a);
+  requestAnimationFrame(() => {
+    renderGraph(a, toggle.checked);
+  });
+
+  document.getElementById('popup').style.display = 'flex';
+}
+
+function renderGraph(a, useDirectPath) {
+  const container = document.getElementById('mynetwork');
 
   const { nodes, edges } = buildGraph(
     a,
     generarUUID,
-    toggle.checked
+    useDirectPath
   );
-  
-  const container = document.getElementById('mynetwork');
 
-  if (window.network) window.network.destroy();
+  // limpiar grafo anterior
+  if (window.network) {
+    window.network.destroy();
+    window.network = null;
+  }
+
+  if (!nodes.length) {
+    container.innerHTML = "<p>No hay datos para mostrar</p>";
+    return;
+  }
 
   const data = {
     nodes: new vis.DataSet(nodes),
@@ -51,10 +54,20 @@ export function showPopup(currentIndex) {
   };
 
   window.network = new vis.Network(container, data, options);
-  window.network.moveTo({
-    position: { x: 0, y: 0 },
-    scale: 1/3
-  });
+
+  window.network.fit();
+}
+
+function renderPopupInfo(a) {
+  const container = document.getElementById('popup-body');
+
+  container.innerHTML = `
+    <h3>${a.nombre}</h3>
+    <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
+    <p><i>${a.relacion || ''}</i></p>
+    <p><b>Cercanía:</b> ${a.cercania || ''}</p>
+    <pre>${a.detalle || ''}</pre>
+  `;
 }
 
 export function closePopup() {

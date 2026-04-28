@@ -1,4 +1,4 @@
-export function buildGraph(a, generarUUID) {
+export function buildGraph(a, generarUUID, directPath) {
   const nodes = [];
   const edges = [];
 
@@ -6,26 +6,29 @@ export function buildGraph(a, generarUUID) {
   const GAP_X = 250;
   const GAP_Y = 150;
 
-  const rootId = a.antepasado_comun?.id || generarUUID();
   const useDirect =
+    directPath &&
     a.coParentIsTargetPerson === true &&
     a.directPath != null;
 
-  const path = useDirect
-    ? a.directPath
-    : (a.mainPath || {});
+  if (directPath && !useDirect && a.coParentIsTargetPerson === true) {
+    return { nodes: [], edges: [] };
+  }
 
-    nodes.push({
+  const path = useDirect ? a.directPath : (a.mainPath || {});
+  const rootId = path.antepasado_comun?.id || generarUUID();
+
+  nodes.push({
     id: rootId,
     shape: "image",
     image:
-      a.antepasado_comun?.portraitUrl ||
+      path.antepasado_comun?.portraitUrl ||
       "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
     font: { size: 16 },
     x: 0,
     y: 0,
     fixed: true,
-    label: a.antepasado_comun?.nombre || ""
+    label: path.antepasado_comun?.nombre || ""
   });
 
   // ======================

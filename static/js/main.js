@@ -17,7 +17,6 @@ window.coParentIsTargetPersonList = window.fullList.filter(a => {
 });
 
 window.currentIndex = 0;
-showPopup(window.currentIndex);
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
@@ -29,10 +28,25 @@ document.addEventListener("DOMContentLoaded", () => {
     card.addEventListener('click', (event) => {
       event.stopPropagation();
 
-      window.currentIndex = i;
+      const list = getActiveList();
+
+      const realIndex = list.findIndex(item =>
+        item.person_code === window.fullList[i].person_code
+      );
+
+      window.currentIndex = realIndex !== -1 ? realIndex : 0;
+
       showPopup(window.currentIndex);
 
       document.getElementById('popup').style.display = 'flex';
     });
   });
 });
+
+export function getActiveList() {
+  const toggle = document.getElementById("switch-coParentIsTargetPerson");
+
+  return toggle.checked
+    ? window.coParentIsTargetPersonList
+    : window.fullList;
+}
