@@ -12,28 +12,35 @@ app = Flask(__name__)
 
 @app.route('/proxy/<persona_id>', methods=['GET'])
 def proxy(persona_id):
-    # Leer headers y cookies desde query params
     token = request.args.get('token')
+    endpoint = request.args.get('endpoint', 'user-relationship')
+
     if not token:
         return "Falta token", 400
+
     headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept': 'application/json',
         'User-Agent': USER_AGENT,
     }
+
     cookies = {'fssessionid': token}
-    show_portraits = request.args.get('showPortraits', 'true')
-    enforce_temple = request.args.get('enforceTemplePolicyEx', 'true')
-    params = {
-        'showPortraits': show_portraits,
-        'enforceTemplePolicyEx': enforce_temple,
-    }
-    url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}"
-    #https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}?showPortraits=true&enforceTemplePolicyEx=true
-    #https://www.familysearch.org/service/tree/tree-data/r9/family-members/person/MYH5-6P2?includePhotos=true&treeId=PRIVATE
+
+    if endpoint == "family-members":
+        url = f"https://www.familysearch.org/service/tree/tree-data/r9/family-members/person/{persona_id}"
+        params = {
+            'includePhotos': request.args.get('includePhotos', 'true'),
+            'treeId': request.args.get('treeId', 'PRIVATE'),
+        }
+    else:
+        url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}"
+        params = {
+            'showPortraits': request.args.get('showPortraits', 'true'),
+            'enforceTemplePolicyEx': request.args.get('enforceTemplePolicyEx', 'true'),
+        }
+
     try:
         resp = requests.get(url, headers=headers, cookies=cookies, params=params, timeout=20)
-        time.sleep(0.25) #evitar ser blockeado?
-        #https://developers.familysearch.org/main/docs/throttling#testing-throttling
+        time.sleep(0.25)
         return Response(
             resp.content,
             status=resp.status_code,

@@ -136,13 +136,28 @@ def generate_trees(codigos, token):
         viewer_person_id = parsed["viewer_id"]
 
         # 🔹 Build
-        tree = build_tree_data(parsed, codigo)
+        target = parsed["target"]
+        coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
+        extra_parsed = None
+        if coParentIsTargetPerson:
+            parent_id = fetch_parent_id(session, persona_id, token)
+            if parent_id:
+                try:
+                    extra_data = fetch_tree_from_api(session, parent_id, token)
+                    if extra_data:
+                        extra_parsed = parse_tree_data(extra_data)
+
+                except Exception as e:
+                    if str(e) == "SESSION_EXPIRED":
+                        print("⚠️ Sesión expirada en fetch de padres", flush=True)
+                        break
+
+        tree = build_tree_data(parsed, codigo, extra_parsed)
 
         # 🔹 Save
         save_tree(persona_id, viewer_person_id, tree)
 
         trees.append(tree)
-
         current += 1
         print(f"{current}/{total}", flush=True)
 
@@ -182,11 +197,14 @@ def save_tree(persona_id, viewer_person_id, tree_data):
 #FETCHING API
 import requests
 
-def fetch_tree_from_api(session, person_id, token):
-    url = f"http://host.docker.internal:5001/proxy/{person_id}?token={token}"
+def fetch_tree_from_api(session, person_id, token, endpoint=None):
+    base_url = f"http://host.docker.internal:5001/proxy/{person_id}?token={token}"
+
+    if endpoint:
+        base_url += f"&endpoint={endpoint}"
 
     try:
-        response = session.get(url, timeout=20)
+        response = session.get(base_url, timeout=20)
     except requests.exceptions.Timeout:
         print(f"⏱️ Timeout para {person_id}", flush=True)
         return None
@@ -227,10 +245,12 @@ def parse_tree_data(data):
 def build_tree_data(parsed, codigo, extra_parsed=None):
     asc = parsed["asc"]
     desc = parsed["desc"]
+    apex = parsed["ancestor"] or {}
     target = parsed["target"]
     coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
     extra_asc = extra_parsed["asc"] if extra_parsed else []
     extra_desc = extra_parsed["desc"] if extra_parsed else []
+    extra_apex = extra_parsed["ancestor"] if extra_parsed else []
     return {
         "person_code": codigo["person_code"],
         "name": codigo["name"],
@@ -245,11 +265,42 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
             asc[-2].get("coParentIsPathPerson") if len(asc) >= 2 else False
         ),
         "coParentIsTargetPerson": coParentIsTargetPerson,
-        "mainPath": {"asc": asc, "desc": desc},
+        "mainPath": {"asc": asc, "desc": desc, "antepasado_comun": apex},
         "directPath": (
-            {"asc": extra_asc, "desc": extra_desc}
+            {"asc": extra_asc, "desc": extra_desc, "antepasado_comun": extra_apex}
             if coParentIsTargetPerson and extra_parsed
             else None
-        ),
-        "antepasado_comun": parsed["ancestor"] or {}
+        )
     }
+
+#GET PARENT FOR DIRECT PATH
+def fetch_parent_id(session, person_id, token):
+    try:
+        data = fetch_tree_from_api(
+            session,
+            person_id,
+            token,
+            endpoint="family-members"
+        )
+    except Exception as e:
+        if str(e) == "SESSION_EXPIRED":
+            raise
+        return None
+
+    if not data:
+        return None
+
+    parents = data.get("parents", [])
+    if not parents:
+        return None
+
+    parent1 = parents[0].get("parent1")
+    parent2 = parents[0].get("parent2")
+
+    if parent1 and parent1.get("id"):
+        return parent1.get("id")
+
+    if parent2 and parent2.get("id"):
+        return parent2.get("id")
+
+    return None
