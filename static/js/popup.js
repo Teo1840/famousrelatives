@@ -5,14 +5,14 @@ import { generarUUID } from './utils.js';
 export function showPopup(currentIndex) {
   const list = getActiveList();
   const a = list[currentIndex];
-  console.log(currentIndex);
   if (!a) return;
 
   const toggle = document.getElementById("switch-coParentIsTargetPerson");
 
   renderPopupInfo(a);
+
   requestAnimationFrame(() => {
-    renderGraph(a, toggle.checked);
+    renderGraph(a, toggle?.checked);
   });
 
   document.getElementById('popup').style.display = 'flex';
@@ -20,6 +20,10 @@ export function showPopup(currentIndex) {
 
 function renderGraph(a, useDirectPath) {
   const container = document.getElementById('mynetwork');
+  if (!container) return;
+
+  // 🔥 limpiar contenido previo
+  container.innerHTML = "";
 
   const { nodes, edges } = buildGraph(
     a,
@@ -27,7 +31,7 @@ function renderGraph(a, useDirectPath) {
     useDirectPath
   );
 
-  // limpiar grafo anterior
+  // 🔥 destruir grafo anterior
   if (window.network) {
     window.network.destroy();
     window.network = null;
@@ -54,24 +58,39 @@ function renderGraph(a, useDirectPath) {
   };
 
   window.network = new vis.Network(container, data, options);
-
   window.network.fit();
 }
 
 function renderPopupInfo(a) {
   const container = document.getElementById('popup-body');
+  if (!container) return;
+
+  const showDirect = document.getElementById("switch-coParentIsTargetPerson")?.checked;
+
+  const valor = showDirect
+    ? (a.direct_length ?? '')
+    : (a.cercania ?? '');
 
   container.innerHTML = `
-    <h3>${a.nombre}</h3>
+    <h3>${a.name}</h3>
     <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
-    <p><i>${a.relacion || ''}</i></p>
-    <p><b>Cercanía:</b> ${a.cercania || ''}</p>
+    <p><i>${a.relationshipDescription || ''}</i></p>
+    <p><b>${'Cercanía'}:</b> ${valor}</p>
     <pre>${a.detalle || ''}</pre>
   `;
 }
 
 export function closePopup() {
-  document.getElementById('popup').style.display = 'none';
+  const popup = document.getElementById('popup');
+  if (popup) {
+    popup.style.display = 'none';
+  }
+
+  // 🔥 limpiar grafo al cerrar
+  if (window.network) {
+    window.network.destroy();
+    window.network = null;
+  }
 }
 
 export function nextPopup(e) {

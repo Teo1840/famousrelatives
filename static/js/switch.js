@@ -1,6 +1,5 @@
-import { showPopup } from './popup.js';
+import { renderCards } from './card.js';
 import { getActiveList } from './main.js';
-import { generarUUID } from './utils.js';
 
 export function initSwitches() {
 
@@ -9,30 +8,24 @@ export function initSwitches() {
   toggle.addEventListener("change", () => {
     if (!window.fullList) return;
 
-    const hide = toggle.checked;
+    // 🔥 RE-RENDER completo (no ocultar a mano)
+    renderCards(getActiveList());
 
-    // 1. actualizar cards
-    document.querySelectorAll(".card").forEach(c => {
-      const isTarget = c.dataset.coParentTarget === "true";
-      const hasDirect = c.dataset.hasDirectPath === "true";
-
-      if (isTarget && !hasDirect) {
-        c.style.display = hide ? "none" : "block";
-      }
-    });
-
-    // 2. reset index
+    // reset index
     window.currentIndex = 0;
   });
 
-  // MODO OSCURO
+  // 🌙 MODO OSCURO
   const darkToggle = document.getElementById("switchDarkMode");
   const darkText = document.getElementById("darkModeText");
 
-  darkToggle.addEventListener("change", function() {
+  darkToggle.addEventListener("change", () => {
     document.body.classList.toggle("dark-mode");
-    darkText.textContent = document.body.classList.contains("dark-mode")
-      ? "Modo oscuro"
-      : "Modo claro";
+
+    if (darkText) {
+      darkText.textContent = document.body.classList.contains("dark-mode")
+        ? "Modo oscuro"
+        : "Modo claro";
+    }
   });
 }

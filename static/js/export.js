@@ -1,10 +1,9 @@
 async function getCSSContent() {
   const paths = [
-    "/static/css/themes/dark-mode.css",
     "/static/css/components/buttons.css",
     "/static/css/components/popups.css",
     "/static/css/components/switches.css",
-    "/static/css/main.css"
+    "/static/css/base.css"
   ];
 
   let styles = "";

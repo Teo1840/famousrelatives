@@ -1,0 +1,168 @@
+/* =========================
+   VARIABLES (LIGHT)
+========================= */
+:root {
+  --bg: #ececec;
+  --text: #222;
+  --title: #111;
+
+  --card-bg: #fff;
+  --card-text: #222;
+  --card-shadow: rgba(0,0,0,0.15);
+  --card-hover-shadow: rgba(0,0,0,0.25);
+
+  --border: #ddd;
+
+  --popup-bg: #fff;
+  --popup-text: #222;
+  --popup-pre: #f4f4f4;
+
+  --overlay: rgba(0,0,0,0.5);
+
+  --graph-bg: #fff;
+
+  --btn-bg: white;
+  --btn-hover: rgb(132, 185, 67);
+  --icon-fill: rgb(168, 199, 129);
+  --icon-border: rgb(156, 197, 106);
+  --tooltip-bg: rgb(12, 12, 12);
+  --tooltip-text: white;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+body.dark-mode {
+  --bg: #121212;
+  --text: #e6e6e6;
+  --title: #ffffff;
+
+  --card-bg: #1f1f1f;
+  --card-text: #b5b5b5;
+  --card-shadow: rgba(255,255,255,0.05);
+  --card-hover-shadow: rgba(255,255,255,0.1);
+
+  --border: #333;
+
+  --popup-bg: #2a2a2a;
+  --popup-text: #ddd;
+  --popup-pre: #3b3b3b;
+
+  --overlay: rgba(0,0,0,0.7);
+
+  --graph-bg: #202020;
+
+  --btn-bg: rgb(27, 27, 27);
+  --tooltip-bg: #111;
+  --tooltip-text: #eee;
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  font-family: "Open Sans", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* =========================
+   TITLES
+========================= */
+h1, h2 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  text-align: center;
+  color: var(--title);
+  margin-top: 20px;
+}
+
+/* =========================
+   FLEX HEADER
+========================= */
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.status-text {
+  font-size: 14px;
+  user-select: none;
+}
+
+/* =========================
+   GRID
+========================= */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  justify-items: center;
+  margin: 20px auto;
+  max-width: 1000px;
+}
+
+@media (max-width: 900px) {
+  .grid-container { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .grid-container { grid-template-columns: 1fr; }
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 12px;
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+
+  background: var(--card-bg);
+  color: var(--card-text);
+
+  box-shadow: 0 2px 5px var(--card-shadow);
+  border: 1px solid var(--border);
+
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px var(--card-hover-shadow);
+}
+
+.card h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* =========================
+   GRAPH
+========================= */
+#mynetwork {
+  width: 100%;
+  height: 500px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--graph-bg);
+}
+
+/* =========================
+   COUNTER
+========================= */
+#list-count {
+  font-family: "Poppins", sans-serif;
+  font-size: 24px;
+}

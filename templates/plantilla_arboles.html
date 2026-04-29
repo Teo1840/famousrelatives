@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <title>Famous Relatives</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Open+Sans&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/themes/dark-mode.css">
+<link rel="stylesheet" href="static/css/base.css">
 <link rel="stylesheet" href="static/css/components/buttons.css">
 <link rel="stylesheet" href="static/css/components/popups.css">
 <link rel="stylesheet" href="static/css/components/switches.css">
 <script src="/static/js/vis-network.min.js"></script>
-<link rel="stylesheet" href="static/css/main.css">
 <style>
 </style>
 </head>
@@ -59,10 +58,12 @@
   </button>
 </div>
 
-<!-- GRILLA DE TARJETAS -->
-<div class="grid-container">
-  {{TARJETAS}}
+<div class="flex-container">
+  <span id="list-count"></span>
 </div>
+
+<!-- GRILLA DE TARJETAS -->
+<div id="cards-container" class="grid-container"></div>
 
 <!-- POPUPS -->
 <div id="popup" class="popup-overlay" onclick="closePopup(event)">
