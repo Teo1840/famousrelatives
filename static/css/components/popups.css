@@ -73,3 +73,60 @@
 }
 .popup-nav.left { left: 40px; }
 .popup-nav.right { right: 40px; }
+
+/* =========================
+   POPUP
+========================= */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: var(--popup-bg);
+  color: var(--popup-text);
+
+  border-radius: 10px;
+  padding: 20px;
+  width: 80%;
+  max-width: 900px;
+
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.popup-content pre {
+  background: var(--popup-pre);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.popup-close {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* =========================
+   POPUP NAV
+========================= */
+.popup-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(59,130,246,0.8);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.popup-nav:hover {
+  background: rgba(59,130,246,1);
+}
+
+.popup-nav.left { left: 10px; }
+.popup-nav.right { right: 10px; }

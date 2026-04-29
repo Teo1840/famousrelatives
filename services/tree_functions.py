@@ -246,32 +246,66 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
     asc = parsed["asc"]
     desc = parsed["desc"]
     apex = parsed["ancestor"] or {}
+    main_path = {
+        "asc": asc,
+        "desc": desc,
+        "antepasado_comun": apex
+    }
+    main_length = getPathLength(main_path)
+    
+    direct_path = None
+    direct_length = main_length
+
     target = parsed["target"]
     coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
-    extra_asc = extra_parsed["asc"] if extra_parsed else []
-    extra_desc = extra_parsed["desc"] if extra_parsed else []
-    extra_apex = extra_parsed["ancestor"] if extra_parsed else []
+
+    if coParentIsTargetPerson and extra_parsed:
+        extra_asc = extra_parsed["asc"]
+        extra_desc = extra_parsed["desc"][:]
+        extra_apex = extra_parsed["ancestor"]
+
+        if len(extra_desc) > 0:
+            extra_desc.pop()
+
+        extra_target = build_person(target)
+        extra_desc.append(extra_target)
+
+        direct_path = {
+            "asc": extra_asc,
+            "desc": extra_desc,
+            "antepasado_comun": extra_apex
+        }
+
+        direct_length = getPathLength(direct_path)
+    
     return {
         "person_code": codigo["person_code"],
         "name": codigo["name"],
         "info": codigo["info"],
-        "cercania": len(asc) + len(desc),
+
+        "cercania": main_length,
+
         "relationshipDescription": parsed["relationship"],
+
         "portraitUrl": target.get(
             "portraitUrl",
             "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
         ),
+
         "coParentIsPathPerson": (
-            asc[-2].get("coParentIsPathPerson") if len(asc) >= 2 else False
+            len(asc) >= 2 and asc[-2].get("coParentIsPathPerson", False)
         ),
+
         "coParentIsTargetPerson": coParentIsTargetPerson,
-        "mainPath": {"asc": asc, "desc": desc, "antepasado_comun": apex},
-        "directPath": (
-            {"asc": extra_asc, "desc": extra_desc, "antepasado_comun": extra_apex}
-            if coParentIsTargetPerson and extra_parsed
-            else None
-        )
+
+        "mainPath": main_path,
+        "directPath": direct_path,
+
+        "direct_length": direct_length
     }
+
+def getPathLength(path):
+    return len(path.get("asc", [])) + len(path.get("desc", []))
 
 #GET PARENT FOR DIRECT PATH
 def fetch_parent_id(session, person_id, token):
