@@ -1,26 +1,40 @@
 import { showPopup } from './popup.js';
-import { getActiveList, updateListCount } from './main.js';
+import { getActiveList } from './main.js';
 
 function getCardColor(a) {
   const isPath = a?.mainPath?.coParentIsPathPerson;
   const isTarget = a?.coParentIsTargetPerson;
 
-  if (isPath && isTarget) return '#ff6666';   // 🔴 ambos
-  if (isPath) return '#dd9999';               // 🌸 path
-  if (isTarget) return '#ffcccc';             // 🌸 claro target
-  return 'white';                            // ⚪ ninguno
+  if (isPath && isTarget) return '#ff6666';   // ambos
+  if (isPath) return '#dd9999';               // path
+  if (isTarget) return '#ffcccc';             // target
+  return 'white';
+}
+
+function getEffectiveLength(a) {
+  const main = a?.mainPath?.coParentIsPathPerson;
+  const direct = a?.directPath?.coParentIsPathPerson;
+
+  const useDirect = a?.directPath && !(main && (direct ?? true));
+
+  return useDirect
+    ? (a.direct_length ?? 0)
+    : (a.cercania ?? 0);
 }
 
 export function createCard(a) {
-  const defaultPortraitUrl = 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png';
+  const defaultPortraitUrl =
+    'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png';
 
   const card = document.createElement("div");
   card.className = "card";
 
   card.style.backgroundColor = getCardColor(a);
 
-  card.dataset.cercania = a.cercania ?? 0;
-  card.dataset.directLength = a.direct_length ?? 0;
+  const effective = getEffectiveLength(a);
+  card.dataset.effectiveLength = effective;
+
+  card.dataset.personCode = a.person_code; // 🔥 clave para popup
 
   card.innerHTML = `
     <img src="${a.portraitUrl || defaultPortraitUrl}" width="150">
@@ -30,20 +44,21 @@ export function createCard(a) {
     <small>${a.info || ""}</small>
   `;
 
-  // 🔥 EVENTO CLICK (ANTES TE FALTABA ESTO)
-  card.addEventListener('click', (event) => {
-    event.stopPropagation();
-
+  // 🔥 CLICK → abre popup (sin romper arquitectura)
+  card.addEventListener("click", () => {
     const list = getActiveList();
 
-    const index = list.findIndex(item =>
-      item.person_code === a.person_code
+    const index = list.findIndex(
+      x => x.person_code === card.dataset.personCode
     );
 
-    window.currentIndex = index !== -1 ? index : 0;
+    if (index === -1) return;
 
-    showPopup(window.currentIndex);
-    document.getElementById('popup').style.display = 'flex';
+    window.currentIndex = index;
+    showPopup(index);
+
+    const popup = document.getElementById("popup");
+    if (popup) popup.style.display = "flex";
   });
 
   return card;
@@ -61,24 +76,15 @@ export function renderCards(list) {
   });
 
   updateCardMetrics();
-  updateListCount(); // 🔥 ahora vive acá
 }
 
 export function updateCardMetrics() {
-  const switchDirect = document.getElementById("switch-coParentIsTargetPerson");
   const cards = document.querySelectorAll(".card");
 
   cards.forEach(card => {
     const metricEl = card.querySelector(".metric");
     if (!metricEl) return;
 
-    const cercania = card.dataset.cercania;
-    const direct = card.dataset.directLength;
-
-    metricEl.textContent = `Cercanía: ${
-      switchDirect?.checked
-        ? (direct ?? '-')
-        : (cercania ?? '-')
-    }`;
+    metricEl.textContent = `Cercanía: ${card.dataset.effectiveLength}`;
   });
 }
