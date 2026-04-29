@@ -24,39 +24,44 @@ function cleanJS(code) {
     .replace(/export\s+/g, "");
 }
 
-document.querySelector(".btn-download").addEventListener("click", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.querySelector(".btn-download");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
     const arbolesData = window.arboles || [];
 
-  // 1. CSS
-  const css = await getCSSContent();
+    // 1. CSS
+    const css = await getCSSContent();
 
-  // 2. JS FILES
-  const vis = await fetch("/static/js/vis-network.min.js").then(r => r.text());
-  const utils = cleanJS(await fetch("/static/js/utils.js").then(r => r.text()));
-  const popup = cleanJS(await fetch("/static/js/popup.js").then(r => r.text()));
-  const switchJS = cleanJS(await fetch("/static/js/switch.js").then(r => r.text()));
-  const graph = cleanJS(await fetch("/static/js/graph.js").then(r => r.text()));
-  const main = cleanJS(await fetch("/static/js/main.js").then(r => r.text()));
+    // 2. JS FILES (orden IMPORTANTE)
+    const vis = await fetch("/static/js/vis-network.min.js").then(r => r.text());
+    const utils = cleanJS(await fetch("/static/js/utils.js").then(r => r.text()));
+    const graph = cleanJS(await fetch("/static/js/graph.js").then(r => r.text()));
+    const card = cleanJS(await fetch("/static/js/card.js").then(r => r.text())); // 🔥 faltaba
+    const popup = cleanJS(await fetch("/static/js/popup.js").then(r => r.text()));
+    const switchJS = cleanJS(await fetch("/static/js/switch.js").then(r => r.text()));
+    const main = cleanJS(await fetch("/static/js/main.js").then(r => r.text()));
 
-  // 3. BODY limpio
-  let bodyHTML = document.body.innerHTML;
+    // 3. BODY limpio
+    let bodyHTML = document.body.innerHTML;
 
-  bodyHTML = bodyHTML
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<link[\s\S]*?>/gi, "")
-    .replace(/<button class="btn-download"[\s\S]*?<\/button>/, "");
+    bodyHTML = bodyHTML
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<link[\s\S]*?>/gi, "")
+      .replace(/<button class="btn-download"[\s\S]*?<\/button>/, "");
 
-  // cerrar popup
-  bodyHTML = bodyHTML.replace(
-    /<div id="popup"([^>]*)style="[^"]*"/,
-    '<div id="popup"$1 style="display:none"'
-  );
+    // 🔥 asegurar popup oculto (robusto)
+    bodyHTML = bodyHTML.replace(
+      /<div id="popup"([^>]*)>/,
+      '<div id="popup"$1 style="display:none">'
+    );
 
-  // 4. estado UI
-  const dark = document.getElementById("switchDarkMode")?.checked;
+    // 4. estado UI
+    const dark = document.getElementById("switchDarkMode")?.checked;
 
-  // 5. HTML FINAL
-  const html = `
+    // 5. HTML FINAL
+    const html = `
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -79,23 +84,25 @@ window.currentIndex = 0;
 
 <script>${vis}</script>
 <script>${utils}</script>
+<script>${graph}</script>
+<script>${card}</script>
 <script>${popup}</script>
 <script>${switchJS}</script>
-<script>${graph}</script>
 <script>${main}</script>
 
 </body>
 </html>
 `;
 
-  // 6. Descargar
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
+    // 6. Descargar
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "famous-relatives-offline-full.html";
-  a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "famous-relatives-offline-full.html";
+    a.click();
 
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
 });

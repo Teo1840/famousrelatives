@@ -6,7 +6,6 @@ export function showPopup(currentIndex) {
   const list = getActiveList();
   const a = list[currentIndex];
   if (!a) return;
-
   const toggle = document.getElementById("switch-coParentIsTargetPerson");
 
   renderPopupInfo(a);
