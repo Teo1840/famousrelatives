@@ -1,24 +1,6 @@
-import { showPopup, prevPopup, nextPopup, closePopup } from './popup.js';
+import { prevPopup, nextPopup, closePopup } from './popup.js';
 import { initSwitches } from './switch.js';
 import { renderCards } from './card.js';
-
-// 🔗 Exponer para HTML (onclick del popup)
-window.prevPopup = prevPopup;
-window.nextPopup = nextPopup;
-window.closePopup = closePopup;
-
-// Estado global
-window.fullList = window.arboles;
-window.TargetList = get_TargetList();
-window.PathList = get_PathList();
-window.Target_and_PathList = get_Target_and_PathList();
-window.currentIndex = 0;
-
-// Inicialización
-document.addEventListener("DOMContentLoaded", () => {
-  initSwitches();
-  renderCards(getActiveList());
-});
 
 // Lista activa según switch
 export function getActiveList() {
@@ -53,26 +35,63 @@ export function updateListCount() {
 function get_TargetList() {
   return window.arboles
     .filter(a => !(a.coParentIsTargetPerson && a.directPath == null))
-    .sort((a, b) => (a.direct_length || 0) - (b.direct_length || 0));
+    .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
 }
 
 function get_PathList() {
-  return window.arboles.filter(a => {
-    const main = a?.mainPath?.coParentIsPathPerson;
-    const direct = a?.directPath?.coParentIsPathPerson;
+  return window.arboles
+    .filter(a => {
+      const main = a?.mainPath?.coParentIsPathPerson;
+      const direct = a?.directPath?.coParentIsPathPerson;
 
-    return !(main && (direct ?? true));
-  });
+      return !(main && (direct ?? true));
+    })
+    .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
 }
 
 function get_Target_and_PathList() {
-  return window.arboles.filter(a => {
-    const isTarget = !(a.coParentIsTargetPerson && a.directPath == null);
+  return window.arboles
+    .filter(a => {
+      const isTarget = !(a.coParentIsTargetPerson && a.directPath == null);
 
-    const main = a?.mainPath?.coParentIsPathPerson;
-    const direct = a?.directPath?.coParentIsPathPerson;
-    const isPath = !(main && (direct ?? true));
+      const main = a?.mainPath?.coParentIsPathPerson;
+      const direct = a?.directPath?.coParentIsPathPerson;
+      const isPath = !(main && (direct ?? true));
 
-    return isTarget && isPath;
-  });
+      return isTarget && isPath;
+    })
+    .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
 }
+
+function getEffectiveLength(a) {
+  const main = a?.mainPath?.coParentIsPathPerson;
+  const direct = a?.directPath?.coParentIsPathPerson;
+
+  const useDirect = a?.directPath && !(main && (direct ?? true));
+
+  return useDirect
+    ? (a.direct_length ?? Infinity)
+    : (a.cercania ?? Infinity);
+}
+
+// 🔗 Exponer para HTML (onclick del popup)
+window.prevPopup = prevPopup;
+window.nextPopup = nextPopup;
+window.closePopup = closePopup;
+
+// Estado global
+window.fullList = window.arboles;
+window.currentIndex = 0;
+
+// Inicialización
+document.addEventListener("DOMContentLoaded", () => {
+  window.TargetList = get_TargetList();
+  window.PathList = get_PathList();
+  window.Target_and_PathList = get_Target_and_PathList();
+
+  initSwitches();
+
+  const list = getActiveList();
+  renderCards(list);
+  updateListCount();
+});

@@ -1,5 +1,5 @@
 import { renderCards } from './card.js';
-import { getActiveList } from './main.js';
+import { getActiveList, updateListCount } from './main.js';
 
 export function initSwitches() {
 
@@ -9,24 +9,34 @@ export function initSwitches() {
   function update() {
     if (!window.fullList) return;
 
-    renderCards(getActiveList());
+    const list = getActiveList();
+    renderCards(list);
+    updateListCount();
+
     window.currentIndex = 0;
   }
 
-  directToggle.addEventListener("change", update);
-  coParentToggle.addEventListener("change", update);
+  if (directToggle) {
+    directToggle.addEventListener("change", update);
+  }
+
+  if (coParentToggle) {
+    coParentToggle.addEventListener("change", update);
+  }
 
   // 🌙 MODO OSCURO
   const darkToggle = document.getElementById("switchDarkMode");
   const darkText = document.getElementById("darkModeText");
 
-  darkToggle.addEventListener("change", () => {
-    document.body.classList.toggle("dark-mode");
+  if (darkToggle) {
+    darkToggle.addEventListener("change", () => {
+      document.body.classList.toggle("dark-mode");
 
-    if (darkText) {
-      darkText.textContent = document.body.classList.contains("dark-mode")
-        ? "Modo oscuro"
-        : "Modo claro";
-    }
-  });
+      if (darkText) {
+        darkText.textContent = document.body.classList.contains("dark-mode")
+          ? "Modo oscuro"
+          : "Modo claro";
+      }
+    });
+  }
 }
