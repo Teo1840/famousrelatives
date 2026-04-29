@@ -88,3 +88,8 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 - [ ] Add basic rate limiting (per session)
 - [ ] Add tests for parsing/normalization utilities
 - [ ] Add CI (GitHub Actions) to run tests and linting
+- [ ] Show my private ppf
+- [ ] Show coparent relationship in graph
+- [ ] Add loading bar
+- [ ] Better dark mode
+- [ ] Draw correct graph

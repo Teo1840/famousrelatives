@@ -3,17 +3,18 @@ import { getActiveList } from './main.js';
 
 export function initSwitches() {
 
-  const toggle = document.getElementById("switch-coParentIsTargetPerson");
+  const directToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const coParentToggle = document.getElementById("switch-coParentIsPathPerson");
 
-  toggle.addEventListener("change", () => {
+  function update() {
     if (!window.fullList) return;
 
-    // 🔥 RE-RENDER completo (no ocultar a mano)
     renderCards(getActiveList());
-
-    // reset index
     window.currentIndex = 0;
-  });
+  }
+
+  directToggle.addEventListener("change", update);
+  coParentToggle.addEventListener("change", update);
 
   // 🌙 MODO OSCURO
   const darkToggle = document.getElementById("switchDarkMode");

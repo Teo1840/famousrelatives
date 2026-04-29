@@ -2,9 +2,13 @@ import { showPopup } from './popup.js';
 import { getActiveList, updateListCount } from './main.js';
 
 function getCardColor(a) {
-  if (a?.coParentIsPathPerson) return '#fc9999';
-  if (a?.coParentIsTargetPerson) return '#fccccc';
-  return 'white';
+  const isPath = a?.mainPath?.coParentIsPathPerson;
+  const isTarget = a?.coParentIsTargetPerson;
+
+  if (isPath && isTarget) return '#ff6666';   // 🔴 ambos
+  if (isPath) return '#dd9999';               // 🌸 path
+  if (isTarget) return '#ffcccc';             // 🌸 claro target
+  return 'white';                            // ⚪ ninguno
 }
 
 export function createCard(a) {

@@ -42,12 +42,15 @@ def process_json(generations):
             continue
         # Ascendentes
         asc_side = gen.get("ascendingSide")
+        is_coParentIsPathPerson=False
         if asc_side:
             person=build_person(asc_side.get("person"))
             if asc_side.get("coParentIsPathPerson", False):  # Target Person es pariente de mi conyugue
+                is_coParentIsPathPerson=True
                 coParent=build_person(asc_side.get("coParent"))
                 asc.append(coParent)
                 asc.append(person)
+
             else:
                 asc.append(person)
 
@@ -64,7 +67,7 @@ def process_json(generations):
             else:
                 desc.append(person)
 
-    return asc, desc, ancestor, viewer_id
+    return asc, desc, ancestor, viewer_id, is_coParentIsPathPerson
 
 # --Generar Session--
 import requests
@@ -230,26 +233,30 @@ def parse_tree_data(data):
     if not generations:
         return None
 
-    asc, desc, ancestor, viewer_id = process_json(generations)
+    asc, desc, ancestor, viewer_id, coParentIsPathPerson = process_json(generations)
 
     return {
         "asc": asc,
         "desc": desc,
         "ancestor": ancestor,
         "viewer_id": viewer_id,
+        "coParentIsPathPerson": coParentIsPathPerson,
         "target": data.get("targetPerson", {}),
         "relationship": data.get("relationshipDescription")
     }
 
 #BUILDER
 def build_tree_data(parsed, codigo, extra_parsed=None):
+
     asc = parsed["asc"]
     desc = parsed["desc"]
     apex = parsed["ancestor"] or {}
+    coParentIsPathPerson = parsed["coParentIsPathPerson"]
     main_path = {
         "asc": asc,
         "desc": desc,
-        "antepasado_comun": apex
+        "antepasado_comun": apex,
+        "coParentIsPathPerson": coParentIsPathPerson
     }
     main_length = getPathLength(main_path)
     
@@ -270,10 +277,13 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
         extra_target = build_person(target)
         extra_desc.append(extra_target)
 
+        extra_coParentIsPathPerson = extra_parsed["coParentIsPathPerson"]
+
         direct_path = {
             "asc": extra_asc,
             "desc": extra_desc,
-            "antepasado_comun": extra_apex
+            "antepasado_comun": extra_apex,
+            "coParentIsPathPerson": extra_coParentIsPathPerson
         }
 
         direct_length = getPathLength(direct_path)
@@ -290,10 +300,6 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
         "portraitUrl": target.get(
             "portraitUrl",
             "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
-        ),
-
-        "coParentIsPathPerson": (
-            len(asc) >= 2 and asc[-2].get("coParentIsPathPerson", False)
         ),
 
         "coParentIsTargetPerson": coParentIsTargetPerson,
