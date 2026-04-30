@@ -25,37 +25,31 @@ def validate_csv_schema(headers):
 def validate_csv_file(file_path):
     valid_rows = []
     errors = []
-
     seen = set()
 
     with open(file_path, newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f, delimiter=";")
 
-        # ✔ esto SÍ puede romper
         validate_csv_schema(reader.fieldnames)
 
         for i, row in enumerate(reader, start=2):
-            try:
-                if not any(row.values()):
-                    continue
 
+            if not any(row.values()):
+                continue
+
+            try:
                 validated = validate_row(row)
 
                 if validated["person_code"] in seen:
                     errors.append(f"Fila {i}: person_code duplicado")
-                    continue
-
-                seen.add(validated["person_code"])
-                valid_rows.append(validated)
+                else:
+                    seen.add(validated["person_code"])
+                    valid_rows.append(validated)
 
             except Exception as e:
                 errors.append(f"Fila {i}: {str(e)}")
 
-    # ✔ solo log
     if errors:
-        print("\n--- ERRORES EN CSV ---")
-        for e in errors:
-            print(e)
-        print("--- FIN ERRORES ---\n")
+        raise ValueError("\n".join(errors))
 
     return valid_rows
