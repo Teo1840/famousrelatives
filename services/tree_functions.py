@@ -1,3 +1,7 @@
+from datetime import datetime, timedelta
+from db.db import obtener_arbol, guardar_arbol
+import requests
+
 # --Simplificar JSON--
 #def viewer_person
 def build_person(person):
@@ -11,7 +15,7 @@ def build_person(person):
     is_me = person.get("relationshipToPrevious") == "ME"
 
     portrait = (
-        f"https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+        "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
         if is_me
         else person.get("portraitUrl")
     )
@@ -29,7 +33,7 @@ def process_json(generations):
     asc = []
     desc = []
     ancestor = build_person(None) 
-    viewer_person_id = None
+    viewer_id = None
 
     for gen in generations:
         #ANTEPASADO COMUN
@@ -55,7 +59,7 @@ def process_json(generations):
                 asc.append(person)
 
             if asc_side.get("indexInPath")==0: # Puedo preguntar por la ultima persona en asc_side??
-                viewer_id=person.get("id") # Obtener viewer_person_id
+                viewer_id=person.get("id") # Obtener viewer_id
         # Descendentes
         desc_side = gen.get("descendingSide")
         if desc_side:
@@ -70,7 +74,6 @@ def process_json(generations):
     return asc, desc, ancestor, viewer_id, is_coParentIsPathPerson
 
 # --Generar Session--
-import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -92,9 +95,6 @@ def get_session():
     return session
 
 # --Generar un Arbol por codigo incluyendo su JSON respectivo--
-from datetime import datetime, timedelta
-from db.db import obtener_arbol, guardar_arbol
-
 def generate_trees(codigos, token):
     session = get_session()
     trees = []
@@ -168,9 +168,6 @@ def generate_trees(codigos, token):
     return trees
 
 #CACHE
-from datetime import datetime, timedelta
-from db.db import obtener_arbol, guardar_arbol
-
 TTL_SECONDS = 604800  # 1 semana
 
 def get_cached_tree(persona_id, viewer_person_id):
@@ -198,8 +195,6 @@ def save_tree(persona_id, viewer_person_id, tree_data):
     guardar_arbol(persona_id, viewer_person_id, tree_data)
 
 #FETCHING API
-import requests
-
 def fetch_tree_from_api(session, person_id, token, endpoint=None):
     base_url = f"http://host.docker.internal:5001/proxy/{person_id}?token={token}"
 
