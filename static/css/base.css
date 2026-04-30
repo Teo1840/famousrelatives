@@ -33,28 +33,34 @@
    DARK MODE
 ========================= */
 body.dark-mode {
-  --bg: #121212;
-  --text: #e6e6e6;
+  --bg: #0f1115;               /* fondo más profundo */
+  --text: #e4e6eb;             /* texto principal */
   --title: #ffffff;
 
-  --card-bg: #1f1f1f;
-  --card-text: #b5b5b5;
-  --card-shadow: rgba(255,255,255,0.05);
-  --card-hover-shadow: rgba(255,255,255,0.1);
+  --card-bg: #181a20;          /* cards más diferenciadas */
+  --card-text: #d1d5db;
 
-  --border: #333;
+  --card-shadow: rgba(0,0,0,0.6);
+  --card-hover-shadow: rgba(0,0,0,0.9);
 
-  --popup-bg: #2a2a2a;
-  --popup-text: #ddd;
-  --popup-pre: #3b3b3b;
+  --border: #2a2f3a;           /* bordes sutiles azulados */
 
-  --overlay: rgba(0,0,0,0.7);
+  --popup-bg: #1c1f26;
+  --popup-text: #e5e7eb;
+  --popup-pre: #111318;
 
-  --graph-bg: #202020;
+  --overlay: rgba(0,0,0,0.75);
 
-  --btn-bg: rgb(27, 27, 27);
-  --tooltip-bg: #111;
-  --tooltip-text: #eee;
+  --graph-bg: #14171c;
+
+  --btn-bg: #1f232b;
+  --btn-hover: #84b943;        /* mantenemos tu verde pero más consistente */
+
+  --icon-fill: #9fbf6b;
+  --icon-border: #84b943;
+
+  --tooltip-bg: #0b0d11;
+  --tooltip-text: #e6e6e6;
 }
 
 /* =========================

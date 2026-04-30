@@ -36,6 +36,7 @@ The result is a product-driven idea combined with real engineering constraints.
 venv\Scripts\activate
 python fs_proxy.py
 
+
 ##Commands to Run DOCKER
 docker-compose build app
 docker-compose up -d
@@ -84,12 +85,14 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 ## Roadmap
 - [x] Add default timeouts + safe retries for API calls
 - [x] Add TTL-based cache invalidation
-- [ ] Add input validation + CSV schema checks
+- [x] Add input validation + CSV schema checks
 - [ ] Add basic rate limiting (per session)
-- [ ] Add tests for parsing/normalization utilities
+- [x] Add tests for parsing/normalization utilities
 - [ ] Add CI (GitHub Actions) to run tests and linting
 - [ ] Show my private ppf
 - [ ] Show coparent relationship in graph
 - [ ] Add loading bar
-- [ ] Better dark mode
+- [x] Better dark mode
 - [ ] Draw correct graph
+- [ ] Why so slow?
+- [ ] get token automatically
