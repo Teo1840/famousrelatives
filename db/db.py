@@ -6,10 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import time
-import mysql.connector
-import os
-
-#docker exec -it famousrelatives-db-1 mysql -u root -p
 
 def get_connection():
     for i in range(10):  # intenta 10 veces
@@ -24,10 +20,11 @@ def get_connection():
             print("-> 🐳 Conectado a MySQL",flush=True)
             return conn
         except Exception as e:
-            print(f"-> ⏳ Esperando MySQL... intento {i+1}",flush=True)
-            time.sleep(2)
+            print(f"Error: {e}... intento {i+1}", flush=True)
+            time.sleep(3)
 
-    raise Exception("-> ❌ No se pudo conectar a MySQL",flush=True)
+    print("-> ❌ No se pudo conectar a MySQL", flush=True)
+    raise Exception("No se pudo conectar a MySQL")
 
 def init_db():
     conn = get_connection()
