@@ -88,11 +88,10 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 - [x] Add input validation + CSV schema checks
 - [ ] Add basic rate limiting (per session)
 - [x] Add tests for parsing/normalization utilities
-- [ ] Add CI (GitHub Actions) to run tests and linting
+- [x] Add CI (GitHub Actions) to run tests and linting
 - [ ] Show my private ppf
 - [ ] Show coparent relationship in graph
 - [ ] Add loading bar
-- [x] Better dark mode
 - [ ] Draw correct graph
 - [ ] Why so slow?
 - [ ] get token automatically
