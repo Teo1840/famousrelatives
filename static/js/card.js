@@ -5,10 +5,10 @@ function getCardColor(a) {
   const isPath = a?.mainPath?.coParentIsPathPerson;
   const isTarget = a?.coParentIsTargetPerson;
 
-  if (isPath && isTarget) return '#ff6666';   // ambos
-  if (isPath) return '#dd9999';               // path
-  if (isTarget) return '#ffcccc';             // target
-  return 'white';
+  if (isPath && isTarget) return 'var(--card-both)';
+  if (isPath) return 'var(--card-path)';
+  if (isTarget) return 'var(--card-target)';
+  return 'var(--card-bg)';
 }
 
 function getEffectiveLength(a) {
@@ -29,7 +29,7 @@ export function createCard(a) {
   const card = document.createElement("div");
   card.className = "card";
 
-  card.style.backgroundColor = getCardColor(a);
+  card.style.setProperty('--card-color', getCardColor(a));
 
   const effective = getEffectiveLength(a);
   card.dataset.effectiveLength = effective;
