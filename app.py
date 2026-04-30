@@ -26,7 +26,7 @@ def index():
         with open(CSV_PATH, encoding="utf-8") as f:
             f.read()
         print("Es UTF-8")
-    except Exception as e:
+    except Exception:
         print("No es UTF-8, probá cp1252")
     return render_template("index.html")
 
