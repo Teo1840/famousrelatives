@@ -3,8 +3,7 @@ import os
 from flask import Response, Flask, render_template, request
 from services.tree_functions import generate_trees
 from services.cards import generate_html
-import csv
-from services.validators import validate_row
+from services.csv_validation import validate_csv_file
 
 load_dotenv()
 
@@ -43,16 +42,10 @@ def process():
     token = request.form['token']
     
     # Leer códigos desde CSV
-    rows = []
-    with open(CSV_PATH, encoding="utf-8") as f:
-        reader = csv.DictReader(f, delimiter=";")
-        for row in reader:
-            try:
-                fila_validada = validate_row(row)
-                rows.append(fila_validada)
-            except ValueError as e:
-                print(f"Fila ignorada por error: {e}")
-    #print(f"Filas válidas cargadas: {len(rows)}")
+    try:
+        rows = validate_csv_file(CSV_PATH)
+    except ValueError as e:
+        return render_template("error.html", error=str(e)), 400
 
     # Procesar datos
     arboles = generate_trees(rows, token)

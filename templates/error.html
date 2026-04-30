@@ -1,0 +1,111 @@
+<!-- templates/error.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Error</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Open+Sans&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #ececec;
+      --text: #222;
+      --card-bg: #fff;
+      --border: #ddd;
+      --accent: #e74c3c;
+    }
+
+    body.dark-mode {
+      --bg: #0f1115;
+      --text: #e4e6eb;
+      --card-bg: #181a20;
+      --border: #2a2f3a;
+      --accent: #ff6b6b;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Open Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .error-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 600px;
+      width: 90%;
+
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    h1 {
+      font-family: "Poppins", sans-serif;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .error-box {
+      background: rgba(0,0,0,0.05);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    body.dark-mode .error-box {
+      background: #111318;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      font-family: "Poppins", sans-serif;
+
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    a:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="error-card">
+    <h1>⚠️ Error en el CSV</h1>
+
+    <div class="error-box">
+      <pre>{{ error }}</pre>
+    </div>
+
+    <a href="/">Volver</a>
+  </div>
+
+  <script>
+    // opcional: mantener dark mode si lo usás en localStorage
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
+  </script>
+</body>
+</html>
