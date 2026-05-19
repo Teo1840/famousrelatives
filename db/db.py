@@ -21,7 +21,7 @@ def get_connection():
             return conn
         except Exception as e:
             print(f"Error: {e}... intento {i + 1}", flush=True)
-            time.sleep(3)
+            time.sleep(2)
 
     print("-> ❌ No se pudo conectar a MySQL", flush=True)
     raise Exception("No se pudo conectar a MySQL")

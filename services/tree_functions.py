@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from db.db import obtener_arbol, guardar_arbol
+import os
 import requests
 
 # --Simplificar JSON--
@@ -20,6 +21,7 @@ def build_person(person):
         else person.get("portraitUrl")
     )
     #https://sg30p0.familysearch.org/service/memories/tps/persons/{person_id}/portrait/original
+    # ^ study this endpoint to fetch the viewer's own profile picture
 
     return {
         "nombre": details.get("fullText", ""),
@@ -77,20 +79,22 @@ def process_json(generations):
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+PROXY_HOST = os.getenv("PROXY_HOST", "localhost")
+
 def get_session():
     session = requests.Session()
 
     retries = Retry(
-        total=3,  # 🔁 reintenta hasta 3 veces
-        connect=3,   # 🔥 retry si no conecta
-        read=3,      # 🔥 retry si timeout leyendo
-        backoff_factor=1,  # ⏱️ espera: 1s, 2s, 4s
-        status_forcelist=[500, 502, 503, 504],  # solo errores de servidor
+        total=3,
+        connect=3,
+        read=3,
+        backoff_factor=1,
+        status_forcelist=[500, 502, 503, 504],
         allowed_methods=["GET"]
     )
 
     adapter = HTTPAdapter(max_retries=retries)
-    session.mount("https://", adapter)
+    session.mount("http://", adapter)
 
     return session
 
@@ -196,7 +200,7 @@ def save_tree(persona_id, viewer_person_id, tree_data):
 
 #FETCHING API
 def fetch_tree_from_api(session, person_id, token, endpoint=None):
-    base_url = f"http://host.docker.internal:5001/proxy/{person_id}?token={token}"
+    base_url = f"http://{PROXY_HOST}:5001/proxy/{person_id}?token={token}"
 
     if endpoint:
         base_url += f"&endpoint={endpoint}"

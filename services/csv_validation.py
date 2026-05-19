@@ -1,4 +1,5 @@
 import csv
+import logging
 from services.validators import validate_row
 
 REQUIRED_COLUMNS = {"person_code", "name", "info"}
@@ -24,7 +25,6 @@ def validate_csv_schema(headers):
 
 def validate_csv_file(file_path):
     valid_rows = []
-    errors = []
     seen = set()
 
     with open(file_path, newline='', encoding='utf-8') as f:
@@ -41,15 +41,12 @@ def validate_csv_file(file_path):
                 validated = validate_row(row)
 
                 if validated["person_code"] in seen:
-                    errors.append(f"Fila {i}: person_code duplicado")
+                    logging.warning(f"Fila {i}: person_code duplicado, omitiendo")
                 else:
                     seen.add(validated["person_code"])
                     valid_rows.append(validated)
 
             except Exception as e:
-                errors.append(f"Fila {i}: {str(e)}")
-
-    if errors:
-        raise ValueError("\n".join(errors))
+                logging.warning(f"Fila {i}: {e}, omitiendo")
 
     return valid_rows

@@ -27,7 +27,7 @@ async function connectChrome(retries = 15, delayMs = 1000) {
 
 (async () => {
     try {
-        console.log("Connecting to Chrome...");
+        console.log("Connecting to Chrome on port " + DEBUG_PORT + "...");
 
         const client = await connectChrome();
         const { Network } = client;
@@ -36,23 +36,33 @@ async function connectChrome(retries = 15, delayMs = 1000) {
         let sawTargetRequest = false;
 
         await Network.enable();
+        console.log("Network monitoring enabled.");
 
         Network.requestWillBeSent(params => {
-            if (params.request && params.request.url && params.request.url.startsWith(TARGET_URL)) {
-                console.log(`Detected target request: ${params.request.url}`);
+            const url = params.request && params.request.url ? params.request.url : '';
+            if (url.startsWith(TARGET_URL)) {
+                console.log(`[EVENT] Detected target request: ${url}`);
                 sawTargetRequest = true;
             }
         });
 
-        console.log(`Connected. Waiting for request to ${TARGET_URL} and fssessionid cookie...`);
+        console.log(`Listening for request to ${TARGET_URL}...`);
+        console.log("Please log into FamilySearch in the browser...");
 
+        let checkCount = 0;
         while (true) {
+            checkCount++;
+            if (checkCount % 15 === 0) {
+                console.log(`Still waiting... (${checkCount} checks)`);
+            }
+
             if (sawTargetRequest) {
+                console.log('[ACTION] Fetching cookies from Chrome...');
                 const cookies = await Network.getCookies();
                 const fsCookie = cookies.cookies.find(c => c.name === 'fssessionid');
 
                 if (fsCookie) {
-                    console.log('FOUND SESSION COOKIE AFTER TARGET REQUEST:');
+                    console.log('[SUCCESS] Found fssessionid cookie:');
                     console.log(fsCookie.value);
 
                     let envContents = '';
@@ -75,8 +85,11 @@ async function connectChrome(retries = 15, delayMs = 1000) {
                     }
 
                     fs.writeFileSync(ENV_FILE, updated.join('\n'), 'utf8');
-                    console.log(`Token written to ${ENV_FILE}`);
+                    console.log(`[SAVED] Token written to ${ENV_FILE}`);
                     break;
+                } else {
+                    console.log('[WARNING] Target request detected but fssessionid cookie not found.');
+                    sawTargetRequest = false;
                 }
             }
 
@@ -84,10 +97,10 @@ async function connectChrome(retries = 15, delayMs = 1000) {
         }
 
         await client.close();
-        console.log('Listener finished.');
+        console.log('[COMPLETE] Listener finished successfully.');
 
     } catch (err) {
-        console.log("ERROR:");
-        console.log(err.message);
+        console.log("[ERROR] " + err.message);
+        process.exit(1);
     }
 })();
