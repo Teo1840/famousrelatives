@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Loading</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -10,9 +11,17 @@
       width: 100%;
       height: 100%;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: #fff;
+    }
+
+    .flex-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
     }
 
     /* From Uiverse.io by anand_4957 */ 
@@ -135,34 +144,51 @@
 </head>
 <body>
 
-  <div class="book">
-    <div class="book__pg-shadow"></div>
-    <div class="book__pg"></div>
-    <div class="book__pg book__pg--2"></div>
-    <div class="book__pg book__pg--3"></div>
-    <div class="book__pg book__pg--4"></div>
-    <div class="book__pg book__pg--5"></div>
+  <div class="flex-container">
+    <div class="book">
+      <div class="book__pg-shadow"></div>
+      <div class="book__pg"></div>
+      <div class="book__pg book__pg--2"></div>
+      <div class="book__pg book__pg--3"></div>
+      <div class="book__pg book__pg--4"></div>
+      <div class="book__pg book__pg--5"></div>
+    </div>
+  </div>
+  <div class="flex-container">
+    <p id="counter" style="margin: 0; font-size: 1rem; color: #555;"></p>
   </div>
 
 </body>
 <script>
-    fetch('/process', {
+    const counter = document.getElementById('counter');
+
+    const processPromise = fetch('/process', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
       body: new URLSearchParams({ token: {{ token|tojson }} })
-    })
-    .then(response => response.text().then(html => ({ ok: response.ok, html })))
-    .then(({ ok, html }) => {
+    }).then(response => response.text().then(html => ({ ok: response.ok, html })));
+
+    const poll = setInterval(async () => {
+      try {
+        const r = await fetch('/progress');
+        const { current, total } = await r.json();
+        if (total > 0) {
+          counter.textContent = `${current} / ${total}`;
+        }
+      } catch (_) {}
+    }, 500);
+
+    processPromise.then(({ ok, html }) => {
+      clearInterval(poll);
       if (!ok) {
         document.body.innerHTML = html;
         return;
       }
-
       document.open();
       document.write(html);
       document.close();
-    })
-    .catch(error => {
+    }).catch(error => {
+      clearInterval(poll);
       console.error('Error al llamar a /process:', error);
       document.body.innerHTML = '<p style="color:red;">Error al iniciar el proceso. Revisa la consola del navegador.</p>';
     });

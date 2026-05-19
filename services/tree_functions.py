@@ -99,7 +99,7 @@ def get_session():
     return session
 
 # --Generar un Arbol por codigo incluyendo su JSON respectivo--
-def generate_trees(codigos, token):
+def generate_trees(codigos, token, on_progress=None):
     session = get_session()
     trees = []
 
@@ -116,6 +116,8 @@ def generate_trees(codigos, token):
         if cached:
             trees.append(cached)
             current += 1
+            if on_progress:
+                on_progress(current)
             print(f"{current}/{total} (cache)", flush=True)
             continue
 
@@ -130,6 +132,8 @@ def generate_trees(codigos, token):
 
         if not data:
             current += 1
+            if on_progress:
+                on_progress(current)
             print(f"{current}/{total}", flush=True)
             continue
 
@@ -137,6 +141,8 @@ def generate_trees(codigos, token):
         parsed = parse_tree_data(data)
         if not parsed:
             current += 1
+            if on_progress:
+                on_progress(current)
             continue
 
         # ⚠️ actualizar viewer_id dinámicamente
@@ -166,6 +172,8 @@ def generate_trees(codigos, token):
 
         trees.append(tree)
         current += 1
+        if on_progress:
+            on_progress(current)
         print(f"{current}/{total}", flush=True)
 
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
