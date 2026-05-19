@@ -1,2 +1,6 @@
 .env
 __pycache__/
+venv/
+chrome_debug_profile/
+listener/node_modules/
+listener/state.json

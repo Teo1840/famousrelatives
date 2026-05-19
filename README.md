@@ -5,7 +5,7 @@ A small web app that uses the FamilySearch API to compute and visualize relation
 *Focus:* API integration, reliability patterns (timeouts/retries), caching to reduce external calls, and containerized deployment (Docker).
 
 ## Why this project
-The original FamilySearch “Famous Relatives” feature is intentionally limited and subjective, with a small, non-controversial list of historically important people.
+The original FamilySearch "Famous Relatives" feature is intentionally limited and subjective, with a small, non-controversial list of historically important people.
 
 This project was created to explore an alternative approach:
 allowing users to define their *own curated lists of culturally relevant figures*, with a regional or personal focus, making the experience more meaningful and engaging.
@@ -19,79 +19,114 @@ At the same time, the project was designed to practice real-world backend challe
 The result is a product-driven idea combined with real engineering constraints.
 
 ## Project structure
-- reference/
-- db/ — DB initialization + cache schema
-- services/
-- static/
-- templates/ — HTML templates
-- app.py — web server + routes
-- tree_funtions.py — relationship parsing/normalization utilities
-- docker-compose.yml — local environment orchestration
-- Dockerfile — app container definition
-- fs_proxy.py
-- famosos.csv
+```
+famousrelatives/
+├── app.py                  # Flask web server + routes
+├── fs_proxy.py             # Local proxy for FamilySearch API (rate limiting, retries)
+├── famosos.csv             # Curated list of person IDs + display info
+├── docker-compose.yml      # Local environment orchestration (MySQL only)
+├── Dockerfile              # App container definition
+├── start-system.bat        # One-click startup script (Windows)
+├── db/                     # DB initialization + cache schema
+├── listener/               # Browser extension that captures the session token
+├── services/               # Business logic
+│   ├── tree_functions.py   # Relationship fetching, parsing, caching
+│   ├── cards.py
+│   ├── csv_validation.py
+│   └── validators.py
+├── static/
+├── templates/              # HTML templates
+└── reference/              # Example FamilySearch API responses (for development)
+```
 
-## Demo
-##Commands to Activate PROXY
+## Setup
+
+### Requirements
+- Python 3.10+
+- Node.js (for the token listener)
+- Docker (for MySQL only)
+
+### Environment variables
+Create a `.env` file in the project root (never commit it):
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=famousrelatives
+USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) ...
+SEC_CH_UA='"Chromium";v="148", "Brave";v="148", "Not/A)Brand";v="99"'
+SEC_CH_UA_MOBILE=?0
+SEC_CH_UA_PLATFORM="Windows"
+SEC_GPC=1
+SEC_FETCH_SITE=same-origin
+RATE_LIMIT_INTERVAL=0.5
+```
+Use your browser's DevTools (Network tab) to capture the correct `User-Agent` and `sec-ch-ua` values for your browser version.
+
+### Starting the app (Windows)
+```
+start-system.bat
+```
+This launches the MySQL container, the local FamilySearch proxy, and the Flask app in separate windows. The session token is captured automatically via the browser listener.
+
+### Manual startup
+```bash
+# 1. Start MySQL
+docker-compose up -d db
+
+# 2. Start proxy (separate terminal)
 venv\Scripts\activate
 python fs_proxy.py
 
-
-##Commands to Run DOCKER
-docker-compose build app
-docker-compose up -d
-docker logs -f famousrelatives-app-1
-
-
-- Screenshot: Insert TOKEN page
-You have to check requirements.
-Create your own .env with your own value of USER_AGENT
-- Screenshot: CSV upload + results table
+# 3. Start Flask app (separate terminal)
+venv\Scripts\activate
+python app.py
+```
 
 ## Core workflow
-1. User provides a *FamilySearch access token* (not stored permanently).
+1. User opens the app — a Brave window launches and the listener captures the FamilySearch session token automatically.
 2. App loads a CSV with a curated list of FamilySearch person IDs.
 3. For each person ID:
-   - Check cache (TTL-based) to avoid repeated API calls.
-   - If not cached: call FamilySearch relationship endpoint.
+   - Check cache (1-week TTL) to avoid repeated API calls.
+   - If not cached: call FamilySearch relationship endpoint via local proxy.
    - Normalize/parse the relationship path to a consistent format.
-4. Render results in the UI (and optionally persist temporary results for performance).
+4. Render results in the UI.
 
 ## Authentication & Security
-- The app requires a *user-provided FamilySearch access token*.
+- The app requires a *user-provided FamilySearch session token*.
 - Tokens are *not persisted* in the database or repository.
-- Tokens should be provided via *environment variables* or a local .env file (never committed).
-- The app only uses the token to perform FamilySearch API requests during the session.
+- The token is captured automatically from the browser session and passed in memory only.
+- The `.env` file is gitignored — never commit it.
 
 *Recommendation (production):*
 - Use server-side session storage and secure cookies
 - Add input validation for CSV uploads
-- Add rate limiting and request timeouts by default
 
 ## Performance & caching
-To reduce the number of calls to FamilySearch (and speed up repeated queries), the app stores results temporarily in a DB cache.
+To reduce the number of calls to FamilySearch (and speed up repeated queries), the app stores results in a DB cache.
 
-- Cache key: (user/target person ID) or (relationship query signature)
-- TTL: configurable (e.g., 1h / 24h)
+- Cache key: `(person_id, viewer_person_id)`
+- TTL: 1 week
 - Goal: fewer upstream requests, lower latency, better UX
 
+The local proxy (`fs_proxy.py`) adds an additional layer: per-token request spacing and automatic retry with `Retry-After` on HTTP 429 responses.
+
 ## Tech stack
-- Python (backend + API client + parsing)
+- Python / Flask (backend + API client + parsing)
 - HTML/CSS (server-rendered templates)
-- vis.js (Graphs)
-- MySQL (temporary cache)
-- Docker + docker-compose (reproducible local environment)
+- vis.js (relationship graph)
+- MySQL (cache)
+- Docker + docker-compose (MySQL only; app runs locally)
+- Node.js (browser token listener)
 
 ## Roadmap
 - [x] Add default timeouts + safe retries for API calls
 - [x] Add TTL-based cache invalidation
 - [x] Add input validation + CSV schema checks
-- [ ] Add basic rate limiting (per session)
+- [x] Add basic rate limiting (per session)
 - [x] Add tests for parsing/normalization utilities
 - [x] Add CI (GitHub Actions) to run tests and linting
-- [ ] Show my private ppf
-- [ ] Show coparent relationship in graph
-- [ ] Add loading bar
-- [ ] Draw correct graph
-- [ ] Why so slow?
-- [ ] get token automatically
+- [x] Get token automatically
+- [ ] Show viewer's own profile picture
+- [ ] Show co-parent relationship in graph
+- [ ] Add loading progress bar

@@ -12,8 +12,11 @@
 </head>
 <body>
   <h1>🔐 Ingresá tu token de FamilySearch</h1>
+  {% if has_token %}
+    <p style="color: green;">✅ Token detectado. Puedes usar el token existente o pegar uno nuevo.</p>
+  {% endif %}
   <form method="POST" action="/famousrelatives">
-    <input type="text" name="token" placeholder="Pegá aquí tu token..." required size="50">
+    <input type="text" name="token" placeholder="Pegá aquí tu token..." value="{{ token or '' }}" required size="50">
     <br>
     <button type="submit">Procesar grados familiares</button>
   </form>

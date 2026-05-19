@@ -8,8 +8,11 @@ services:
       - DB_USER=root
       - DB_PASSWORD=secret
       - DB_NAME=famousrelatives
+      - PROXY_HOST=host.docker.internal
     depends_on:
       - db
+    volumes:
+      - ./.env:/app/.env
 
   db:
     image: mysql:8.0

@@ -148,15 +148,23 @@
 <script>
     fetch('/process', {
       method: 'POST',
-      body: new URLSearchParams({
-        token: '{{ token }}'
-      })
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: new URLSearchParams({ token: {{ token|tojson }} })
     })
-    .then(response => response.text())
-    .then(html => {
+    .then(response => response.text().then(html => ({ ok: response.ok, html })))
+    .then(({ ok, html }) => {
+      if (!ok) {
+        document.body.innerHTML = html;
+        return;
+      }
+
       document.open();
       document.write(html);
       document.close();
+    })
+    .catch(error => {
+      console.error('Error al llamar a /process:', error);
+      document.body.innerHTML = '<p style="color:red;">Error al iniciar el proceso. Revisa la consola del navegador.</p>';
     });
   </script>
 </html>
