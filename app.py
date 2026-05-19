@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
-from flask import Response, Flask, render_template, redirect, url_for, request
+import threading
+from flask import Response, Flask, render_template, redirect, url_for, request, jsonify
 
 from services.tree_functions import generate_trees
 from services.cards import generate_html
@@ -31,6 +32,9 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 TEMPLATE_PATH = os.path.join(TEMPLATE_DIR, "plantilla_arboles.html")
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
+
+_progress_lock = threading.Lock()
+_progress = {"current": 0, "total": 0}
 
 # -------------------
 # UTIL
@@ -99,6 +103,12 @@ def famousrelatives():
     return render_template("loading.html", token=token)
 
 
+@app.route('/progress')
+def progress():
+    with _progress_lock:
+        return jsonify(dict(_progress))
+
+
 @app.route('/process', methods=['POST'])
 def process():
     token = request.form.get("token") or get_token()
@@ -115,8 +125,21 @@ def process():
     except ValueError as e:
         return render_template("error.html", error=str(e)), 400
 
+    total = len(rows)
+    with _progress_lock:
+        _progress["current"] = 0
+        _progress["total"] = total
+
+    def on_progress(current):
+        with _progress_lock:
+            _progress["current"] = current
+
     # Procesar
-    arboles = generate_trees(rows, token)
+    arboles = generate_trees(rows, token, on_progress=on_progress)
+
+    with _progress_lock:
+        _progress["current"] = total
+
     arboles_ordenados = sorted(arboles, key=lambda a: a["cercania"])
 
     # Generar HTML

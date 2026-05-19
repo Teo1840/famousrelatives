@@ -129,4 +129,3 @@ The local proxy (`fs_proxy.py`) adds an additional layer: per-token request spac
 - [x] Get token automatically
 - [ ] Show viewer's own profile picture
 - [ ] Show co-parent relationship in graph
-- [ ] Add loading progress bar
