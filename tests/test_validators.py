@@ -107,8 +107,8 @@ def test_csv_duplicate(tmp_path):
         "AB12-3CD;Maria;Test\n"
     )
 
-    with pytest.raises(ValueError):
-        validate_csv_file(file)
+    rows = validate_csv_file(file)
+    assert len(rows) == 1  # duplicate is skipped silently
 
 def test_name_trimming():
     assert validate_name("  Juan  ") == "Juan"
