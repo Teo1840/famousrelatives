@@ -13,7 +13,10 @@ MAX_RETRIES_429 = 3
 
 _rate_lock = threading.Lock()
 _last_request_time: dict[str, float] = {}
-USER_AGENT = os.getenv("USER_AGENT", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36")
+USER_AGENT = os.getenv(
+    "USER_AGENT",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+)
 FS_USER_AGENT_CHAIN = os.getenv("FS_USER_AGENT_CHAIN")
 DEFAULT_REFERER = os.getenv("DEFAULT_REFERER", "https://www.familysearch.org/")
 SEC_CH_UA = os.getenv("SEC_CH_UA", '"Chromium";v="148", "Brave";v="148", "Not/A)Brand";v="99"')
@@ -83,13 +86,17 @@ def proxy(persona_id):
             resp = fs_session.get(url, headers=headers, cookies=cookies, params=params, timeout=20)
             elapsed = time.time() - t0
             processing_ms = resp.headers.get("X-Processing-Time", "?")
-            print(f"[proxy] {persona_id} ({endpoint}) → {resp.status_code} in {elapsed:.2f}s (processing: {processing_ms}ms)", flush=True)
+            status = resp.status_code
+            print(
+                f"[proxy] {persona_id} ({endpoint}) → {status} in {elapsed:.2f}s (processing: {processing_ms}ms)",
+                flush=True
+            )
 
             if resp.status_code != 429:
                 break
 
             retry_after = int(resp.headers.get("Retry-After", 10))
-            print(f"[proxy] 429 throttled — waiting {retry_after}s (attempt {attempt + 1}/{MAX_RETRIES_429})", flush=True)
+            print(f"[proxy] 429 — waiting {retry_after}s (attempt {attempt + 1}/{MAX_RETRIES_429})", flush=True)
             with _rate_lock:
                 _last_request_time[token] = time.time() + retry_after
             time.sleep(retry_after)

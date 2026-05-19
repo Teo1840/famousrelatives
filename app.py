@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import threading
-from flask import Response, Flask, render_template, redirect, url_for, request, jsonify
+from flask import Response, Flask, render_template, request, jsonify
 
 from services.tree_functions import generate_trees
 from services.cards import generate_html
