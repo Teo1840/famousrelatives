@@ -1,4 +1,3 @@
-import mysql.connector
 from mysql.connector.pooling import MySQLConnectionPool
 import json
 import os
