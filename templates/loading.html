@@ -5,6 +5,16 @@
   <title>Loading</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #fff;
+      --text: #555;
+    }
+
+    body.dark-mode {
+      --bg: #0f1115;
+      --text: #9ca3af;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -14,7 +24,9 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: #fff;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
     }
 
     .flex-container {
@@ -143,6 +155,11 @@
   </style>
 </head>
 <body>
+  <script>
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
+  </script>
 
   <div class="flex-container">
     <div class="book">
@@ -155,7 +172,7 @@
     </div>
   </div>
   <div class="flex-container">
-    <p id="counter" style="margin: 0; font-size: 1rem; color: #555;"></p>
+    <p id="counter" style="margin: 0; font-size: 1rem;"></p>
   </div>
 
 </body>

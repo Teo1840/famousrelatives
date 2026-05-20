@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import threading
+import logging
 from flask import Response, Flask, render_template, request, jsonify
 
 from services.tree_functions import generate_trees
@@ -32,6 +33,12 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 TEMPLATE_PATH = os.path.join(TEMPLATE_DIR, "plantilla_arboles.html")
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
+
+class _SuppressProgressLogs(logging.Filter):
+    def filter(self, record):
+        return "/progress" not in record.getMessage()
+
+logging.getLogger("werkzeug").addFilter(_SuppressProgressLogs())
 
 _progress_lock = threading.Lock()
 _progress = {"current": 0, "total": 0}

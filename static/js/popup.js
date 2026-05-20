@@ -24,10 +24,13 @@ function renderGraph(a, useDirectPath) {
   // 🔥 limpiar contenido previo
   container.innerHTML = "";
 
+  const isDark = document.body.classList.contains('dark-mode');
+
   const { nodes, edges } = buildGraph(
     a,
     generarUUID,
-    useDirectPath
+    useDirectPath,
+    isDark
   );
 
   // 🔥 destruir grafo anterior
@@ -48,7 +51,26 @@ function renderGraph(a, useDirectPath) {
 
   const options = {
     physics: false,
+    nodes: {
+      font: {
+        color: isDark ? '#e4e6eb' : '#222222',
+        size: 14,
+        strokeWidth: isDark ? 3 : 2,
+        strokeColor: isDark ? '#0f1115' : '#ffffff'
+      },
+      color: {
+        border: isDark ? '#2a2f3a' : '#cccccc',
+        highlight: { border: '#84b943', background: isDark ? '#1e2d12' : '#f0f8e0' },
+        hover:     { border: '#84b943', background: isDark ? '#1e2d12' : '#f0f8e0' }
+      }
+    },
     edges: {
+      color: {
+        color:     isDark ? '#84b943' : '#4a9e22',
+        highlight: isDark ? '#b8d96e' : '#2e7d32',
+        hover:     isDark ? '#b8d96e' : '#2e7d32'
+      },
+      width: 2,
       smooth: {
         type: "cubicBezier",
         roundness: 0.5

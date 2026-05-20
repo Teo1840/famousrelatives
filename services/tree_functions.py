@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timedelta
 from db.db import obtener_arbol, guardar_arbol
 import os
@@ -7,7 +8,7 @@ import requests
 #def viewer_person
 def build_person(person):
     if not person:
-        return {"nombre": "", "id": "", "lifespan": "", "portraitUrl": None}
+        return {"nombre": "", "id": "", "lifespan": "", "portraitUrl": None, "gender": ""}
 
     name = person.get("nameConclusion", {})
     details = name.get("details", {})
@@ -15,19 +16,16 @@ def build_person(person):
     person_id = person.get("id", "")
     is_me = person.get("relationshipToPrevious") == "ME"
 
-    portrait = (
-        "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
-        if is_me
-        else person.get("portraitUrl")
-    )
-    #https://sg30p0.familysearch.org/service/memories/tps/persons/{person_id}/portrait/original
-    # ^ study this endpoint to fetch the viewer's own profile picture
+    # viewer portrait URL from the API requires auth headers and can't load in <img>
+    # it gets replaced later via the /portrait endpoint → _links.thumbSquare.href
+    portrait = None if is_me else person.get("portraitUrl")
 
     return {
         "nombre": details.get("fullText", ""),
         "id": person_id,
         "lifespan": person.get("lifespan", ""),
-        "portraitUrl": portrait
+        "portraitUrl": portrait,
+        "gender": person.get("gender", "")
     }
 
 # --Pasar de JSON a lists--
@@ -107,18 +105,28 @@ def generate_trees(codigos, token, on_progress=None):
     total = len(codigos)
 
     viewer_person_id = None  # ⚠️
+    viewer_portrait_url = None
+    viewer_portrait_fetched = False
 
     for codigo in codigos:
         persona_id = codigo["person_code"]
+        name = codigo.get("name", persona_id)
+        t_start = time.time()
 
         # 🔹 Cache
         cached = get_cached_tree(persona_id, viewer_person_id)
         if cached:
+            if viewer_person_id and not viewer_portrait_fetched:
+                viewer_portrait_url = fetch_viewer_portrait(session, viewer_person_id, token)
+                viewer_portrait_fetched = True
+            if viewer_portrait_url:
+                _apply_viewer_portrait(cached, viewer_person_id, viewer_portrait_url)
             trees.append(cached)
             current += 1
             if on_progress:
                 on_progress(current)
-            print(f"{current}/{total} (cache)", flush=True)
+            elapsed = time.time() - t_start
+            print(f"[{current}/{total}] {name} — cache ({elapsed:.2f}s)", flush=True)
             continue
 
         # 🔹 API
@@ -134,7 +142,8 @@ def generate_trees(codigos, token, on_progress=None):
             current += 1
             if on_progress:
                 on_progress(current)
-            print(f"{current}/{total}", flush=True)
+            elapsed = time.time() - t_start
+            print(f"[{current}/{total}] {name} — sin datos ({elapsed:.2f}s)", flush=True)
             continue
 
         # 🔹 Parse
@@ -147,6 +156,11 @@ def generate_trees(codigos, token, on_progress=None):
 
         # ⚠️ actualizar viewer_id dinámicamente
         viewer_person_id = parsed["viewer_id"]
+
+        # 🔹 Fetch viewer portrait once
+        if viewer_person_id and not viewer_portrait_fetched:
+            viewer_portrait_url = fetch_viewer_portrait(session, viewer_person_id, token)
+            viewer_portrait_fetched = True
 
         # 🔹 Build
         target = parsed["target"]
@@ -167,6 +181,9 @@ def generate_trees(codigos, token, on_progress=None):
 
         tree = build_tree_data(parsed, codigo, extra_parsed)
 
+        if viewer_portrait_url:
+            _apply_viewer_portrait(tree, viewer_person_id, viewer_portrait_url)
+
         # 🔹 Save
         save_tree(persona_id, viewer_person_id, tree)
 
@@ -174,7 +191,8 @@ def generate_trees(codigos, token, on_progress=None):
         current += 1
         if on_progress:
             on_progress(current)
-        print(f"{current}/{total}", flush=True)
+        elapsed = time.time() - t_start
+        print(f"[{current}/{total}] {name} — {elapsed:.2f}s", flush=True)
 
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
     return trees
@@ -319,6 +337,24 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
 
 def getPathLength(path):
     return len(path.get("asc", [])) + len(path.get("desc", []))
+
+def fetch_viewer_portrait(session, person_id, token):
+    data = fetch_tree_from_api(session, person_id, token, endpoint="portrait")
+    if not data:
+        return None
+    return data.get("_links", {}).get("thumbSquare", {}).get("href")
+
+
+def _apply_viewer_portrait(tree, viewer_id, portrait_url):
+    for path_key in ("mainPath", "directPath"):
+        path = tree.get(path_key)
+        if not path:
+            continue
+        for node_list in (path.get("asc", []), path.get("desc", [])):
+            for node in node_list:
+                if node.get("id") == viewer_id:
+                    node["portraitUrl"] = portrait_url
+
 
 #GET PARENT FOR DIRECT PATH
 def fetch_parent_id(session, person_id, token):

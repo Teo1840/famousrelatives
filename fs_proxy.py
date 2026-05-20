@@ -64,6 +64,9 @@ def proxy(persona_id):
             'includePhotos': request.args.get('includePhotos', 'true'),
             'treeId': request.args.get('treeId', 'PRIVATE'),
         }
+    elif endpoint == "portrait":
+        url = f"https://www.familysearch.org/service/memories/tps/persons/{persona_id}/portrait"
+        params = {}
     else:
         url = f"https://www.familysearch.org/service/tree/tree-data/user-relationship/v2/person/{persona_id}"
         params = {

@@ -32,37 +32,40 @@
   --card-path: #dd9999;
   --card-target: #ffcccc;
 
-  --card-both: #ff6666;
-  --card-path: #dd9999;
-  --card-target: #ffcccc;
+  --switch-track-off: rgb(190, 224, 149);
+  --switch-track-on: rgb(132, 185, 67);
+
+  --popup-border: transparent;
 }
 
 /* =========================
    DARK MODE
 ========================= */
 body.dark-mode {
-  --bg: #0f1115;               /* fondo más profundo */
-  --text: #e4e6eb;             /* texto principal */
+  color-scheme: dark;
+
+  --bg: #0f1115;
+  --text: #e4e6eb;
   --title: #ffffff;
 
-  --card-bg: #181a20;          /* cards más diferenciadas */
+  --card-bg: #181a20;
   --card-text: #d1d5db;
-
   --card-shadow: rgba(0,0,0,0.6);
   --card-hover-shadow: rgba(0,0,0,0.9);
 
-  --border: #2a2f3a;           /* bordes sutiles azulados */
+  --border: #2a2f3a;
 
   --popup-bg: #1c1f26;
   --popup-text: #e5e7eb;
   --popup-pre: #111318;
+  --popup-border: #2e3340;
 
   --overlay: rgba(0,0,0,0.75);
 
   --graph-bg: #14171c;
 
   --btn-bg: #1f232b;
-  --btn-hover: #84b943;        /* mantenemos tu verde pero más consistente */
+  --btn-hover: #84b943;
 
   --icon-fill: #9fbf6b;
   --icon-border: #84b943;
@@ -70,13 +73,12 @@ body.dark-mode {
   --tooltip-bg: #0b0d11;
   --tooltip-text: #e6e6e6;
 
-  --card-both: #2a1a1a;
-  --card-path: #1f1515;
-  --card-target: #241616;
+  --card-both: #ff5c5c;
+  --card-path: #7a4a4a;
+  --card-target: #5a3a3a;
 
-  --card-both: #ff5c5c;     /* rojo más controlado */
-  --card-path: #7a4a4a;     /* muted, no brillante */
-  --card-target: #5a3a3a;   /* más oscuro */
+  --switch-track-off: #2d3748;
+  --switch-track-on: #84b943;
 }
 
 /* =========================
@@ -156,7 +158,7 @@ h1, h2 {
   box-shadow: 0 2px 5px var(--card-shadow);
   border: 1px solid var(--border);
 
-  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s, color 0.3s, border-color 0.3s 0.15s;
 }
 
 .card:hover {
@@ -187,4 +189,32 @@ h1, h2 {
 #list-count {
   font-family: "Poppins", sans-serif;
   font-size: 24px;
+}
+
+/* =========================
+   DARK MODE SCROLLBAR
+========================= */
+body.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #1a1d24;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: #3a3f4b;
+  border-radius: 4px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #4e5566;
+}
+
+/* =========================
+   DARK MODE SELECTION
+========================= */
+body.dark-mode ::selection {
+  background: rgba(132, 185, 67, 0.3);
+  color: var(--text);
 }

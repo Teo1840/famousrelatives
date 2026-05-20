@@ -4,16 +4,71 @@
   <meta charset="UTF-8">
   <title>Famous Relatives</title>
   <style>
-    body { font-family: Poppins, sans-serif; background: #f4f4f4; text-align: center; padding-top: 50px; }
-    input, button { padding: 10px; font-size: 1em; margin: 5px; }
-    button { background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    :root {
+      --bg: #f4f4f4;
+      --text: #222;
+      --input-bg: #fff;
+      --input-border: #ccc;
+      --btn-bg: #007bff;
+      --btn-hover: #0056b3;
+      --success: green;
+    }
+
+    body.dark-mode {
+      --bg: #0f1115;
+      --text: #e4e6eb;
+      --input-bg: #1c1f26;
+      --input-border: #2a2f3a;
+      --btn-bg: #84b943;
+      --btn-hover: #6a9735;
+      --success: #84b943;
+    }
+
+    body {
+      font-family: Poppins, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      padding-top: 50px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 1em;
+      margin: 5px;
+      background: var(--input-bg);
+      color: var(--text);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 1em;
+      margin: 5px;
+      background: var(--btn-bg);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: var(--btn-hover); }
+
+    .success-text { color: var(--success); }
   </style>
 </head>
 <body>
+  <script>
+    if (localStorage.getItem("darkMode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
+  </script>
   <h1>🔐 Ingresá tu token de FamilySearch</h1>
   {% if has_token %}
-    <p style="color: green;">✅ Token detectado. Puedes usar el token existente o pegar uno nuevo.</p>
+    <p class="success-text">✅ Token detectado. Puedes usar el token existente o pegar uno nuevo.</p>
   {% endif %}
   <form method="POST" action="/famousrelatives">
     <input type="text" name="token" placeholder="Pegá aquí tu token..." value="{{ token or '' }}" required size="50">

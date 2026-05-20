@@ -1,4 +1,4 @@
-import { prevPopup, nextPopup, closePopup } from './popup.js';
+import { showPopup, prevPopup, nextPopup, closePopup } from './popup.js';
 import { initSwitches } from './switch.js';
 import { renderCards } from './card.js';
 
@@ -75,6 +75,7 @@ function getEffectiveLength(a) {
 }
 
 // 🔗 Exponer para HTML (onclick del popup)
+window.showPopup = showPopup;
 window.prevPopup = prevPopup;
 window.nextPopup = nextPopup;
 window.closePopup = closePopup;
