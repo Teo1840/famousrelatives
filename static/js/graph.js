@@ -1,4 +1,11 @@
-export function buildGraph(a, generarUUID, directPath) {
+const ICON_MALE   = "https://upload.wikimedia.org/wikipedia/commons/1/12/User_icon_2.svg";
+const ICON_FEMALE = "https://upload.wikimedia.org/wikipedia/commons/6/6c/User_icon_3.svg";
+
+function getDefaultIcon(gender) {
+  return gender === "FEMALE" ? ICON_FEMALE : ICON_MALE;
+}
+
+export function buildGraph(a, generarUUID, directPath, isDark = false) {
   const nodes = [];
   const edges = [];
 
@@ -21,9 +28,7 @@ export function buildGraph(a, generarUUID, directPath) {
   nodes.push({
     id: rootId,
     shape: "image",
-    image:
-      path.antepasado_comun?.portraitUrl ||
-      "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+    image: path.antepasado_comun?.portraitUrl || getDefaultIcon(path.antepasado_comun?.gender),
     font: { size: 16 },
     x: 0,
     y: 0,
@@ -50,8 +55,7 @@ export function buildGraph(a, generarUUID, directPath) {
       id,
       shape: "image",
       image:
-        p.portraitUrl ||
-        "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+        p.portraitUrl || getDefaultIcon(p.gender),
       font: { size: 16 },
       x: x,
       y: y,
@@ -61,8 +65,7 @@ export function buildGraph(a, generarUUID, directPath) {
 
     edges.push({
       from: id,
-      to: i === 0 ? rootId : asc[i - 1]._id,
-      color: {color: 'green'}
+      to: i === 0 ? rootId : asc[i - 1]._id
     });
   });
 
@@ -85,8 +88,7 @@ export function buildGraph(a, generarUUID, directPath) {
       id,
       shape: "image",
       image:
-        p.portraitUrl ||
-        "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png",
+        p.portraitUrl || getDefaultIcon(p.gender),
       font: { size: 16 },
       x: x,
       y: y,
@@ -96,8 +98,7 @@ export function buildGraph(a, generarUUID, directPath) {
 
     edges.push({
       from: i === 0 ? rootId : desc[i - 1]._id,
-      to: id,
-      color: {color: 'green'}
+      to: id
     });
   });
 

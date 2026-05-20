@@ -1,36 +1,41 @@
 import mysql.connector
+from mysql.connector.pooling import MySQLConnectionPool
 import json
 import os
+import time
 
 from dotenv import load_dotenv
 load_dotenv()
 
-import time
+_pool = None
 
-def get_connection():
-    for i in range(10):  # intenta 10 veces
-        try:
-            conn = mysql.connector.connect(
-                host=os.getenv("DB_HOST", "localhost"),
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASSWORD"),
-                database=os.getenv("DB_NAME"),
-                port=3306
-            )
-            print("-> 🐳 Conectado a MySQL",flush=True)
-            return conn
-        except Exception as e:
-            print(f"Error: {e}... intento {i + 1}", flush=True)
-            time.sleep(2)
-
-    print("-> ❌ No se pudo conectar a MySQL", flush=True)
-    raise Exception("No se pudo conectar a MySQL")
+def get_pool():
+    global _pool
+    if _pool is None:
+        for i in range(10):
+            try:
+                _pool = MySQLConnectionPool(
+                    pool_name="famrel_pool",
+                    pool_size=5,
+                    host=os.getenv("DB_HOST", "localhost"),
+                    user=os.getenv("DB_USER"),
+                    password=os.getenv("DB_PASSWORD"),
+                    database=os.getenv("DB_NAME"),
+                    port=3306
+                )
+                print("-> 🐳 MySQL pool created", flush=True)
+                break
+            except Exception as e:
+                print(f"Pool error: {e}... intento {i + 1}", flush=True)
+                time.sleep(2)
+        else:
+            raise Exception("No se pudo conectar a MySQL")
+    return _pool
 
 def init_db():
-    conn = get_connection()
+    conn = get_pool().get_connection()
     cur = conn.cursor()
 
-    # Crear tabla
     cur.execute("""
         CREATE TABLE IF NOT EXISTS arboles (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,7 +48,6 @@ def init_db():
 
     conn.commit()
 
-    # Crear índice si no existe (chequeando primero)
     cur.execute("""
         SELECT COUNT(1) IndexIsThere
         FROM INFORMATION_SCHEMA.STATISTICS
@@ -61,7 +65,7 @@ def init_db():
     conn.close()
 
 def guardar_arbol(persona_id, viewer_person_id, data):
-    conn = get_connection()
+    conn = get_pool().get_connection()
     cur = conn.cursor()
 
     query = """
@@ -74,7 +78,7 @@ def guardar_arbol(persona_id, viewer_person_id, data):
     conn.close()
 
 def obtener_arbol(persona_id, viewer_person_id):
-    conn = get_connection()
+    conn = get_pool().get_connection()
     cur = conn.cursor()
 
     query = """

@@ -90,7 +90,8 @@ python app.py
    - Check cache (1-week TTL) to avoid repeated API calls.
    - If not cached: call FamilySearch relationship endpoint via local proxy.
    - Normalize/parse the relationship path to a consistent format.
-4. Render results in the UI.
+4. On the first processed person, fetch the viewer's own portrait via the FamilySearch portrait endpoint and apply it to all trees.
+5. Render results in the UI.
 
 ## Authentication & Security
 - The app requires a *user-provided FamilySearch session token*.
@@ -111,6 +112,8 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 
 The local proxy (`fs_proxy.py`) adds an additional layer: per-token request spacing and automatic retry with `Retry-After` on HTTP 429 responses.
 
+MySQL connections use a pool (`pool_size=5`) initialized once at startup, eliminating per-query TCP handshake overhead.
+
 ## Tech stack
 - Python / Flask (backend + API client + parsing)
 - HTML/CSS (server-rendered templates)
@@ -128,4 +131,3 @@ The local proxy (`fs_proxy.py`) adds an additional layer: per-token request spac
 - [x] Add CI (GitHub Actions) to run tests and linting
 - [x] Get token automatically
 - [ ] Show viewer's own profile picture
-- [ ] Show co-parent relationship in graph

@@ -29,13 +29,25 @@ export function initSwitches() {
   const darkText = document.getElementById("darkModeText");
 
   if (darkToggle) {
+    const isDark = localStorage.getItem("darkMode") === "true";
+    if (isDark) {
+      document.body.classList.add("dark-mode");
+      darkToggle.checked = true;
+      if (darkText) darkText.textContent = "Modo oscuro";
+    }
+
     darkToggle.addEventListener("change", () => {
       document.body.classList.toggle("dark-mode");
+      const nowDark = document.body.classList.contains("dark-mode");
+      localStorage.setItem("darkMode", nowDark);
 
       if (darkText) {
-        darkText.textContent = document.body.classList.contains("dark-mode")
-          ? "Modo oscuro"
-          : "Modo claro";
+        darkText.textContent = nowDark ? "Modo oscuro" : "Modo claro";
+      }
+
+      const popup = document.getElementById('popup');
+      if (popup?.style.display === 'flex' && window.showPopup) {
+        window.showPopup(window.currentIndex);
       }
     });
   }
