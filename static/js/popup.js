@@ -2,16 +2,26 @@ import { buildGraph } from '/static/js/graph.js';
 import { getActiveList } from './main.js';
 import { generarUUID } from './utils.js';
 
+function shouldUseDirectPath(a) {
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
+
+  if (targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null) return true;
+  if (pathToggle?.checked && mainIsPath && !(directIsPath ?? true)) return true;
+  return false;
+}
+
 export function showPopup(currentIndex) {
   const list = getActiveList();
   const a = list[currentIndex];
   if (!a) return;
-  const toggle = document.getElementById("switch-coParentIsTargetPerson");
 
   renderPopupInfo(a);
 
   requestAnimationFrame(() => {
-    renderGraph(a, toggle?.checked);
+    renderGraph(a, shouldUseDirectPath(a));
   });
 
   document.getElementById('popup').style.display = 'flex';
@@ -86,9 +96,7 @@ function renderPopupInfo(a) {
   const container = document.getElementById('popup-body');
   if (!container) return;
 
-  const showDirect = document.getElementById("switch-coParentIsTargetPerson")?.checked;
-
-  const valor = showDirect
+  const valor = shouldUseDirectPath(a)
     ? (a.direct_length ?? '')
     : (a.cercania ?? '');
 

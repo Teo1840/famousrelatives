@@ -32,8 +32,9 @@ def build_person(person):
 def process_json(generations):
     asc = []
     desc = []
-    ancestor = build_person(None) 
+    ancestor = build_person(None)
     viewer_id = None
+    is_coParentIsPathPerson = False
 
     for gen in generations:
         #ANTEPASADO COMUN
@@ -46,7 +47,6 @@ def process_json(generations):
             continue
         # Ascendentes
         asc_side = gen.get("ascendingSide")
-        is_coParentIsPathPerson=False
         if asc_side:
             person=build_person(asc_side.get("person"))
             if asc_side.get("coParentIsPathPerson", False):  # Target Person es pariente de mi conyugue

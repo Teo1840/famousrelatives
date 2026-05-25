@@ -93,12 +93,14 @@ if "%OPCION%"=="1" (
     --disable-session-restore ^
     --no-first-run ^
     --new-window ^
+    --start-maximized ^
     "https://www.familysearch.org/"
 ) else (
     start "" "%BROWSER%" ^
     --remote-debugging-port=9222 ^
     --user-data-dir="%PROFILE_DIR%" ^
     --new-window ^
+    --start-maximized ^
     "https://www.familysearch.org/"
 )
 
@@ -120,6 +122,7 @@ if exist "%ENV_FILE%" (
             echo Token detectado en .env. Abriendo app raiz y procesando...
             start "" "%BROWSER%" ^
             --user-data-dir="%PROFILE_DIR%" ^
+            --start-maximized ^
             "http://localhost:5000/"
             goto END
         )
