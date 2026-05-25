@@ -2,12 +2,30 @@ import { showPopup } from './popup.js';
 import { getActiveList } from './main.js';
 
 function getCardColor(a) {
-  const isPath = a?.mainPath?.coParentIsPathPerson;
-  const isTarget = a?.coParentIsTargetPerson;
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
 
-  if (isPath && isTarget) return 'var(--card-both)';
-  if (isPath) return 'var(--card-path)';
-  if (isTarget) return 'var(--card-target)';
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
+  const isTarget     = a?.coParentIsTargetPerson;
+
+  let effectiveIsPath   = mainIsPath;
+  let effectiveIsTarget = isTarget;
+
+  // targetToggle ON + card stays visible via directPath → use directPath's flags
+  if (targetToggle?.checked && isTarget && a?.directPath != null) {
+    effectiveIsTarget = false;
+    effectiveIsPath   = directIsPath;
+  }
+
+  // pathToggle ON + directPath is clean → drop the viewer-spouse-path color
+  if (pathToggle?.checked && mainIsPath && !(directIsPath ?? true)) {
+    effectiveIsPath = false;
+  }
+
+  if (effectiveIsPath && effectiveIsTarget) return 'var(--card-both)';
+  if (effectiveIsPath)   return 'var(--card-path)';
+  if (effectiveIsTarget) return 'var(--card-target)';
   return 'var(--card-bg)';
 }
 
