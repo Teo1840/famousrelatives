@@ -34,7 +34,10 @@ export function updateListCount() {
 // Generar listas filtradas
 function get_TargetList() {
   return window.arboles
-    .filter(a => !(a.coParentIsTargetPerson && a.directPath == null))
+    .filter(a => {
+      const directIsClean = a?.directPath != null && !a?.directPath?.coParentIsPathPerson;
+      return !a.coParentIsTargetPerson || directIsClean;
+    })
     .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
 }
 
@@ -52,13 +55,9 @@ function get_PathList() {
 function get_Target_and_PathList() {
   return window.arboles
     .filter(a => {
-      const isTarget = !(a.coParentIsTargetPerson && a.directPath == null);
-
-      const main = a?.mainPath?.coParentIsPathPerson;
-      const direct = a?.directPath?.coParentIsPathPerson;
-      const isPath = !(main && (direct ?? true));
-
-      return isTarget && isPath;
+      const mainIsClean = !a.coParentIsTargetPerson && !a?.mainPath?.coParentIsPathPerson;
+      const directIsClean = a?.directPath != null && !a?.directPath?.coParentIsPathPerson;
+      return mainIsClean || directIsClean;
     })
     .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
 }

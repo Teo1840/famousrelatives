@@ -28,9 +28,9 @@
   --tooltip-bg: rgb(12, 12, 12);
   --tooltip-text: white;
 
-  --card-both: #ff6666;
-  --card-path: #dd9999;
-  --card-target: #ffcccc;
+  --card-both: #ffa726;
+  --card-path: #ef5350;
+  --card-target: #ffee58;
 
   --switch-track-off: rgb(190, 224, 149);
   --switch-track-on: rgb(132, 185, 67);
@@ -73,9 +73,9 @@ body.dark-mode {
   --tooltip-bg: #0b0d11;
   --tooltip-text: #e6e6e6;
 
-  --card-both: #ff5c5c;
-  --card-path: #7a4a4a;
-  --card-target: #5a3a3a;
+  --card-both: #7a4800;
+  --card-path: #8b2020;
+  --card-target: #7a6800;
 
   --switch-track-off: #2d3748;
   --switch-track-on: #84b943;
