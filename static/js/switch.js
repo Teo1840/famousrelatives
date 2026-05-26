@@ -1,5 +1,5 @@
 import { renderCards } from './card.js';
-import { getActiveList, updateListCount } from './main.js';
+import { getActiveList, updateListCount, getEffectiveMinSideLength } from './main.js';
 
 export function initSwitches() {
 
@@ -9,10 +9,15 @@ export function initSwitches() {
   function update() {
     if (!window.fullList) return;
 
-    const list = getActiveList();
+    let list = getActiveList();
+
+    const sortByAscToggle = document.getElementById("switch-sortByAsc");
+    if (sortByAscToggle?.checked) {
+      list = [...list].sort((a, b) => getEffectiveMinSideLength(a) - getEffectiveMinSideLength(b));
+    }
+
     renderCards(list);
     updateListCount();
-
     window.currentIndex = 0;
   }
 
@@ -22,6 +27,11 @@ export function initSwitches() {
 
   if (coParentToggle) {
     coParentToggle.addEventListener("change", update);
+  }
+
+  const sortByAscToggle = document.getElementById("switch-sortByAsc");
+  if (sortByAscToggle) {
+    sortByAscToggle.addEventListener("change", update);
   }
 
   // 🌙 MODO OSCURO

@@ -16,7 +16,7 @@
 <body>
   
 <h1>Famous Relatives</h1>
-<h2>*En rosado claro se encuentran los parentescos políticos y en rosado oscuro parentescos de mi cónyuge*</h2>
+<h2>*Amarillo: parentesco político (a través del cónyuge de la persona) · Rojo: parentesco a través de mi cónyuge · Naranja: ambos*</h2>
 
 <div class="flex-container">
   <!-- Switch 1: Parentescos de mi Conyugue -->
@@ -47,6 +47,15 @@
       <span class="slider"></span>
     </label>
     <span id="darkModeText" class="status-text">Modo claro</span>
+  </div>
+
+  <!-- Switch 4: Ordenar por cercanía al antepasado -->
+  <div class="switch-wrapper">
+    <label class="switch">
+      <input type="checkbox" id="switch-sortByAsc">
+      <span class="slider"></span>
+    </label>
+    <span class="status-text">Ordenar por cercanía al antepasado</span>
   </div>
 
   <!-- BOTON DE DESCARGA -->

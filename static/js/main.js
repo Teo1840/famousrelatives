@@ -73,6 +73,17 @@ function getEffectiveLength(a) {
     : (a.cercania ?? Infinity);
 }
 
+export function getEffectiveMinSideLength(a) {
+  const main   = a?.mainPath?.coParentIsPathPerson;
+  const direct = a?.directPath?.coParentIsPathPerson;
+  const useDirect = a?.directPath && !(main && (direct ?? true));
+
+  const path = useDirect ? a.directPath : a.mainPath;
+  const asc  = path?.asc?.length  ?? Infinity;
+  const desc = path?.desc?.length ?? Infinity;
+  return Math.min(asc, desc);
+}
+
 // 🔗 Exponer para HTML (onclick del popup)
 window.showPopup = showPopup;
 window.prevPopup = prevPopup;
