@@ -59,7 +59,7 @@ SEC_CH_UA_MOBILE=?0
 SEC_CH_UA_PLATFORM="Windows"
 SEC_GPC=1
 SEC_FETCH_SITE=same-origin
-RATE_LIMIT_INTERVAL=0.5
+RATE_LIMIT_INTERVAL=0.1
 ```
 Use your browser's DevTools (Network tab) to capture the correct `User-Agent` and `sec-ch-ua` values for your browser version.
 
@@ -86,11 +86,11 @@ python app.py
 ## Core workflow
 1. User opens the app — a Brave window launches and the listener captures the FamilySearch session token automatically.
 2. App loads a CSV with a curated list of FamilySearch person IDs.
-3. For each person ID:
+3. Person IDs are processed in parallel (3 concurrent workers):
    - Check cache (1-week TTL) to avoid repeated API calls.
    - If not cached: call FamilySearch relationship endpoint via local proxy.
    - Normalize/parse the relationship path to a consistent format.
-4. On the first processed person, fetch the viewer's own portrait via the FamilySearch portrait endpoint and apply it to all trees.
+4. The first worker to resolve a person fetches the viewer's own portrait via the FamilySearch portrait endpoint; all workers then apply it to their trees.
 5. Render results in the UI.
 
 ## Authentication & Security
@@ -112,7 +112,7 @@ To reduce the number of calls to FamilySearch (and speed up repeated queries), t
 
 The local proxy (`fs_proxy.py`) adds an additional layer: per-token request spacing and automatic retry with `Retry-After` on HTTP 429 responses.
 
-MySQL connections use a pool (`pool_size=5`) initialized once at startup, eliminating per-query TCP handshake overhead.
+MySQL connections use a pool (`pool_size=10`) initialized once at startup, eliminating per-query TCP handshake overhead.
 
 ## Tech stack
 - Python / Flask (backend + API client + parsing)
@@ -130,4 +130,4 @@ MySQL connections use a pool (`pool_size=5`) initialized once at startup, elimin
 - [x] Add tests for parsing/normalization utilities
 - [x] Add CI (GitHub Actions) to run tests and linting
 - [x] Get token automatically
-- [ ] Show viewer's own profile picture
+- [x] Show viewer's own profile picture

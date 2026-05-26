@@ -15,7 +15,7 @@ def get_pool():
             try:
                 _pool = MySQLConnectionPool(
                     pool_name="famrel_pool",
-                    pool_size=5,
+                    pool_size=10,
                     host=os.getenv("DB_HOST", "localhost"),
                     user=os.getenv("DB_USER"),
                     password=os.getenv("DB_PASSWORD"),

@@ -1,11 +1,12 @@
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from db.db import obtener_arbol, guardar_arbol
 import os
 import requests
 
 # --Simplificar JSON--
-#def viewer_person
 def build_person(person):
     if not person:
         return {"nombre": "", "id": "", "lifespan": "", "portraitUrl": None, "gender": ""}
@@ -96,107 +97,155 @@ def get_session():
 
     return session
 
+
+# --Thread-safe viewer portrait state--
+class ViewerState:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._event = threading.Event()
+        self.person_id = None
+        self.portrait_url = None
+        self._fetch_started = False
+
+    def try_set_person_id(self, pid):
+        with self._lock:
+            if self.person_id is None and pid:
+                self.person_id = pid
+
+    def claim_portrait_fetch(self):
+        """Returns True if this thread should perform the portrait fetch."""
+        with self._lock:
+            if self.person_id and not self._fetch_started:
+                self._fetch_started = True
+                return True
+        return False
+
+    def set_portrait(self, url):
+        with self._lock:
+            self.portrait_url = url
+        self._event.set()
+
+    def get_portrait(self, timeout=6):
+        if self.person_id:
+            self._event.wait(timeout=timeout)
+        with self._lock:
+            return self.portrait_url
+
+
+# --Per-person processing (called from thread pool)--
+def _process_one(codigo, session, token, viewer_state, counter, total, on_progress):
+    persona_id = codigo["person_code"]
+    name = codigo.get("name", persona_id)
+    t_start = time.time()
+
+    # Cache
+    cached = get_cached_tree(persona_id, viewer_state.person_id)
+    if cached:
+        cached["topics"] = codigo.get("topics", [])
+        portrait = viewer_state.get_portrait()
+        if portrait:
+            _apply_viewer_portrait(cached, viewer_state.person_id, portrait)
+        n = counter()
+        if on_progress:
+            on_progress(n)
+        print(f"[{n}/{total}] {name} — cache ({time.time()-t_start:.2f}s)", flush=True)
+        return cached
+
+    # API
+    try:
+        data = fetch_tree_from_api(session, persona_id, token)
+    except Exception as e:
+        if str(e) == "SESSION_EXPIRED":
+            raise
+        return None
+
+    if not data:
+        n = counter()
+        if on_progress:
+            on_progress(n)
+        print(f"[{n}/{total}] {name} — sin datos ({time.time()-t_start:.2f}s)", flush=True)
+        return None
+
+    parsed = parse_tree_data(data)
+    if not parsed:
+        counter()
+        return None
+
+    viewer_state.try_set_person_id(parsed["viewer_id"])
+
+    if viewer_state.claim_portrait_fetch():
+        url = fetch_viewer_portrait(session, viewer_state.person_id, token)
+        viewer_state.set_portrait(url)
+
+    # Build (coParentIsTargetPerson path)
+    target = parsed["target"]
+    coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
+    extra_parsed = None
+    if coParentIsTargetPerson:
+        parent_id = fetch_parent_id(session, persona_id, token)
+        if parent_id:
+            try:
+                extra_data = fetch_tree_from_api(session, parent_id, token)
+                if extra_data:
+                    extra_parsed = parse_tree_data(extra_data)
+            except Exception as e:
+                if str(e) == "SESSION_EXPIRED":
+                    raise
+
+    tree = build_tree_data(parsed, codigo, extra_parsed)
+
+    portrait = viewer_state.get_portrait()
+    if portrait:
+        _apply_viewer_portrait(tree, viewer_state.person_id, portrait)
+
+    save_tree(persona_id, viewer_state.person_id, tree)
+
+    n = counter()
+    if on_progress:
+        on_progress(n)
+    print(f"[{n}/{total}] {name} — {time.time()-t_start:.2f}s", flush=True)
+    return tree
+
+
 # --Generar un Arbol por codigo incluyendo su JSON respectivo--
 def generate_trees(codigos, token, on_progress=None):
     session = get_session()
-    trees = []
-
-    current = 0
     total = len(codigos)
+    viewer_state = ViewerState()
 
-    viewer_person_id = None  # ⚠️
-    viewer_portrait_url = None
-    viewer_portrait_fetched = False
+    _cnt_lock = threading.Lock()
+    _cnt = [0]
+    def counter():
+        with _cnt_lock:
+            _cnt[0] += 1
+            return _cnt[0]
 
-    for codigo in codigos:
-        persona_id = codigo["person_code"]
-        name = codigo.get("name", persona_id)
-        t_start = time.time()
+    session_expired = threading.Event()
+    results = {}
 
-        # 🔹 Cache
-        cached = get_cached_tree(persona_id, viewer_person_id)
-        if cached:
-            cached["topics"] = codigo.get("topics", [])
-            if viewer_person_id and not viewer_portrait_fetched:
-                viewer_portrait_url = fetch_viewer_portrait(session, viewer_person_id, token)
-                viewer_portrait_fetched = True
-            if viewer_portrait_url:
-                _apply_viewer_portrait(cached, viewer_person_id, viewer_portrait_url)
-            trees.append(cached)
-            current += 1
-            if on_progress:
-                on_progress(current)
-            elapsed = time.time() - t_start
-            print(f"[{current}/{total}] {name} — cache ({elapsed:.2f}s)", flush=True)
-            continue
-
-        # 🔹 API
+    def submit_one(i, codigo):
+        if session_expired.is_set():
+            return i, None
         try:
-            data = fetch_tree_from_api(session, persona_id, token)
+            tree = _process_one(codigo, session, token, viewer_state, counter, total, on_progress)
+            return i, tree
         except Exception as e:
             if str(e) == "SESSION_EXPIRED":
+                session_expired.set()
                 print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
-                break
-            continue
+            return i, None
 
-        if not data:
-            current += 1
-            if on_progress:
-                on_progress(current)
-            elapsed = time.time() - t_start
-            print(f"[{current}/{total}] {name} — sin datos ({elapsed:.2f}s)", flush=True)
-            continue
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = {executor.submit(submit_one, i, c): i for i, c in enumerate(codigos)}
+        for fut in as_completed(futures):
+            i, tree = fut.result()
+            if tree:
+                results[i] = tree
 
-        # 🔹 Parse
-        parsed = parse_tree_data(data)
-        if not parsed:
-            current += 1
-            if on_progress:
-                on_progress(current)
-            continue
-
-        # ⚠️ actualizar viewer_id dinámicamente
-        viewer_person_id = parsed["viewer_id"]
-
-        # 🔹 Fetch viewer portrait once
-        if viewer_person_id and not viewer_portrait_fetched:
-            viewer_portrait_url = fetch_viewer_portrait(session, viewer_person_id, token)
-            viewer_portrait_fetched = True
-
-        # 🔹 Build
-        target = parsed["target"]
-        coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
-        extra_parsed = None
-        if coParentIsTargetPerson:
-            parent_id = fetch_parent_id(session, persona_id, token)
-            if parent_id:
-                try:
-                    extra_data = fetch_tree_from_api(session, parent_id, token)
-                    if extra_data:
-                        extra_parsed = parse_tree_data(extra_data)
-
-                except Exception as e:
-                    if str(e) == "SESSION_EXPIRED":
-                        print("⚠️ Sesión expirada en fetch de padres", flush=True)
-                        break
-
-        tree = build_tree_data(parsed, codigo, extra_parsed)
-
-        if viewer_portrait_url:
-            _apply_viewer_portrait(tree, viewer_person_id, viewer_portrait_url)
-
-        # 🔹 Save
-        save_tree(persona_id, viewer_person_id, tree)
-
-        trees.append(tree)
-        current += 1
-        if on_progress:
-            on_progress(current)
-        elapsed = time.time() - t_start
-        print(f"[{current}/{total}] {name} — {elapsed:.2f}s", flush=True)
-
+    trees = [results[i] for i in sorted(results)]
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
     return trees
+
 
 #CACHE
 TTL_SECONDS = 604800  # 1 semana
@@ -285,7 +334,7 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
         "coParentIsPathPerson": coParentIsPathPerson
     }
     main_length = getPathLength(main_path)
-    
+
     direct_path = None
     direct_length = main_length
 
@@ -313,7 +362,7 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
         }
 
         direct_length = getPathLength(direct_path)
-    
+
     return {
         "person_code": codigo["person_code"],
         "name": codigo["name"],
