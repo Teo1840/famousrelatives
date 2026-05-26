@@ -116,6 +116,7 @@ def generate_trees(codigos, token, on_progress=None):
         # 🔹 Cache
         cached = get_cached_tree(persona_id, viewer_person_id)
         if cached:
+            cached["topics"] = codigo.get("topics", [])
             if viewer_person_id and not viewer_portrait_fetched:
                 viewer_portrait_url = fetch_viewer_portrait(session, viewer_person_id, token)
                 viewer_portrait_fetched = True
@@ -317,6 +318,7 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
         "person_code": codigo["person_code"],
         "name": codigo["name"],
         "info": codigo["info"],
+        "topics": codigo.get("topics", []),
 
         "cercania": main_length,
 

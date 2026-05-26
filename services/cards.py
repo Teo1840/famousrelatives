@@ -6,8 +6,9 @@ def generate_html(TEMPLATE_PATH, arboles_ordenados):
     arboles_js = json.dumps([
         {
             "person_code": a.get('person_code'),
-            "name": a.get('name',''),  # 🔥 unificá idioma
+            "name": a.get('name',''),
             "info": a.get('info',''),
+            "topics": a.get('topics', []),
             "cercania": a.get('cercania',0),
             "relationshipDescription": a.get('relationshipDescription',''),
 

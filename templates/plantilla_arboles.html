@@ -16,7 +16,9 @@
 <body>
   
 <h1>Famous Relatives</h1>
-<h2>*Amarillo: parentesco político (a través del cónyuge de la persona) · Rojo: parentesco a través de mi cónyuge · Naranja: ambos*</h2>
+<h2>Amarillo: parentesco político (a través del cónyuge de la persona)</h2>
+<h2>Rojo: parentesco a través de mi cónyuge</h2>
+<h2>Naranja: ambos*</h2>
 
 <div class="flex-container">
   <!-- Switch 1: Parentescos de mi Conyugue -->
@@ -39,7 +41,18 @@
     <span class="status-text">No incluir parentescos a traves del cónyuge de la persona</span>
   </div>
 
-  <!-- Switch 3: Modo oscuro -->
+  <!-- Switch 3: Ordenar por cercanía al antepasado -->
+  <div class="switch-wrapper">
+    <label class="switch">
+      <input type="checkbox" id="switch-sortByAsc">
+      <span class="slider"></span>
+    </label>
+    <span class="status-text">Ordenar por cercanía al antepasado</span>
+  </div>
+</div>
+
+<div class="flex-container">
+  <!-- Switch 4: Modo oscuro -->
   <div class="switch-wrapper">
     <!-- From Uiverse.io by gharsh11032000 -->
     <label class="switch">
@@ -47,15 +60,6 @@
       <span class="slider"></span>
     </label>
     <span id="darkModeText" class="status-text">Modo claro</span>
-  </div>
-
-  <!-- Switch 4: Ordenar por cercanía al antepasado -->
-  <div class="switch-wrapper">
-    <label class="switch">
-      <input type="checkbox" id="switch-sortByAsc">
-      <span class="slider"></span>
-    </label>
-    <span class="status-text">Ordenar por cercanía al antepasado</span>
   </div>
 
   <!-- BOTON DE DESCARGA -->
@@ -66,6 +70,10 @@
     <span class="tooltip">Download</span>
   </button>
 </div>
+
+<!-- Topic filter chips (populated by JS) -->
+<div id="topic-filters" class="flex-container"></div>
+<div id="topic-description" style="display:none"></div>
 
 <div class="flex-container">
   <span id="list-count"></span>

@@ -3,21 +3,21 @@ import logging
 from services.validators import validate_row
 
 REQUIRED_COLUMNS = {"person_code", "name", "info"}
+OPTIONAL_COLUMNS = {"topics"}
 
 def validate_csv_schema(headers):
     headers_set = set(headers)
 
     missing = REQUIRED_COLUMNS - headers_set
-    extra = headers_set - REQUIRED_COLUMNS
+    unknown = headers_set - REQUIRED_COLUMNS - OPTIONAL_COLUMNS
 
     errors = []
 
     if missing:
         errors.append(f"Faltan columnas requeridas: {', '.join(missing)}")
 
-    # opcional: decidir si querés permitir extras
-    if extra:
-        errors.append(f"Columnas desconocidas: {', '.join(extra)}")
+    if unknown:
+        errors.append(f"Columnas desconocidas: {', '.join(unknown)}")
 
     if errors:
         raise ValueError(" | ".join(errors))
