@@ -230,6 +230,34 @@ body.dark-mode ::selection {
 }
 
 /* =========================
+   COLOR LEGEND
+========================= */
+#color-legend {
+  max-width: 700px;
+  margin: 4px auto 0;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--popup-pre);
+  color: var(--text);
+  font-size: 0.88em;
+  text-align: center;
+  line-height: 2;
+}
+
+.color-dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.color-dot--target { background: var(--card-target); }
+.color-dot--path   { background: var(--card-path); }
+.color-dot--both   { background: var(--card-both); }
+
+/* =========================
    TOPIC CHIPS
 ========================= */
 .topic-chip {
