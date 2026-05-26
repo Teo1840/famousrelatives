@@ -36,6 +36,11 @@
   --switch-track-on: rgb(132, 185, 67);
 
   --popup-border: transparent;
+
+  --chip-bg: #e0e0e0;
+  --chip-text: #333;
+  --chip-active-bg: rgb(132, 185, 67);
+  --chip-active-text: white;
 }
 
 /* =========================
@@ -79,6 +84,11 @@ body.dark-mode {
 
   --switch-track-off: #2d3748;
   --switch-track-on: #84b943;
+
+  --chip-bg: #2a2f3a;
+  --chip-text: #e4e6eb;
+  --chip-active-bg: #84b943;
+  --chip-active-text: white;
 }
 
 /* =========================
@@ -217,4 +227,45 @@ body.dark-mode ::-webkit-scrollbar-thumb:hover {
 body.dark-mode ::selection {
   background: rgba(132, 185, 67, 0.3);
   color: var(--text);
+}
+
+/* =========================
+   TOPIC CHIPS
+========================= */
+.topic-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-size: 0.85em;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.topic-chip.active,
+.topic-chip:hover {
+  background: var(--chip-active-bg);
+  color: var(--chip-active-text);
+}
+
+/* =========================
+   TOPIC DESCRIPTION
+========================= */
+#topic-description {
+  max-width: 700px;
+  margin: 4px auto 12px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--popup-pre);
+  color: var(--text);
+  font-size: 0.88em;
+  text-align: center;
+  line-height: 1.6;
+}
+
+#topic-description a {
+  color: var(--chip-active-bg);
+  text-decoration: underline;
 }

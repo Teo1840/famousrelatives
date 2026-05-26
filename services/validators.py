@@ -22,14 +22,20 @@ def validate_info(info):
         raise ValueError("Info demasiado larga (máx. 200 caracteres)")
     return info.strip()
 
+def validate_topics(topics_str):
+    if not topics_str or not isinstance(topics_str, str):
+        return []
+    return [t.strip() for t in topics_str.split(",") if t.strip()]
+
 def validate_row(row):
     """
     Valida una fila completa del CSV.
-    row: dict con keys: person_code, name, info
+    row: dict con keys: person_code, name, info, topics (opcional)
     Retorna fila validada o lanza ValueError si algo no es válido.
     """
     return {
         "person_code": validate_person_code(row["person_code"]),
-        "name": validate_name(row["name"]),
-        "info": validate_info(row["info"])
+        "name":        validate_name(row["name"]),
+        "info":        validate_info(row["info"]),
+        "topics":      validate_topics(row.get("topics", ""))
     }

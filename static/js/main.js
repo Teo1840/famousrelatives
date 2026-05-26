@@ -23,12 +23,12 @@ export function getActiveList() {
 }
 
 // Actualiza contador
-export function updateListCount() {
+export function updateListCount(list) {
   const el = document.getElementById("list-count");
   if (!el) return;
 
-  const list = getActiveList();
-  el.textContent = list.length;
+  const activeList = list ?? getActiveList();
+  el.textContent = activeList.length;
 }
 
 // Generar listas filtradas
@@ -93,6 +93,7 @@ window.closePopup = closePopup;
 // Estado global
 window.fullList = window.arboles;
 window.currentIndex = 0;
+window.activeTopicFilter = null;
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
