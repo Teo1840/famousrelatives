@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # https://developers.familysearch.org/main/docs/throttling
-RATE_LIMIT_INTERVAL = float(os.getenv("RATE_LIMIT_INTERVAL", "0.5"))
+RATE_LIMIT_INTERVAL = float(os.getenv("RATE_LIMIT_INTERVAL", "0.1"))
 MAX_RETRIES_429 = 3
 
 _rate_lock = threading.Lock()
