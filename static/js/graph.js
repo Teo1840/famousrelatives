@@ -13,14 +13,7 @@ export function buildGraph(a, generarUUID, directPath, isDark = false) {
   const GAP_X = 250;
   const GAP_Y = 150;
 
-  const useDirect =
-    directPath &&
-    a.coParentIsTargetPerson === true &&
-    a.directPath != null;
-
-  if (directPath && !useDirect && a.coParentIsTargetPerson === true) {
-    return { nodes: [], edges: [] };
-  }
+  const useDirect = directPath && a.directPath != null;
 
   const path = useDirect ? a.directPath : (a.mainPath || {});
   const rootId = path.antepasado_comun?.id || generarUUID();

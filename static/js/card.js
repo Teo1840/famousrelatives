@@ -30,12 +30,15 @@ function getCardColor(a) {
 }
 
 function getEffectiveLength(a) {
-  const main = a?.mainPath?.coParentIsPathPerson;
-  const direct = a?.directPath?.coParentIsPathPerson;
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
 
-  const useDirect = a?.directPath && !(main && (direct ?? true));
+  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
+  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
 
-  return useDirect
+  return (useDirectForPath || useDirectForTarget)
     ? (a.direct_length ?? 0)
     : (a.cercania ?? 0);
 }
