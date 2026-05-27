@@ -98,38 +98,16 @@ def get_session():
     return session
 
 
-# --Thread-safe viewer portrait state--
+# --Thread-safe viewer id state--
 class ViewerState:
     def __init__(self):
         self._lock = threading.Lock()
-        self._event = threading.Event()
         self.person_id = None
-        self.portrait_url = None
-        self._fetch_started = False
 
     def try_set_person_id(self, pid):
         with self._lock:
             if self.person_id is None and pid:
                 self.person_id = pid
-
-    def claim_portrait_fetch(self):
-        """Returns True if this thread should perform the portrait fetch."""
-        with self._lock:
-            if self.person_id and not self._fetch_started:
-                self._fetch_started = True
-                return True
-        return False
-
-    def set_portrait(self, url):
-        with self._lock:
-            self.portrait_url = url
-        self._event.set()
-
-    def get_portrait(self, timeout=6):
-        if self.person_id:
-            self._event.wait(timeout=timeout)
-        with self._lock:
-            return self.portrait_url
 
 
 # --Per-person processing (called from thread pool)--
@@ -142,9 +120,6 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
     cached = get_cached_tree(persona_id, viewer_state.person_id)
     if cached:
         cached["topics"] = codigo.get("topics", [])
-        portrait = viewer_state.get_portrait()
-        if portrait:
-            _apply_viewer_portrait(cached, viewer_state.person_id, portrait)
         n = counter()
         if on_progress:
             on_progress(n)
@@ -173,15 +148,12 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
 
     viewer_state.try_set_person_id(parsed["viewer_id"])
 
-    if viewer_state.claim_portrait_fetch():
-        url = fetch_viewer_portrait(session, viewer_state.person_id, token)
-        viewer_state.set_portrait(url)
-
-    # Build (coParentIsTargetPerson path)
+    # Build (coParentIsTargetPerson / coParentIsPathPerson path)
     target = parsed["target"]
     coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
+    coParentIsPathPerson = parsed["coParentIsPathPerson"]
     extra_parsed = None
-    if coParentIsTargetPerson:
+    if coParentIsTargetPerson or coParentIsPathPerson:
         parent_id = fetch_parent_id(session, persona_id, token)
         if parent_id:
             try:
@@ -193,10 +165,6 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
                     raise
 
     tree = build_tree_data(parsed, codigo, extra_parsed)
-
-    portrait = viewer_state.get_portrait()
-    if portrait:
-        _apply_viewer_portrait(tree, viewer_state.person_id, portrait)
 
     save_tree(persona_id, viewer_state.person_id, tree)
 
@@ -235,7 +203,7 @@ def generate_trees(codigos, token, on_progress=None):
                 print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
             return i, None
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         futures = {executor.submit(submit_one, i, c): i for i, c in enumerate(codigos)}
         for fut in as_completed(futures):
             i, tree = fut.result()
@@ -243,6 +211,13 @@ def generate_trees(codigos, token, on_progress=None):
                 results[i] = tree
 
     trees = [results[i] for i in sorted(results)]
+
+    if viewer_state.person_id:
+        portrait_url = fetch_viewer_portrait(session, viewer_state.person_id, token)
+        if portrait_url:
+            for tree in trees:
+                _apply_viewer_portrait(tree, viewer_state.person_id, portrait_url)
+
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
     return trees
 
@@ -341,7 +316,7 @@ def build_tree_data(parsed, codigo, extra_parsed=None):
     target = parsed["target"]
     coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
 
-    if coParentIsTargetPerson and extra_parsed:
+    if (coParentIsTargetPerson or coParentIsPathPerson) and extra_parsed:
         extra_asc = extra_parsed["asc"]
         extra_desc = extra_parsed["desc"][:]
         extra_apex = extra_parsed["ancestor"]
