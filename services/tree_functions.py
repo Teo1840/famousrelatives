@@ -123,7 +123,7 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
         n = counter()
         if on_progress:
             on_progress(n)
-        print(f"[{n}/{total}] {name} — cache ({time.time()-t_start:.2f}s)", flush=True)
+        print(f"[{n}/{total}] {name} — cache ({time.time() - t_start:.2f}s)", flush=True)
         return cached
 
     # API
@@ -138,7 +138,7 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
         n = counter()
         if on_progress:
             on_progress(n)
-        print(f"[{n}/{total}] {name} — sin datos ({time.time()-t_start:.2f}s)", flush=True)
+        print(f"[{n}/{total}] {name} — sin datos ({time.time() - t_start:.2f}s)", flush=True)
         return None
 
     parsed = parse_tree_data(data)
@@ -171,7 +171,7 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
     n = counter()
     if on_progress:
         on_progress(n)
-    print(f"[{n}/{total}] {name} — {time.time()-t_start:.2f}s", flush=True)
+    print(f"[{n}/{total}] {name} — {time.time() - t_start:.2f}s", flush=True)
     return tree
 
 
@@ -183,6 +183,7 @@ def generate_trees(codigos, token, on_progress=None):
 
     _cnt_lock = threading.Lock()
     _cnt = [0]
+
     def counter():
         with _cnt_lock:
             _cnt[0] += 1
