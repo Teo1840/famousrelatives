@@ -1,5 +1,5 @@
 import { renderCards } from './card.js';
-import { getActiveList, updateListCount } from './main.js';
+import { getActiveList, updateListCount, getSortLength, getSortMinSideLength } from './main.js';
 
 export function initSwitches() {
 
@@ -16,9 +16,10 @@ export function initSwitches() {
     }
 
     const sortByAscToggle = document.getElementById("switch-sortByAsc");
-    if (sortByAscToggle?.checked) {
-      list = [...list].sort((a, b) => (a.cercania ?? Infinity) - (b.cercania ?? Infinity));
-    }
+    list = [...list].sort(sortByAscToggle?.checked
+      ? (a, b) => getSortMinSideLength(a) - getSortMinSideLength(b)
+      : (a, b) => getSortLength(a) - getSortLength(b)
+    );
 
     renderCards(list);
     updateListCount(list);

@@ -1,5 +1,6 @@
 import { showPopup } from './popup.js';
 import { getActiveList } from './main.js';
+import { computeRelationshipDescription } from './relationship.js';
 
 function getCardColor(a) {
   const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
@@ -55,12 +56,29 @@ export function createCard(a) {
   const effective = getEffectiveLength(a);
   card.dataset.effectiveLength = effective;
 
-  card.dataset.personCode = a.person_code; // 🔥 clave para popup
+  card.dataset.personCode = a.person_code;
+
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
+  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
+  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
+  const useDirect = useDirectForPath || useDirectForTarget;
+
+  const relDesc = (useDirect && a.directPath)
+    ? computeRelationshipDescription(
+        a.directPath.asc.length,
+        a.directPath.desc.length,
+        a.name,
+        a.directPath.desc.at(-1)?.gender || ""
+      )
+    : (a.relationshipDescription || "");
 
   card.innerHTML = `
     <img src="${a.portraitUrl || defaultPortraitUrl}" width="150">
     <h3>${a.name}</h3>
-    <small><i>${a.relationshipDescription || ""}</i></small><br>
+    <small><i>${relDesc}</i></small><br>
     <small class="metric"></small><br>
     <small>${a.info || ""}</small>
   `;

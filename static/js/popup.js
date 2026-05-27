@@ -1,6 +1,7 @@
 import { buildGraph } from '/static/js/graph.js';
 import { getActiveList } from './main.js';
 import { generarUUID } from './utils.js';
+import { computeRelationshipDescription } from './relationship.js';
 
 function shouldUseDirectPath(a) {
   const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
@@ -96,14 +97,25 @@ function renderPopupInfo(a) {
   const container = document.getElementById('popup-body');
   if (!container) return;
 
-  const valor = shouldUseDirectPath(a)
+  const useDirect = shouldUseDirectPath(a);
+  const valor = useDirect
     ? (a.direct_length ?? '')
     : (a.cercania ?? '');
+
+  const directPath = a.directPath;
+  const relDesc = (useDirect && directPath)
+    ? computeRelationshipDescription(
+        directPath.asc.length,
+        directPath.desc.length,
+        a.name,
+        directPath.desc.at(-1)?.gender || ""
+      )
+    : (a.relationshipDescription || '');
 
   container.innerHTML = `
     <h3>${a.name}</h3>
     <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
-    <p><i>${a.relationshipDescription || ''}</i></p>
+    <p><i>${relDesc}</i></p>
     <p><b>${'Cercanía'}:</b> ${valor}</p>
     <pre>${a.detalle || ''}</pre>
   `;

@@ -65,20 +65,36 @@ function get_Target_and_PathList() {
 function getEffectiveLength(a) {
   const main = a?.mainPath?.coParentIsPathPerson;
   const direct = a?.directPath?.coParentIsPathPerson;
-
   const useDirect = a?.directPath && !(main && (direct ?? true));
-
   return useDirect
     ? (a.direct_length ?? Infinity)
     : (a.cercania ?? Infinity);
 }
 
-export function getEffectiveMinSideLength(a) {
-  const main   = a?.mainPath?.coParentIsPathPerson;
-  const direct = a?.directPath?.coParentIsPathPerson;
-  const useDirect = a?.directPath && !(main && (direct ?? true));
+export function getSortLength(a) {
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
 
-  const path = useDirect ? a.directPath : a.mainPath;
+  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
+  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
+
+  return (useDirectForPath || useDirectForTarget)
+    ? (a.direct_length ?? Infinity)
+    : (a.cercania ?? Infinity);
+}
+
+export function getSortMinSideLength(a) {
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
+
+  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
+  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
+
+  const path = (useDirectForPath || useDirectForTarget) ? a.directPath : a.mainPath;
   const asc  = path?.asc?.length  ?? Infinity;
   const desc = path?.desc?.length ?? Infinity;
   return Math.min(asc, desc);
@@ -105,9 +121,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let list = getActiveList();
   const sortByAscToggle = document.getElementById("switch-sortByAsc");
-  if (sortByAscToggle?.checked) {
-    list = [...list].sort((a, b) => (a.cercania ?? Infinity) - (b.cercania ?? Infinity));
-  }
+  list = [...list].sort(sortByAscToggle?.checked
+    ? (a, b) => getSortMinSideLength(a) - getSortMinSideLength(b)
+    : (a, b) => getSortLength(a) - getSortLength(b)
+  );
   renderCards(list);
   updateListCount(list);
 });
