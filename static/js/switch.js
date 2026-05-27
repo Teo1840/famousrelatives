@@ -64,6 +64,8 @@ export function initSwitches() {
     const container = document.getElementById("topic-filters");
     if (!container) return;
 
+    container.innerHTML = "";
+
     const topicSet = new Set();
     (window.arboles || []).forEach(a => (a.topics || []).forEach(t => topicSet.add(t)));
 

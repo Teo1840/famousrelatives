@@ -37,8 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. JS FILES (orden IMPORTANTE)
     const vis = await fetch("/static/js/vis-network.min.js").then(r => r.text());
     const utils = cleanJS(await fetch("/static/js/utils.js").then(r => r.text()));
+    const relationship = cleanJS(await fetch("/static/js/relationship.js").then(r => r.text()));
     const graph = cleanJS(await fetch("/static/js/graph.js").then(r => r.text()));
-    const card = cleanJS(await fetch("/static/js/card.js").then(r => r.text())); // 🔥 faltaba
+    const card = cleanJS(await fetch("/static/js/card.js").then(r => r.text()));
     const popup = cleanJS(await fetch("/static/js/popup.js").then(r => r.text()));
     const switchJS = cleanJS(await fetch("/static/js/switch.js").then(r => r.text()));
     const main = cleanJS(await fetch("/static/js/main.js").then(r => r.text()));
@@ -84,6 +85,7 @@ window.currentIndex = 0;
 
 <script>${vis}</script>
 <script>${utils}</script>
+<script>${relationship}</script>
 <script>${graph}</script>
 <script>${card}</script>
 <script>${popup}</script>
