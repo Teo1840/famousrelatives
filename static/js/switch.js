@@ -1,5 +1,5 @@
 import { renderCards } from './card.js';
-import { getActiveList, updateListCount, getEffectiveMinSideLength } from './main.js';
+import { getActiveList, updateListCount } from './main.js';
 
 export function initSwitches() {
 
@@ -17,7 +17,7 @@ export function initSwitches() {
 
     const sortByAscToggle = document.getElementById("switch-sortByAsc");
     if (sortByAscToggle?.checked) {
-      list = [...list].sort((a, b) => getEffectiveMinSideLength(a) - getEffectiveMinSideLength(b));
+      list = [...list].sort((a, b) => (a.cercania ?? Infinity) - (b.cercania ?? Infinity));
     }
 
     renderCards(list);
@@ -29,7 +29,7 @@ export function initSwitches() {
     "presidentes uruguayos": `
       Lista basada en <a href="https://es.wikipedia.org/wiki/Anexo:Gobernantes_de_Uruguay" target="_blank">Wikipedia: Gobernantes de Uruguay</a>.<br>
       <strong>Presidentes no encontrados en FamilySearch</strong> (si los encontrás, ¡agregálos!):
-      José Eugenio Ellauri, Juan Lindolfo Cuestas, Claudio Williman, José Serrato, Juan Campisteguy, Juan José de Amézaga, José Mujica.
+      Claudio Williman, José Serrato, Juan José de Amézaga, José Mujica.
     `,
     "treinta y tres orientales": `
       Lista basada en <a href="https://www.geni.com/projects/33-Orientales/8298" target="_blank">Geni: Los 33 Orientales</a>.

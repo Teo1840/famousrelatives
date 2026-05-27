@@ -147,10 +147,8 @@ def process():
     with _progress_lock:
         _progress["current"] = total
 
-    arboles_ordenados = sorted(arboles, key=lambda a: a["cercania"])
-
     # Generar HTML
-    html_content = generate_html(TEMPLATE_PATH, arboles_ordenados)
+    html_content = generate_html(TEMPLATE_PATH, arboles)
 
     return Response(html_content, mimetype='text/html')
 

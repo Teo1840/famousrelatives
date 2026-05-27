@@ -103,7 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initSwitches();
 
-  const list = getActiveList();
+  let list = getActiveList();
+  const sortByAscToggle = document.getElementById("switch-sortByAsc");
+  if (sortByAscToggle?.checked) {
+    list = [...list].sort((a, b) => (a.cercania ?? Infinity) - (b.cercania ?? Infinity));
+  }
   renderCards(list);
-  updateListCount();
+  updateListCount(list);
 });
