@@ -35,7 +35,7 @@ def validate_row(row):
     """
     return {
         "person_code": validate_person_code(row["person_code"]),
-        "name":        validate_name(row["name"]),
-        "info":        validate_info(row["info"]),
-        "topics":      validate_topics(row.get("topics", ""))
+        "name": validate_name(row["name"]),
+        "info": validate_info(row["info"]),
+        "topics": validate_topics(row.get("topics", ""))
     }
