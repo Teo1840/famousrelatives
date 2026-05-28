@@ -224,7 +224,7 @@ def generate_trees(codigos, token, on_progress=None):
 
 
 #CACHE
-TTL_SECONDS = 604800  # 1 semana
+TTL_SECONDS = 1209600  # 2 semanas
 
 def get_cached_tree(persona_id, viewer_person_id):
     if not viewer_person_id:
