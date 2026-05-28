@@ -27,10 +27,11 @@ export function initSwitches() {
   }
 
   const TOPIC_DESCRIPTIONS = {
+    "deportistas": `
+      Grupo de deportistas destacados de la región incluyendo futbolistas y pilotos de automovilismo.
+    `,
     "presidentes uruguayos": `
-      Lista basada en <a href="https://es.wikipedia.org/wiki/Anexo:Gobernantes_de_Uruguay" target="_blank">Wikipedia: Gobernantes de Uruguay</a>.<br>
-      <strong>Presidentes no encontrados en FamilySearch</strong> (si los encontrás, ¡agregálos!):
-      Claudio Williman, José Serrato, Juan José de Amézaga, José Mujica.
+      Lista basada en <a href="https://es.wikipedia.org/wiki/Anexo:Gobernantes_de_Uruguay" target="_blank">Wikipedia: Gobernantes de Uruguay</a>.
     `,
     "treinta y tres orientales": `
       Lista basada en <a href="https://www.geni.com/projects/33-Orientales/8298" target="_blank">Geni: Los 33 Orientales</a>.

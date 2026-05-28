@@ -6,7 +6,7 @@ MYH5-6P2;Juan Carlos Gomes de la Sierra;Periodista escritor y politico uruguayo.
 2SH9-R6D;Gabriel Terra Leivas;Gobernador Presidente del Uruguay desde 1931 a 1938.;presidentes uruguayos
 L8G4-K22;Carlos Alberto Fein Perez;Morador original de la casa presidencial.;
 L7PK-SY2;Jose Gervasio Artigas;Politico militar y estadista rioplatense que lidero la Revolucion Oriental.;
-MLVW-ZC4;Jose Batlle y Ordonez;Presidente del Uruguay.;presidentes uruguayos
+MLVW-ZC4;Jose Batlle y Ordonez;Presidente del Uruguay en dos períodos: 1903 a 1907 y 1911 a 1915.;presidentes uruguayos
 L5DS-NFM;Horacio Quiroga;Cuentista dramaturgo y poeta uruguayo.;
 LZ6S-2KY;Juan Zorrilla de San Martin;Escritor periodista docente y diplomatico uruguayo.;
 LZCP-LTW;Juana de Ibarbourou;Poetisa uruguaya.;
@@ -16,16 +16,16 @@ MKYR-G28;Juan Carlos Onetti Borges;Escritor uruguayo obtuvo el prestigioso Premi
 G97H-CWJ;Pedro de Mendoza;Militar almirante y conquistador espanol.;
 GSQ8-W5K;Idea Vilarino Romani;Poeta ensayista y critica literaria uruguaya perteneciente al grupo de escritores denominado generacion del 45.;
 LZ8G-M94;Alfredo Zitarrosa;Cantautor poeta periodista y escritor uruguayo.;
-GZQM-YCR;Obdulio Varela;Futbolista uruguayo apodado el Negro Jefe.;
+GZQM-YCR;Obdulio Varela;Futbolista uruguayo apodado el Negro Jefe.;deportistas
 LZ6T-MWF;Carlos Gardel;Cantante compositor y actor de cine nacionalizado argentino.;
-9694-3YL;Jose Andrade;Futbolista uruguayo apodado La maravilla negra.;
-9694-Q37;Jose Nasazzi;Considerado uno de los mejores defensas hispanoamericanos de todos los tiempos y el mejor del futbol uruguayo.;
-GBLF-6Z7;Gordo Prudencio Reyes;Considerado simbolicamente el primer hincha del mundo.;
-LYVK-HHZ;Atilio Garcia;Futbolista argentino nacionalizado uruguayo maximo goleador de la historia del futbol uruguayo.;
+9694-3YL;Jose Andrade;Futbolista uruguayo apodado La maravilla negra.;deportistas
+9694-Q37;Jose Nasazzi;Considerado uno de los mejores defensas hispanoamericanos de todos los tiempos y el mejor del futbol uruguayo.;deportistas
+GBLH-6Z7;Gordo Prudencio Reyes;Considerado simbolicamente el primer hincha del mundo.;
+LYVK-HHZ;Atilio Garcia;Futbolista argentino nacionalizado uruguayo maximo goleador de la historia del futbol uruguayo.;deportistas
 D9PR-24R;Aparicio Saravia;Caudillo General revolucionario del Partido Nacional de Uruguay.;
 G73R-1P2;Eduardo Galeano;Periodista y escritor uruguayo.;
 PSHQ-QCL;Jorge Traverso;Periodista escritor y presentador de radio y television uruguayo.;
-?G4BX-5Q5;Tabare Vazquez;Presidente del Uruguay.;presidentes uruguayos
+?G4BX-5Q5;Tabare Vazquez;Presidente del Uruguay en dos períodos: 2005 a 2010 y 2015 a 2020.;presidentes uruguayos
 L8GJ-M17;Eduardo Fabini;Compositor y músico uruguayo.;
 M6TS-78C;Pedro Figari;Pintor abogado educador escritor y politico uruguayo.;
 LHGX-7R7;Juan Manuel Blanes;Pintor uruguayo considerado como el pintor de la patria.;
@@ -44,11 +44,11 @@ LCVB-TX8;Juan Maria Bordaberry;Presidente del Uruguay desde 1972 a 1976.;preside
 LC5R-Z1L;Miguel de Cervantes;Novelista poeta dramaturgo y soldado espanol.;
 LCZ2-FRJ;Fructuoso Rivera;Presidente del Uruguay desde 1865 a 1958.;presidentes uruguayos
 L4QB-8BD;Baltasar Brum Rodrigues;Presidente del Uruguay desde 1919 a 1923.;presidentes uruguayos
-L1QW-V8X;Juan Manuel Fangio;Piloto de automovilismo argentino.;
+L1QW-V8X;Juan Manuel Fangio;Piloto de automovilismo argentino.;deportistas
 LYLV-T12;Carlos Paez Vilaro;Pintor ceramista escultor muralista director escritor compositor y constructor uruguayo.;
 LZ42-LCK;Jorge Luis Borges;Cuentista poeta ensayista y traductor argentino.;
 KJH6-VL5;Alberto Santos Dumont;Pionero de la aviacion inventor e ingeniero brasileno.;
-GJ2G-LPX;Pele;Futbolista brasileno.;
+GJ2G-LPX;Pele;Futbolista brasileno.;deportistas
 2ZS7-L5C;Malba Tahan;Profesor y escritor brasileno.;
 LKZZ-WL7;Gabriela Mistral;Poeta diplomatica profesora y pedagoga chilena.;
 LHT6-SH1;Sebastian Carrasco;Primer morador de Carrasco.;
@@ -83,9 +83,9 @@ KD9J-FC1;Francisco Antonio Maciel;Saladerista y filantropo uruguayo de la epoca 
 KJW5-N3W;Juan D. Jackson;Empresario y filantropo uruguayo.;
 LZXZ-X91;Jaime Cibils y Puig;Empresario uruguayo de origen catalan.;
 KJ4Z-7PG;Eduardo Blanco Acevedo;Medico y ex-ministro de Salud Publica de Uruguay.;
-K6SM-YBC;Enzo Ferrari;Piloto de automovilismo y empresario italiano fundador de la Scuderia Ferrari.;
+K6SM-YBC;Enzo Ferrari;Piloto de automovilismo y empresario italiano fundador de la Scuderia Ferrari.;deportistas
 LZPZ-LT2;Cantinflas;Mimo actor productor guionista y comediante mexicano.;
-MLG5-M33;Hermanos Rodríguez;Pilotos de F1 Mexicanos.;
+MLG5-M33;Hermanos Rodríguez;Pilotos de F1 Mexicanos.;deportistas
 LW54-KC5;Don Ramon Valdes;Actor y comediante mexicano.;
 GBG4-VVD;Justino Serralta;Arquitecto Uruguayo.;
 LZV2-WVN;Fernando II de las Dos Sicilias;Rey de las Dos Sicilias desde 1830 hasta su muerte en 1859.;
@@ -115,3 +115,7 @@ G4LN-NZ3;Jorge Pacheco Areco;Presidente del Uruguay desde 1967 a 1972.;president
 MYHY-54X;José Eugenio Ellauri Obes;Presidente del Uruguay desde 1873 a 1875.;presidentes uruguayos
 MYZC-KZK;Juan Lindolfo de los Reyes Cuestas;Presidente del Uruguay desde 1897 a 1903.;presidentes uruguayos
 MMWB-NNT;Juan Campisteguy Oxcoby;Presidente del Uruguay desde 1927 a 1931.;presidentes uruguayos
+KZJP-D1T;Claudio Williman Gonzalez;Presidente del Uruguay desde 1907 a 1911.;presidentes uruguayos
+93GQ-1WN;José Serrato Bergeró;Presidente del Uruguay desde 1923 a 1927.;presidentes uruguayos
+LLW5-585;Juan José Julián De Amézaga Landavaso;Presidente del Uruguay desde 1943 a 1947.;presidentes uruguayos
+?GT9H-CNJ;José Alberto Mujica Cordano;Presidente del Uruguay desde 2010 a 2015.;presidentes uruguayos
