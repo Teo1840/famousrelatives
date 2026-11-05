@@ -46,7 +46,8 @@ export function initSwitches() {
 
     const sortByAscToggle = document.getElementById("switch-sortByAsc");
     list = [...list].sort(sortByAscToggle?.checked
-      ? (a, b) => getSortMinSideLength(a) - getSortMinSideLength(b)
+      // Lado más corto; si empatan, el camino con menos nodos (cercanía total).
+      ? (a, b) => (getSortMinSideLength(a) - getSortMinSideLength(b)) || (getSortLength(a) - getSortLength(b))
       : (a, b) => getSortLength(a) - getSortLength(b)
     );
 

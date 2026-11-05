@@ -115,9 +115,10 @@ function renderPopupInfo(a) {
 
   container.innerHTML = `
     <h3>${a.name}</h3>
-    <img src="${a.portraitUrl || 'https://via.placeholder.com/200'}" width="200">
+    <img src="${a.portraitUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'}" width="200" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'">
     <p><i>${relDesc}</i></p>
     <p><b>${'Cercanía'}:</b> ${valor}</p>
+    <p><b>Código:</b> <a href="https://www.familysearch.org/en/tree/person/details/${a.person_code}" target="_blank" rel="noopener">${a.person_code}</a></p>
     <pre>${a.detalle || ''}</pre>
   `;
 }

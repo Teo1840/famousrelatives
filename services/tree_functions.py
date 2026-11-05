@@ -52,6 +52,9 @@ def process_json(generations):
             if asc_side.get("coParentIsPathPerson", False):  # Target Person es pariente de mi conyugue
                 is_coParentIsPathPerson=True
                 coParent=build_person(asc_side.get("coParent"))
+                # "conyuge": la unión de este nodo con el anterior (más cerca del
+                # antepasado común) es un matrimonio, no un vínculo de sangre.
+                person["conyuge"] = True
                 asc.append(coParent)
                 asc.append(person)
 
@@ -66,6 +69,7 @@ def process_json(generations):
             person=build_person(desc_side.get("person"))
             if desc_side.get("coParentIsTargetPerson", False):  # Target Person es conyugue de mi pariente
                 coParent=build_person(desc_side.get("coParent"))
+                coParent["conyuge"] = True
                 desc.append(person)
                 desc.append(coParent)
             else:

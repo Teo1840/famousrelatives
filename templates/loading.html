@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Loading</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -204,9 +205,11 @@
         document.body.innerHTML = html;
         return;
       }
-      document.open();
-      document.write(html);
-      document.close();
+      // El proceso ya arrancó en el servidor. Ir al dashboard normal ("/")
+      // reemplazando esta página: así refrescar (F5) o volver atrás no reenvía
+      // el formulario ni vuelve a buscar todo, solo carga lo ya guardado.
+      // El dashboard sigue mostrando el progreso mientras termina.
+      location.replace('/');
     }).catch(error => {
       clearInterval(poll);
       console.error('Error al llamar a /process:', error);

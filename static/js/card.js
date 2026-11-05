@@ -39,7 +39,7 @@ export function createCard(a) {
     : (a.relationshipDescription || "");
 
   card.innerHTML = `
-    <img src="${a.portraitUrl || defaultPortraitUrl}" width="150">
+    <img src="${a.portraitUrl || defaultPortraitUrl}" width="150" onerror="this.onerror=null;this.src='${defaultPortraitUrl}'">
     <h3>${a.name}</h3>
     <small><i>${relDesc}</i></small><br>
     <small class="metric"></small><br>
