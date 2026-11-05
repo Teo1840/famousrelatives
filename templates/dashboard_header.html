@@ -35,6 +35,30 @@
     color: var(--chip-active-text, white);
   }
 
+  /* Punto rojo: hay personas en el CSV que todavía no se buscaron */
+  .btn-actions-toggle,
+  #btn-buscar-nuevas {
+    position: relative;
+  }
+
+  .has-dot::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e53935;
+    box-shadow: 0 0 0 2px var(--popup-bg, #fff);
+  }
+
+  #btn-buscar-nuevas.has-dot::after {
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+
   #dashboard-actions {
     display: none;
     position: absolute;
@@ -186,7 +210,7 @@
 
         {% if has_token %}
           <form method="POST" action="/famousrelatives">
-            <button class="menu-btn" type="submit"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Buscar personas nuevas</button>
+            <button id="btn-buscar-nuevas" class="menu-btn" type="submit"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Buscar personas nuevas</button>
           </form>
         {% endif %}
         <form id="form-force-refresh" method="POST" action="/famousrelatives">
@@ -275,6 +299,28 @@
       toggleBtn.classList.remove('active');
     }
   });
+
+  // Punto rojo en "..." y en "Buscar personas nuevas" si el CSV tiene
+  // personas que todavía no se consultaron. Se revisa cada 30 s, así aparece
+  // al editar famosos.csv sin recargar la página.
+  const buscarBtn = document.getElementById('btn-buscar-nuevas');
+  function revisarPersonasNuevas() {
+    fetch('/api/personas-nuevas', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => {
+        const n = data.count || 0;
+        const msg = n ? (n === 1 ? '1 persona nueva para buscar' : n + ' personas nuevas para buscar') : '';
+        toggleBtn.classList.toggle('has-dot', n > 0);
+        toggleBtn.title = msg || 'Más acciones';
+        if (buscarBtn) {
+          buscarBtn.classList.toggle('has-dot', n > 0);
+          buscarBtn.title = msg;
+        }
+      })
+      .catch(() => {});
+  }
+  revisarPersonasNuevas();
+  setInterval(revisarPersonasNuevas, 30000);
 
   document.getElementById('form-force-refresh').addEventListener('submit', function(e) {
     const ok = confirm(

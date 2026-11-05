@@ -1,11 +1,14 @@
 import { renderCards } from './card.js';
-import { getActiveList, updateListCount, getSortLength, getSortMinSideLength } from './main.js';
+import { getActiveList, updateListCount, getSortLength, getSortMinSideLength, getDisplayedPath, getViewerAncestors, getViewerId } from './main.js';
+import { ancestorTerm } from './relationship.js';
 
 // Redibuja las tarjetas respetando filtros, slider y orden actuales.
 // La asigna initSwitches(); main.js la usa al llegar árboles nuevos.
 export let refrescarLista = () => {};
 // Vuelve a armar los chips de temas (puede haber temas nuevos).
 export let refrescarTemas = () => {};
+// Vuelve a armar el desplegable de padres/abuelos (se completa con cada árbol nuevo).
+export let refrescarAncestros = () => {};
 
 export function initSwitches() {
 
@@ -19,6 +22,14 @@ export function initSwitches() {
 
     if (window.activeTopicFilter) {
       list = list.filter(a => (a.topics ?? []).includes(window.activeTopicFilter));
+    }
+
+    if (window.activeAncestorFilter) {
+      const viewerId = getViewerId(window.arboles);
+      list = list.filter(a =>
+        getViewerAncestors(getDisplayedPath(a), viewerId)
+          .some(x => x.person.id === window.activeAncestorFilter)
+      );
     }
 
     const cercaniaSlider = document.getElementById("slider-maxCercania");
@@ -101,12 +112,81 @@ export function initSwitches() {
     });
   }
 
+  // 🌳 FILTRO POR ANCESTRO: padres y abuelos que aparecen en los caminos.
+  const GEN_LABELS = { 1: "Padres", 2: "Abuelos", 3: "Bisabuelos" };
+
+  function buildAncestorOptions() {
+    const select = document.getElementById("filtro-ancestro");
+    if (!select) return;
+
+    const viewerId = getViewerId(window.arboles);
+    const found = new Map(); // id -> { person, gen, count }
+    (getActiveList() || []).forEach(a => {
+      getViewerAncestors(getDisplayedPath(a), viewerId).forEach(({ person, gen }) => {
+        const entry = found.get(person.id) || { person, gen, count: 0 };
+        entry.count++;
+        found.set(person.id, entry);
+      });
+    });
+
+    // Si el ancestro elegido ya no aparece, se quita el filtro.
+    if (window.activeAncestorFilter && !found.has(window.activeAncestorFilter)) {
+      window.activeAncestorFilter = null;
+    }
+
+    select.innerHTML = "";
+    const all = document.createElement("option");
+    all.value = "";
+    all.textContent = "Todas las ramas";
+    select.appendChild(all);
+
+    const byGen = new Map();
+    [...found.values()]
+      .sort((x, y) => x.gen - y.gen || (x.person.nombre || "").localeCompare(y.person.nombre || ""))
+      .forEach(e => {
+        if (!byGen.has(e.gen)) byGen.set(e.gen, []);
+        byGen.get(e.gen).push(e);
+      });
+
+    byGen.forEach((entries, gen) => {
+      const group = document.createElement("optgroup");
+      group.label = GEN_LABELS[gen] || `Generación ${gen}`;
+      entries.forEach(({ person, count }) => {
+        const term = ancestorTerm(gen, person.gender === "FEMALE");
+        const opt = document.createElement("option");
+        opt.value = person.id;
+        opt.textContent = `${term.charAt(0).toUpperCase()}${term.slice(1)} — ${person.nombre || person.id}`
+          + (person.lifespan ? ` (${person.lifespan})` : "")
+          + ` · ${count} ${count === 1 ? "árbol" : "árboles"}`;
+        group.appendChild(opt);
+      });
+      select.appendChild(group);
+    });
+
+    select.value = window.activeAncestorFilter || "";
+    select.disabled = found.size === 0;
+  }
+
+  const ancestorSelect = document.getElementById("filtro-ancestro");
+  if (ancestorSelect) {
+    ancestorSelect.addEventListener("change", () => {
+      window.activeAncestorFilter = ancestorSelect.value || null;
+      update();
+    });
+  }
+
+  // Los switches de cónyuge cambian qué camino se muestra: rearmar ancestros.
+  function onPathToggle() {
+    buildAncestorOptions();
+    update();
+  }
+
   if (directToggle) {
-    directToggle.addEventListener("change", update);
+    directToggle.addEventListener("change", onPathToggle);
   }
 
   if (coParentToggle) {
-    coParentToggle.addEventListener("change", update);
+    coParentToggle.addEventListener("change", onPathToggle);
   }
 
   const sortByAscToggle = document.getElementById("switch-sortByAsc");
@@ -147,9 +227,11 @@ export function initSwitches() {
   }
 
   buildTopicChips();
+  buildAncestorOptions();
 
   refrescarLista = update;
   refrescarTemas = buildTopicChips;
+  refrescarAncestros = buildAncestorOptions;
 
   // 🌙 MODO OSCURO
   const darkToggle = document.getElementById("switchDarkMode");

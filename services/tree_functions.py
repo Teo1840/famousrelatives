@@ -77,7 +77,10 @@ def process_json(generations):
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-PROXY_HOST = os.getenv("PROXY_HOST", "localhost")
+# 127.0.0.1 y no "localhost": en Windows "localhost" va primero a IPv6 (::1),
+# y si otro programa (ej. un contenedor Docker) usa el puerto 5001 en ::1,
+# las consultas le llegan a él en vez de a fs_proxy.py (que escucha solo en 127.0.0.1).
+PROXY_HOST = os.getenv("PROXY_HOST", "127.0.0.1")
 # Consultas en paralelo a FamilySearch. Más hilos = más rápido pero más 429.
 MAX_WORKERS = int(os.getenv("MAX_WORKERS", "2"))
 # Segundos entre consultas a FamilySearch durante "Actualizar mis árboles".

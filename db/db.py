@@ -270,6 +270,17 @@ def obtener_arboles_usuario(user_id):
         })
     return result
 
+def obtener_ids_procesados(user_id):
+    """IDs de personas ya consultadas para este usuario (con o sin parentesco)."""
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT persona_id FROM arboles WHERE user_id = %s", (user_id,))
+    ids = {row[0] for row in cur.fetchall()}
+
+    conn.close()
+    return ids
+
 def obtener_version_arboles(user_id):
     """Texto que cambia cada vez que se guarda algún árbol del usuario.
     El navegador lo compara con su copia local para saber si está al día."""
