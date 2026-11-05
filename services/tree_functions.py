@@ -1,7 +1,6 @@
 import time
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
 from db.db import obtener_arbol, guardar_arbol
 import os
 import requests
@@ -79,9 +78,16 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 PROXY_HOST = os.getenv("PROXY_HOST", "localhost")
+# Consultas en paralelo a FamilySearch. Más hilos = más rápido pero más 429.
+MAX_WORKERS = int(os.getenv("MAX_WORKERS", "2"))
+# Segundos entre consultas a FamilySearch durante "Actualizar mis árboles".
+FORCE_REFRESH_RATE_INTERVAL = float(os.getenv("FORCE_REFRESH_RATE_INTERVAL", "0.5"))
 
-def get_session():
+def get_session(rate_interval=None):
     session = requests.Session()
+    if rate_interval is not None:
+        # Se agrega como ?rate=... a cada consulta al proxy.
+        session.params = {"rate": str(rate_interval)}
 
     retries = Retry(
         total=3,
@@ -98,6 +104,14 @@ def get_session():
     return session
 
 
+# --Sentinel: API confirmed no relationship (HTTP 204). Distinct from None
+# (transient/unexpected error), which must never be cached.--
+class _NoRelationship:
+    pass
+
+NO_RELATIONSHIP = _NoRelationship()
+
+
 # --Thread-safe viewer id state--
 class ViewerState:
     def __init__(self):
@@ -111,13 +125,19 @@ class ViewerState:
 
 
 # --Per-person processing (called from thread pool)--
-def _process_one(codigo, session, token, viewer_state, counter, total, on_progress):
+def _process_one(codigo, session, token, viewer_state, user_id, force_refresh, counter, total, on_progress):
     persona_id = codigo["person_code"]
     name = codigo.get("name", persona_id)
     t_start = time.time()
 
     # Cache
-    cached = get_cached_tree(persona_id, viewer_state.person_id)
+    cached = get_cached_tree(persona_id, user_id, force_refresh=force_refresh)
+    if cached is NO_RELATIONSHIP:
+        n = counter()
+        if on_progress:
+            on_progress(n)
+        print(f"[{n}/{total}] {name} — cache negativo ({time.time() - t_start:.2f}s)", flush=True)
+        return None
     if cached:
         cached["topics"] = codigo.get("topics", [])
         n = counter()
@@ -134,16 +154,28 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
             raise
         return None
 
-    if not data:
+    if data is None:
         n = counter()
         if on_progress:
             on_progress(n)
-        print(f"[{n}/{total}] {name} — sin datos ({time.time() - t_start:.2f}s)", flush=True)
+        print(f"[{n}/{total}] {name} — error transitorio ({time.time() - t_start:.2f}s)", flush=True)
+        return None
+
+    if data is NO_RELATIONSHIP:
+        _maybe_cache_negative(persona_id, user_id, viewer_state.person_id)
+        n = counter()
+        if on_progress:
+            on_progress(n)
+        print(f"[{n}/{total}] {name} — sin relación confirmada ({time.time() - t_start:.2f}s)", flush=True)
         return None
 
     parsed = parse_tree_data(data)
     if not parsed:
-        counter()
+        _maybe_cache_negative(persona_id, user_id, viewer_state.person_id)
+        n = counter()
+        if on_progress:
+            on_progress(n)
+        print(f"[{n}/{total}] {name} — sin relación confirmada ({time.time() - t_start:.2f}s)", flush=True)
         return None
 
     viewer_state.try_set_person_id(parsed["viewer_id"])
@@ -166,7 +198,7 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
 
     tree = build_tree_data(parsed, codigo, extra_parsed)
 
-    save_tree(persona_id, viewer_state.person_id, tree)
+    save_tree(persona_id, user_id, viewer_state.person_id, tree)
 
     n = counter()
     if on_progress:
@@ -176,8 +208,8 @@ def _process_one(codigo, session, token, viewer_state, counter, total, on_progre
 
 
 # --Generar un Arbol por codigo incluyendo su JSON respectivo--
-def generate_trees(codigos, token, on_progress=None):
-    session = get_session()
+def generate_trees(codigos, token, user_id, force_refresh=False, on_progress=None):
+    session = get_session(FORCE_REFRESH_RATE_INTERVAL if force_refresh else None)
     total = len(codigos)
     viewer_state = ViewerState()
 
@@ -196,7 +228,7 @@ def generate_trees(codigos, token, on_progress=None):
         if session_expired.is_set():
             return i, None
         try:
-            tree = _process_one(codigo, session, token, viewer_state, counter, total, on_progress)
+            tree = _process_one(codigo, session, token, viewer_state, user_id, force_refresh, counter, total, on_progress)
             return i, tree
         except Exception as e:
             if str(e) == "SESSION_EXPIRED":
@@ -204,7 +236,7 @@ def generate_trees(codigos, token, on_progress=None):
                 print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
             return i, None
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {executor.submit(submit_one, i, c): i for i, c in enumerate(codigos)}
         for fut in as_completed(futures):
             i, tree = fut.result()
@@ -224,22 +256,24 @@ def generate_trees(codigos, token, on_progress=None):
 
 
 #CACHE
-TTL_SECONDS = 1209600  # 2 semanas
-
-def get_cached_tree(persona_id, viewer_person_id):
-    if not viewer_person_id:
+# Cache never expires on its own: a person's cached result (found or not) is
+# reused indefinitely once written. It's only bypassed by force_refresh, or
+# naturally missed for a person_code that has no row yet for this user_id
+# (e.g. newly added to famosos.csv).
+def get_cached_tree(persona_id, user_id, force_refresh=False):
+    if force_refresh:
         return None
 
-    cached_data, created_at = obtener_arbol(persona_id, viewer_person_id)
+    cached_data, created_at, found = obtener_arbol(persona_id, user_id)
 
-    if not cached_data or not created_at:
+    if created_at is None:
         return None
 
-    if datetime.now() - created_at > timedelta(seconds=TTL_SECONDS):
-        print(f"♻️ Cache expirado para {persona_id}", flush=True)
-        return None
+    if not found:
+        print(f"💾 Cache negativo válido para {persona_id}", flush=True)
+        return NO_RELATIONSHIP
 
-    if cached_data.get("name") and cached_data.get("person_code"):
+    if cached_data and cached_data.get("name") and cached_data.get("person_code"):
         print(f"💾 Cache válido para {persona_id}", flush=True)
         return cached_data
 
@@ -247,8 +281,16 @@ def get_cached_tree(persona_id, viewer_person_id):
     return None
 
 
-def save_tree(persona_id, viewer_person_id, tree_data):
-    guardar_arbol(persona_id, viewer_person_id, tree_data)
+def save_tree(persona_id, user_id, viewer_person_id, tree_data):
+    guardar_arbol(persona_id, user_id, viewer_person_id, tree_data)
+
+
+def save_negative_tree(persona_id, user_id, viewer_person_id):
+    guardar_arbol(persona_id, user_id, viewer_person_id, None, found_relationship=False)
+
+
+def _maybe_cache_negative(persona_id, user_id, viewer_person_id):
+    save_negative_tree(persona_id, user_id, viewer_person_id)
 
 #FETCHING API
 def fetch_tree_from_api(session, person_id, token, endpoint=None):
@@ -270,7 +312,7 @@ def fetch_tree_from_api(session, person_id, token, endpoint=None):
         return response.json()
 
     if response.status_code == 204:
-        return None
+        return NO_RELATIONSHIP
 
     if response.status_code == 401:
         raise Exception("SESSION_EXPIRED")

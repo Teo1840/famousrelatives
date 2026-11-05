@@ -1,0 +1,333 @@
+<style>
+  .header-actions {
+    position: absolute;
+    top: 22px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-menu {
+    position: relative;
+  }
+
+  .btn-actions-toggle {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--chip-bg, #e0e0e0);
+    color: var(--chip-text, #333);
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .btn-actions-toggle:hover,
+  .btn-actions-toggle.active {
+    background: var(--chip-active-bg, rgb(132, 185, 67));
+    color: var(--chip-active-text, white);
+  }
+
+  #dashboard-actions {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-width: 240px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--popup-bg, #fff);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 400;
+  }
+
+  #dashboard-actions.open {
+    display: flex;
+  }
+
+  #dashboard-actions summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  #dashboard-actions summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* From Uiverse.io by Mhyar-nsi */
+  .menu-btn {
+    background-color: #f3f7fe;
+    color: #3b82f6;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 100%;
+    height: 45px;
+    transition: 0.3s;
+    font-family: inherit;
+    font-size: 0.9em;
+  }
+
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  #dashboard-header .icon {
+    flex-shrink: 0;
+  }
+
+  .header-actions > p,
+  #capture-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .menu-btn:hover {
+    background-color: #3b82f6;
+    box-shadow: 0 0 0 5px #3b83f65f;
+    color: #fff;
+  }
+
+  .settings-menu {
+    position: relative;
+  }
+
+  /* From Uiverse.io by vinodjangid07 */
+  .filter {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.192);
+    cursor: pointer;
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.021);
+    transition: all 0.3s;
+  }
+
+  .filter svg {
+    height: 16px;
+    fill: rgb(77, 77, 77);
+    transition: all 0.3s;
+  }
+
+  .filter:hover {
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.11);
+    background-color: rgb(59, 59, 59);
+  }
+
+  .filter:hover svg {
+    fill: white;
+  }
+
+  #settings-actions {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-width: 200px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--popup-bg, #fff);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 400;
+  }
+
+  #settings-actions.open {
+    display: flex;
+  }
+
+  #settings-actions .switch-wrapper {
+    min-width: 0;
+    align-items: center;
+  }
+
+  #settings-actions .status-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 190px;
+    line-height: 1.3;
+  }
+</style>
+
+<div id="dashboard-header" style="text-align:center; padding: 10px;">
+  <div class="header-actions">
+    {% if has_token %}
+      <p class="success-text" style="margin:0;"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Sesión de FamilySearch activa</p>
+    {% else %}
+      <p style="margin:0;"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> No tenés un token de FamilySearch guardado todavía. Ejecutá el capturador o pegá uno manualmente.</p>
+    {% endif %}
+
+    <div class="header-menu">
+      <button id="btn-actions-toggle" class="btn-actions-toggle" type="button" title="Más acciones" aria-label="Más acciones"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+
+      <div id="dashboard-actions">
+        <button id="btn-capture-token" class="menu-btn" type="button"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg> Ejecutar capturador de token</button>
+
+        {% if has_token %}
+          <form method="POST" action="/famousrelatives">
+            <button class="menu-btn" type="submit"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Buscar personas nuevas</button>
+          </form>
+        {% endif %}
+        <form id="form-force-refresh" method="POST" action="/famousrelatives">
+          <input type="hidden" name="force_refresh" value="on">
+          <button class="menu-btn" type="submit"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Actualizar mis árboles</button>
+        </form>
+
+        <details>
+          <summary class="menu-btn" style="display:flex; align-items:center; justify-content:center; text-align:center; gap:8px;"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> Pegar token manualmente</summary>
+          <form method="POST" action="/famousrelatives" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+            <input type="text" name="token" placeholder="Pegá aquí tu token..." style="width:100%; box-sizing:border-box;">
+            <button type="submit" class="menu-btn">Guardar y procesar</button>
+          </form>
+        </details>
+
+        <a id="btn-logout" href="{{ url_for('logout') }}" class="menu-btn" style="display:flex; align-items:center; justify-content:center; text-decoration:none; box-sizing:border-box; gap:8px;"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg> Cerrar sesión ({{ session.username }})</a>
+      </div>
+    </div>
+
+    <div class="settings-menu">
+      <!-- From Uiverse.io by vinodjangid07 -->
+      <button id="btn-settings-toggle" title="filter" class="filter" type="button">
+        <svg viewBox="0 0 512 512" height="1em">
+          <path
+            d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"
+          ></path>
+        </svg>
+      </button>
+
+      <div id="settings-actions">
+        <div class="switch-wrapper">
+          <!-- From Uiverse.io by gharsh11032000 -->
+          <label class="switch">
+            <input type="checkbox" id="switch-coParentIsPathPerson">
+            <span class="slider"></span>
+          </label>
+          <span class="status-text">No incluir parentescos a traves de mi cónyuge*</span>
+        </div>
+
+        <div class="switch-wrapper">
+          <!-- From Uiverse.io by gharsh11032000 -->
+          <label class="switch">
+            <input type="checkbox" id="switch-coParentIsTargetPerson">
+            <span class="slider"></span>
+          </label>
+          <span class="status-text">No incluir parentescos a traves del cónyuge de la persona</span>
+        </div>
+
+        <div class="switch-wrapper">
+          <label class="switch">
+            <input type="checkbox" id="switch-sortByAsc">
+            <span class="slider"></span>
+          </label>
+          <span class="status-text">Ordenar por cercanía al antepasado</span>
+        </div>
+
+        <div class="switch-wrapper">
+          <!-- From Uiverse.io by gharsh11032000 -->
+          <label class="switch">
+            <input type="checkbox" id="switchDarkMode">
+            <span class="slider"></span>
+          </label>
+          <span id="darkModeText" class="status-text">Modo claro</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="capture-status"></div>
+  <p id="progreso-busqueda" hidden style="margin: 6px 0 0; font-size: 0.95rem;"></p>
+</div>
+
+<script>
+(function() {
+  const toggleBtn = document.getElementById('btn-actions-toggle');
+  const actions = document.getElementById('dashboard-actions');
+
+  toggleBtn.addEventListener('click', function() {
+    actions.classList.toggle('open');
+    toggleBtn.classList.toggle('active');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.header-menu')) {
+      actions.classList.remove('open');
+      toggleBtn.classList.remove('active');
+    }
+  });
+
+  document.getElementById('form-force-refresh').addEventListener('submit', function(e) {
+    const ok = confirm(
+      'Vas a volver a consultar TODAS las personas en FamilySearch, ignorando lo guardado.\n\n' +
+      'Para no saturar FamilySearch, las consultas van más lentas (una cada 0.5 s), ' +
+      'así que puede tardar varios minutos. Solo se puede hacer una vez cada 5 minutos.\n\n¿Continuar?'
+    );
+    if (!ok) e.preventDefault();
+  });
+
+  // Al cerrar sesión, borrar la copia local de los árboles (dispositivos compartidos).
+  const logoutLink = document.getElementById('btn-logout');
+  logoutLink.addEventListener('click', function(e) {
+    if (typeof window.clearArbolesCache !== 'function') return;
+    e.preventDefault();
+    window.clearArbolesCache().then(function() { location.href = logoutLink.href; });
+  });
+
+  const btn = document.getElementById('btn-capture-token');
+  const status = document.getElementById('capture-status');
+  let polling = null;
+
+  btn.addEventListener('click', function() {
+    btn.disabled = true;
+    status.textContent = 'Iniciando capturador...';
+    fetch('/capture-token', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.started) {
+          status.textContent = data.error || 'No se pudo iniciar.';
+          btn.disabled = false;
+          return;
+        }
+        status.textContent = 'Esperando login en el navegador...';
+        polling = setInterval(poll, 2000);
+      })
+      .catch(() => { status.textContent = 'Error al iniciar.'; btn.disabled = false; });
+  });
+
+  function poll() {
+    fetch('/capture-status').then(r => r.json()).then(data => {
+      if (data.state === 'done') {
+        clearInterval(polling);
+        status.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Token capturado. Recargando...';
+        location.reload();
+      } else if (data.state === 'error' || data.state === 'timeout') {
+        clearInterval(polling);
+        status.textContent = 'Error: ' + (data.error || data.state);
+        btn.disabled = false;
+      } else {
+        status.textContent = 'Esperando login en el navegador...';
+      }
+    });
+  }
+})();
+</script>

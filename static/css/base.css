@@ -107,7 +107,7 @@ body {
    TITLES
 ========================= */
 h1, h2 {
-  font-family: "Poppins", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 600;
   text-align: center;
   color: var(--title);
@@ -123,7 +123,7 @@ h1, h2 {
   align-items: center;
   gap: 16px;
   margin: 20px 0 10px;
-  font-family: "Poppins", sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 .status-text {
@@ -177,7 +177,7 @@ h1, h2 {
 }
 
 .card h3 {
-  font-family: "Poppins", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 600;
   margin-bottom: 6px;
 }
@@ -197,7 +197,7 @@ h1, h2 {
    COUNTER
 ========================= */
 #list-count {
-  font-family: "Poppins", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-size: 24px;
 }
 

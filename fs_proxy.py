@@ -1,15 +1,22 @@
 from flask import Flask, request, jsonify, Response
 import requests
 import os
+import sys
 import threading
 import time
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# On Windows, stdout defaults to the console's codepage (cp1252), which can't
+# encode characters like "→" used in the request-log prints below and crashes
+# the request mid-print, turning a successful FamilySearch call into a 500.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 # https://developers.familysearch.org/main/docs/throttling
-RATE_LIMIT_INTERVAL = float(os.getenv("RATE_LIMIT_INTERVAL", "0.1"))
-MAX_RETRIES_429 = 3
+RATE_LIMIT_INTERVAL = float(os.getenv("RATE_LIMIT_INTERVAL", "0.2"))
+MAX_RETRIES_429 = int(os.getenv("MAX_RETRIES_429", "3"))
 
 _rate_lock = threading.Lock()
 _last_request_time: dict[str, float] = {}
@@ -74,11 +81,18 @@ def proxy(persona_id):
             'enforceTemplePolicyEx': request.args.get('enforceTemplePolicyEx', 'true'),
         }
 
+    # El cliente puede pedir ir más lento (?rate=0.5), nunca más rápido que el default.
+    interval = RATE_LIMIT_INTERVAL
+    try:
+        interval = min(max(RATE_LIMIT_INTERVAL, float(request.args.get('rate', 0))), 10.0)
+    except ValueError:
+        pass
+
     with _rate_lock:
         now = time.time()
         last = _last_request_time.get(token, 0)
-        wait = RATE_LIMIT_INTERVAL - (now - last)
-        _last_request_time[token] = max(now, last + RATE_LIMIT_INTERVAL)
+        wait = interval - (now - last)
+        _last_request_time[token] = max(now, last + interval)
 
     if wait > 0:
         time.sleep(wait)

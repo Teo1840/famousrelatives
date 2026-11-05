@@ -3,68 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <title>Famous Relatives</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Open+Sans&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="static/css/base.css">
 <link rel="stylesheet" href="static/css/components/buttons.css">
 <link rel="stylesheet" href="static/css/components/popups.css">
 <link rel="stylesheet" href="static/css/components/switches.css">
 <script src="/static/js/vis-network.min.js"></script>
 <style>
+.title-row {
+  position: relative;
+}
+
+.cercania-slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#slider-maxCercania {
+  width: 180px;
+  accent-color: var(--switch-track-on);
+}
 </style>
 </head>
 
 <body>
-  
-<h1>Famous Relatives</h1>
+<div class="title-row">
+  <h1>Famous Relatives</h1>
+  <!-- DASHBOARD_HEADER -->
+</div>
 <div id="color-legend">
   <span class="color-dot color-dot--target"></span><strong>Amarillo</strong> — el camino pasa por el cónyuge de la persona famosa, no por su propia sangre.
   <br><span class="color-dot color-dot--path"></span><strong>Rojo</strong> — el parentesco llega a través de tu cónyuge, no directamente tuyo.
   <br><span class="color-dot color-dot--both"></span><strong>Naranja</strong> — los dos casos a la vez.
-  <br>Podés filtrar estos tipos de parentesco con los controles de abajo.
+  <br>Podés filtrar estos tipos de parentesco desde el menú de opciones.
 </div>
 
 <div class="flex-container">
-  <!-- Switch 1: Parentescos de mi Conyugue -->
-  <div class="switch-wrapper">
-    <!-- From Uiverse.io by gharsh11032000 -->
-    <label class="switch">
-      <input type="checkbox" id="switch-coParentIsPathPerson">
-      <span class="slider"></span>
-    </label>
-    <span class="status-text">No incluir parentescos a traves de mi cónyuge*</span>
-  </div>
-
-  <!-- Switch 2: Parentescos Politicos -->
-  <div class="switch-wrapper">
-    <!-- From Uiverse.io by gharsh11032000 -->
-    <label class="switch">
-      <input type="checkbox" id="switch-coParentIsTargetPerson">
-      <span class="slider"></span>
-    </label>
-    <span class="status-text">No incluir parentescos a traves del cónyuge de la persona</span>
-  </div>
-
-  <!-- Switch 3: Ordenar por cercanía al antepasado -->
-  <div class="switch-wrapper">
-    <label class="switch">
-      <input type="checkbox" id="switch-sortByAsc">
-      <span class="slider"></span>
-    </label>
-    <span class="status-text">Ordenar por cercanía al antepasado</span>
-  </div>
-</div>
-
-<div class="flex-container">
-  <!-- Switch 4: Modo oscuro -->
-  <div class="switch-wrapper">
-    <!-- From Uiverse.io by gharsh11032000 -->
-    <label class="switch">
-      <input type="checkbox" id="switchDarkMode">
-      <span class="slider"></span>
-    </label>
-    <span id="darkModeText" class="status-text">Modo claro</span>
-  </div>
-
   <!-- BOTON DE DESCARGA -->
   <!-- From Uiverse.io by vinodjangid07 --> 
   <button class="btn-download">
@@ -72,6 +47,12 @@
     <span class="icon2"></span>
     <span class="tooltip">Download</span>
   </button>
+
+  <!-- SLIDER: mostrar solo personas hasta cierta cercania -->
+  <div class="cercania-slider-wrapper">
+    <label for="slider-maxCercania" class="status-text">Cercanía máxima: <span id="maxCercaniaValue">-</span></label>
+    <input type="range" id="slider-maxCercania" min="5" max="50" value="50" step="5">
+  </div>
 </div>
 
 <!-- Topic filter chips (populated by JS) -->
@@ -102,6 +83,7 @@
 <script>
 // const arboles = {{ARBOL_JS}}; // <-- Python INSERT
 </script>
+<script src="/static/js/arboles-cache.js"></script>
 <script type="module" src="/static/js/main.js"></script>
 <script src="/static/js/export.js"></script>
 </body>

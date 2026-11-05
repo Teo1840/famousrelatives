@@ -91,6 +91,18 @@ function renderGraph(a, useDirectPath) {
 
   window.network = new vis.Network(container, data, options);
   window.network.fit();
+
+  window.network.on("doubleClick", function (params) {
+    if (params.nodes.length > 0) {
+      const nodeData = data.nodes.get(params.nodes[0]);
+      if (nodeData?.fsId) {
+        window.open(
+          `https://www.familysearch.org/en/tree/person/details/${nodeData.fsId}`,
+          '_blank'
+        );
+      }
+    }
+  });
 }
 
 function renderPopupInfo(a) {

@@ -6,7 +6,7 @@
   <title>Error</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Open+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -50,7 +50,7 @@
     }
 
     h1 {
-      font-family: "Poppins", sans-serif;
+      font-family: "Open Sans", sans-serif;
       margin-bottom: 10px;
       color: var(--accent);
     }
@@ -78,7 +78,7 @@
       background: var(--accent);
       color: white;
       font-weight: 600;
-      font-family: "Poppins", sans-serif;
+      font-family: "Open Sans", sans-serif;
 
       transition: transform 0.15s, opacity 0.15s;
     }
@@ -87,12 +87,14 @@
       transform: translateY(-2px);
       opacity: 0.9;
     }
+    h1 { display: inline-flex; align-items: center; gap: 10px; }
+    .icon { flex-shrink: 0; }
   </style>
 </head>
 
 <body>
   <div class="error-card">
-    <h1>⚠️ Error en el CSV</h1>
+    <h1><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Error en el CSV</h1>
 
     <div class="error-box">
       <pre>{{ error }}</pre>

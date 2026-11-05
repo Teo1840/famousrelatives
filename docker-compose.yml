@@ -1,5 +1,10 @@
 services:
+  # Not started by start-system.bat (which only runs `docker-compose up -d db`)
+  # or by a bare `docker-compose up` - opt in explicitly with
+  # `docker-compose --profile containerized up` to avoid a second app.py
+  # instance fighting the host-run one for port 5000.
   app:
+    profiles: ["containerized"]
     build: .
     ports:
       - "5000:5000"
@@ -10,7 +15,8 @@ services:
       - DB_NAME=famousrelatives
       - PROXY_HOST=host.docker.internal
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./.env:/app/.env
 
@@ -22,3 +28,8 @@ services:
     ports:
       - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-psecret"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
