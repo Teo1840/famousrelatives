@@ -125,6 +125,24 @@ def init_db():
 
     conn.commit()
 
+    # Foto de perfil del usuario en FamilySearch (y su ID ahí), para mostrarla
+    # en su nodo de cada árbol, también en los que ya están en cache.
+    for column, definition in (
+        ("viewer_person_id", "VARCHAR(255) NULL"),
+        ("viewer_portrait_url", "VARCHAR(1024) NULL"),
+    ):
+        cur.execute("""
+            SELECT COUNT(1) ColumnIsThere
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE table_schema=DATABASE()
+              AND table_name='usuarios'
+              AND column_name=%s;
+        """, (column,))
+        if cur.fetchone()[0] == 0:
+            cur.execute(f"ALTER TABLE usuarios ADD COLUMN {column} {definition}")
+
+    conn.commit()
+
     cur.execute("""
         SELECT COUNT(1) ColumnIsThere
         FROM INFORMATION_SCHEMA.COLUMNS
@@ -224,6 +242,28 @@ def obtener_usuario_por_username(username):
     conn.close()
 
     return _row_to_usuario(row)
+
+def guardar_retrato_usuario(user_id, viewer_person_id, portrait_url):
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE usuarios SET viewer_person_id=%s, viewer_portrait_url=%s WHERE id=%s",
+        (viewer_person_id, portrait_url, user_id)
+    )
+    conn.commit()
+    conn.close()
+
+def obtener_retrato_usuario(user_id):
+    """(viewer_person_id, viewer_portrait_url) del usuario, o (None, None)."""
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT viewer_person_id, viewer_portrait_url FROM usuarios WHERE id=%s",
+        (user_id,)
+    )
+    row = cur.fetchone()
+    conn.close()
+    return (row[0], row[1]) if row else (None, None)
 
 def guardar_arbol(persona_id, user_id, viewer_person_id, data, found_relationship=True):
     conn = get_pool().get_connection()

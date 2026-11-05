@@ -27,5 +27,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     password_hash VARCHAR(255) NOT NULL,
     familysearch_token VARCHAR(1024) NULL,
     token_updated_at TIMESTAMP NULL DEFAULT NULL,
+    viewer_person_id VARCHAR(255) NULL,
+    viewer_portrait_url VARCHAR(1024) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

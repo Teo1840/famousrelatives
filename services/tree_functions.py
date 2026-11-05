@@ -1,7 +1,7 @@
 import time
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from db.db import obtener_arbol, guardar_arbol
+from db.db import obtener_arbol, guardar_arbol, guardar_retrato_usuario
 import os
 import requests
 
@@ -258,11 +258,22 @@ def generate_trees(codigos, token, user_id, force_refresh=False, on_progress=Non
 
     trees = [results[i] for i in sorted(results)]
 
-    if viewer_state.person_id:
-        portrait_url = fetch_viewer_portrait(session, viewer_state.person_id, token)
+    # Foto de perfil del usuario: se guarda aparte (no dentro de cada árbol, que
+    # ya se guardó) y se aplica al servir los árboles (ver app.py). Si todo vino
+    # del cache no hubo respuesta de la API con el ID: se toma de un árbol.
+    viewer_id = viewer_state.person_id or _viewer_id_from_trees(trees)
+    if viewer_id and not session_expired.is_set():
+        try:
+            portrait_url = fetch_viewer_portrait(session, viewer_id, token)
+        except Exception as e:
+            print(f"⚠️ No se pudo obtener la foto de perfil: {e!r}", flush=True)
+            portrait_url = None
         if portrait_url:
+            guardar_retrato_usuario(user_id, viewer_id, portrait_url)
             for tree in trees:
-                _apply_viewer_portrait(tree, viewer_state.person_id, portrait_url)
+                apply_viewer_portrait(tree, viewer_id, portrait_url)
+        else:
+            print("⚠️ FamilySearch no devolvió foto de perfil para el usuario", flush=True)
 
     print(f"{len(trees)}/{total} mini árboles procesados", flush=True)
     return trees
@@ -437,7 +448,15 @@ def fetch_viewer_portrait(session, person_id, token):
     return data.get("_links", {}).get("thumbSquare", {}).get("href")
 
 
-def _apply_viewer_portrait(tree, viewer_id, portrait_url):
+def _viewer_id_from_trees(trees):
+    for tree in trees:
+        asc = (tree.get("mainPath") or {}).get("asc") or []
+        if asc and asc[-1].get("id"):
+            return asc[-1]["id"]
+    return None
+
+
+def apply_viewer_portrait(tree, viewer_id, portrait_url):
     for path_key in ("mainPath", "directPath"):
         path = tree.get(path_key)
         if not path:

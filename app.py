@@ -4,12 +4,13 @@ import shutil
 import subprocess
 import threading
 import time
+import zlib
 import logging
 from functools import wraps
 from flask import Response, Flask, render_template, request, jsonify, session, redirect, url_for
 from werkzeug.security import check_password_hash
 
-from services.tree_functions import generate_trees
+from services.tree_functions import generate_trees, apply_viewer_portrait
 from services.cards import generate_html, serializar_arboles
 from services.csv_validation import validate_csv_file
 
@@ -33,6 +34,7 @@ from db.db import (
     obtener_arboles_usuario,
     obtener_version_arboles,
     obtener_ids_procesados,
+    obtener_retrato_usuario,
     DuplicateUsernameError,
 )
 init_db()
@@ -200,7 +202,18 @@ def _run_capture():
 
 def _found_trees(user_id):
     cache_rows = obtener_arboles_usuario(user_id)
-    return [r["data"] for r in cache_rows if r["found"] and r["data"]]
+    trees = [r["data"] for r in cache_rows if r["found"] and r["data"]]
+    viewer_id, portrait_url = obtener_retrato_usuario(user_id)
+    if viewer_id and portrait_url:
+        for tree in trees:
+            apply_viewer_portrait(tree, viewer_id, portrait_url)
+    return trees
+
+
+def _version_arboles(user_id):
+    # Incluye la foto de perfil: si cambia, el navegador vuelve a pedir los árboles.
+    _, portrait_url = obtener_retrato_usuario(user_id)
+    return f"{obtener_version_arboles(user_id)}-{zlib.crc32((portrait_url or '').encode()):x}"
 
 
 def _build_dashboard_page():
@@ -286,7 +299,7 @@ def famousrelatives():
 @app.route('/api/arboles/version')
 @login_required
 def arboles_version():
-    return jsonify({"version": obtener_version_arboles(session["user_id"])})
+    return jsonify({"version": _version_arboles(session["user_id"])})
 
 
 @app.route('/api/arboles')
@@ -295,7 +308,7 @@ def arboles_api():
     user_id = session["user_id"]
     # La versión se lee antes que los datos: si algo se guarda en el medio,
     # el navegador queda con una versión vieja y los vuelve a pedir la próxima vez.
-    version = obtener_version_arboles(user_id)
+    version = _version_arboles(user_id)
     return jsonify({
         "version": version,
         "arboles": serializar_arboles(_found_trees(user_id)),
