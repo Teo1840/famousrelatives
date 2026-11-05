@@ -2,17 +2,13 @@ import { showPopup } from './popup.js';
 import { shouldUseDirectPath } from './main.js';
 import { computeRelationshipDescription } from './relationship.js';
 
-// Color según el camino que se muestra: el directo nunca pasa por el
-// cónyuge de la persona, y puede (o no) pasar por mi cónyuge.
-function getCardColor(a) {
+// Parentesco político: el camino que se muestra pasa por un cónyuge (mío o de
+// la persona famosa). El camino directo nunca pasa por el cónyuge de la persona.
+function isPolitico(a) {
   const useDirect = shouldUseDirectPath(a);
-  const isTarget = !useDirect && a?.coParentIsTargetPerson;
-  const isPath = useDirect ? a?.directPath?.coParentIsPathPerson : a?.mainPath?.coParentIsPathPerson;
-
-  if (isPath && isTarget) return 'var(--card-both)';
-  if (isPath)   return 'var(--card-path)';
-  if (isTarget) return 'var(--card-target)';
-  return 'var(--card-bg)';
+  const viaTargetSpouse = !useDirect && a?.coParentIsTargetPerson;
+  const viaMySpouse = useDirect ? a?.directPath?.coParentIsPathPerson : a?.mainPath?.coParentIsPathPerson;
+  return !!(viaTargetSpouse || viaMySpouse);
 }
 
 export function createCard(a) {
@@ -20,9 +16,7 @@ export function createCard(a) {
     'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png';
 
   const card = document.createElement("div");
-  card.className = "card";
-
-  card.style.setProperty('--card-color', getCardColor(a));
+  card.className = isPolitico(a) ? "card card--politico" : "card";
 
   const useDirect = shouldUseDirectPath(a) && a.directPath != null;
   card.dataset.effectiveLength = useDirect ? (a.direct_length ?? 0) : (a.cercania ?? 0);
@@ -67,17 +61,33 @@ export function createCard(a) {
   return card;
 }
 
+// Tarjetas ya creadas, por persona. Se reusan al filtrar/ordenar para no
+// recrear el DOM ni recargar las fotos (eso causaba parpadeo con el slider).
+// Se recrea solo si cambian los datos o qué camino/borde muestra la tarjeta.
+const cardCache = new Map(); // person_code -> { data, sig, el }
+
+function cardSignature(a) {
+  return `${shouldUseDirectPath(a)}|${isPolitico(a)}`;
+}
+
 export function renderCards(list) {
   const container = document.getElementById("cards-container");
   if (!container) return;
 
-  container.innerHTML = "";
   window.visibleList = list;
 
+  const frag = document.createDocumentFragment();
   list.forEach(a => {
-    const card = createCard(a);
-    container.appendChild(card);
+    const sig = cardSignature(a);
+    let entry = cardCache.get(a.person_code);
+    if (!entry || entry.data !== a || entry.sig !== sig) {
+      entry = { data: a, sig, el: createCard(a) };
+      cardCache.set(a.person_code, entry);
+    }
+    frag.appendChild(entry.el);
   });
+  // Mueve los nodos existentes (las imágenes ya cargadas no se recargan).
+  container.replaceChildren(frag);
 
   updateCardMetrics();
 }

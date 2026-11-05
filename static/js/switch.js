@@ -8,7 +8,7 @@ export let refrescarLista = () => {};
 // Vuelve a armar los chips de temas (puede haber temas nuevos).
 export let refrescarTemas = () => {};
 
-// El slider al máximo no limita (si no, quedarían ocultos los árboles más lejanos).
+// El último puesto del slider (40) es "todos": no limita.
 function sliderSinLimite(slider) {
   return Number(slider.value) >= Number(slider.max);
 }
@@ -28,9 +28,10 @@ export function initSwitches() {
     }
 
     const cercaniaSlider = document.getElementById("slider-maxCercania");
+    // Cercanía a la familia: el lado más corto del camino (mío o de la persona).
     if (cercaniaSlider && !sliderSinLimite(cercaniaSlider)) {
       const maxCercania = Number(cercaniaSlider.value);
-      list = list.filter(a => getSortLength(a) <= maxCercania);
+      list = list.filter(a => getSortMinSideLength(a) <= maxCercania);
     }
 
     // Conteos del desplegable de ancestros con los demás filtros ya aplicados.
@@ -69,7 +70,7 @@ export function initSwitches() {
       <strong>Orientales no encontrados en FamilySearch</strong> (si los encontrás, ¡agregálos!):
       Francisco Lavalleja, Manuel Lavalleja, Juan Acosta, Basilio Araújo, Juan Arteaga, Felipe Carapé, Andrés Cheveste,
       Carmelo Colman, Manuel Freire, Javier Chávez Zibil, Tiburcio Gómez, Ignacio Medina, Manuel Meléndez, Avelino Miranda,
-      Santiago Nievas, Ignacio Núñez, Dionisio Oribe, Juan Ortiz, Ramón Ortiz, Celedonio Rojas, Juan Rosas, Gregorio Sanabria,
+      Santiago Nievas, Ignacio Núñez, Dionisio Oribe, Juan Ortiz, Ramón Ortiz, Juan Rosas, Gregorio Sanabria,
       Juan Spikerman, Jacinto Trápani, Agustín Velázquez, Pablo Zufriategui, Andrés Areguatí.
     `
   };
@@ -146,6 +147,14 @@ export function initSwitches() {
     if (window.activeAncestorFilter && !found.has(window.activeAncestorFilter)) {
       window.activeAncestorFilter = null;
     }
+
+    // Si nada cambió (mismas opciones, conteos y selección) no se toca el DOM.
+    const sig = JSON.stringify([
+      window.activeAncestorFilter,
+      [...found.entries()].map(([id, e]) => [id, e.gen, e.count])
+    ]);
+    if (select.dataset.sig === sig) return;
+    select.dataset.sig = sig;
 
     select.innerHTML = "";
     const all = document.createElement("option");
@@ -228,14 +237,21 @@ export function initSwitches() {
   if (cercaniaSlider) {
     const mostrarValor = () => {
       if (cercaniaValueEl) {
-        cercaniaValueEl.textContent = sliderSinLimite(cercaniaSlider) ? "sin límite" : cercaniaSlider.value;
+        cercaniaValueEl.textContent = sliderSinLimite(cercaniaSlider) ? "todos" : cercaniaSlider.value;
       }
     };
     mostrarValor();
 
+    // Como mucho un redibujo por cuadro mientras se arrastra la barra.
+    let redibujoPendiente = false;
     cercaniaSlider.addEventListener("input", () => {
       mostrarValor();
-      update();
+      if (redibujoPendiente) return;
+      redibujoPendiente = true;
+      requestAnimationFrame(() => {
+        redibujoPendiente = false;
+        update();
+      });
     });
   }
 
