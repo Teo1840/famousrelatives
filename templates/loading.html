@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Loading</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #fff;
@@ -33,7 +33,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Open Sans', sans-serif;
     }
 
     /* From Uiverse.io by anand_4957 */ 
@@ -182,7 +182,10 @@
     const processPromise = fetch('/process', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: new URLSearchParams({ token: {{ token|tojson }} })
+      body: new URLSearchParams({
+        token: {{ token|tojson }},
+        force_refresh: {{ force_refresh|tojson }} ? "on" : ""
+      })
     }).then(response => response.text().then(html => ({ ok: response.ok, html })));
 
     const poll = setInterval(async () => {

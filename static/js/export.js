@@ -45,12 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const main = cleanJS(await fetch("/static/js/main.js").then(r => r.text()));
 
     // 3. BODY limpio
-    let bodyHTML = document.body.innerHTML;
+    // Se clona y se poda con el DOM (no con regex) porque el boton "..." y su
+    // desplegable tienen HTML anidado que una regex no puede recortar bien.
+    const bodyClone = document.body.cloneNode(true);
+    bodyClone.querySelectorAll("script").forEach(el => el.remove());
+    bodyClone.querySelectorAll("link").forEach(el => el.remove());
+    bodyClone.querySelector(".btn-download")?.remove();
+    // El boton "..." (capturar token, buscar personas nuevas, cerrar sesion,
+    // etc.) depende del servidor y no tiene sentido en el archivo offline.
+    bodyClone.querySelector(".header-menu")?.remove();
 
-    bodyHTML = bodyHTML
-      .replace(/<script[\s\S]*?<\/script>/gi, "")
-      .replace(/<link[\s\S]*?>/gi, "")
-      .replace(/<button class="btn-download"[\s\S]*?<\/button>/, "");
+    let bodyHTML = bodyClone.innerHTML;
 
     // 🔥 asegurar popup oculto (robusto)
     bodyHTML = bodyHTML.replace(

@@ -1,6 +1,12 @@
 import { renderCards } from './card.js';
 import { getActiveList, updateListCount, getSortLength, getSortMinSideLength } from './main.js';
 
+// Redibuja las tarjetas respetando filtros, slider y orden actuales.
+// La asigna initSwitches(); main.js la usa al llegar árboles nuevos.
+export let refrescarLista = () => {};
+// Vuelve a armar los chips de temas (puede haber temas nuevos).
+export let refrescarTemas = () => {};
+
 export function initSwitches() {
 
   const directToggle = document.getElementById("switch-coParentIsTargetPerson");
@@ -13,6 +19,12 @@ export function initSwitches() {
 
     if (window.activeTopicFilter) {
       list = list.filter(a => (a.topics ?? []).includes(window.activeTopicFilter));
+    }
+
+    const cercaniaSlider = document.getElementById("slider-maxCercania");
+    if (cercaniaSlider) {
+      const maxCercania = Number(cercaniaSlider.value);
+      list = list.filter(a => getSortLength(a) <= maxCercania);
     }
 
     const sortByAscToggle = document.getElementById("switch-sortByAsc");
@@ -73,7 +85,7 @@ export function initSwitches() {
     if (topicSet.size === 0) return;
 
     const allChip = document.createElement("button");
-    allChip.className = "topic-chip active";
+    allChip.className = "topic-chip" + (window.activeTopicFilter ? "" : " active");
     allChip.textContent = "Todos";
     allChip.dataset.topic = "";
     allChip.addEventListener("click", () => selectTopic(null));
@@ -81,7 +93,7 @@ export function initSwitches() {
 
     topicSet.forEach(topic => {
       const chip = document.createElement("button");
-      chip.className = "topic-chip";
+      chip.className = "topic-chip" + (topic === window.activeTopicFilter ? " active" : "");
       chip.textContent = topic;
       chip.dataset.topic = topic;
       chip.addEventListener("click", () => selectTopic(topic));
@@ -102,7 +114,42 @@ export function initSwitches() {
     sortByAscToggle.addEventListener("change", update);
   }
 
+  // ⚙️ BOTON DE SETTINGS: abrir/cerrar el desplegable
+  // Vive acá (en vez del <script> inline de dashboard_header.html) para que
+  // siga funcionando en el HTML exportado por export.js, que descarta ese
+  // <script> junto con el resto de acciones que dependen del servidor.
+  const settingsToggle = document.getElementById("btn-settings-toggle");
+  const settingsActions = document.getElementById("settings-actions");
+
+  if (settingsToggle && settingsActions) {
+    settingsToggle.addEventListener("click", function() {
+      settingsActions.classList.toggle("open");
+    });
+
+    document.addEventListener("click", function(e) {
+      if (!e.target.closest(".settings-menu")) {
+        settingsActions.classList.remove("open");
+      }
+    });
+  }
+
+  // 🎚️ SLIDER: cercanía máxima
+  const cercaniaSlider = document.getElementById("slider-maxCercania");
+  const cercaniaValueEl = document.getElementById("maxCercaniaValue");
+
+  if (cercaniaSlider) {
+    if (cercaniaValueEl) cercaniaValueEl.textContent = cercaniaSlider.value;
+
+    cercaniaSlider.addEventListener("input", () => {
+      if (cercaniaValueEl) cercaniaValueEl.textContent = cercaniaSlider.value;
+      update();
+    });
+  }
+
   buildTopicChips();
+
+  refrescarLista = update;
+  refrescarTemas = buildTopicChips;
 
   // 🌙 MODO OSCURO
   const darkToggle = document.getElementById("switchDarkMode");

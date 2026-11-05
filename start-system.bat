@@ -10,6 +10,15 @@ set "ROOT=%~dp0"
 set "ENV_FILE=%ROOT%.env"
 set "PROFILE_DIR=%ROOT%chrome_debug_profile"
 
+REM ==========================
+REM CLEANUP: kill any leftover instance from a previous run before
+REM launching new ones, so re-running this script always converges to
+REM exactly one stack instead of piling on more.
+REM ==========================
+echo Deteniendo instancias previas (si existen)...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%stop-system.ps1" -Scope All -Quiet
+echo.
+
 REM Remove any existing token entry and ensure the token is empty before each run.
 if exist "%ENV_FILE%" (
     >"%ROOT%.env.tmp" (
@@ -27,6 +36,10 @@ move /y "%ROOT%.env.tmp" "%ENV_FILE%" >nul
 set "PYTHON=python"
 set "NODE=node"
 set "BROWSER=C:\Users\abc\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe"
+
+REM Without this, Python's stdout defaults to the console's codepage (not UTF-8),
+REM and the emoji in db.py's startup prints crashes init_db() before MySQL even connects.
+set "PYTHONIOENCODING=utf-8"
 
 echo =====================================
 echo FamousRelatives Launcher
@@ -52,8 +65,14 @@ set "DOCKER_AVAILABLE=0"
 
 if "%DOCKER_AVAILABLE%"=="1" (
     echo Docker disponible. Iniciando MySQL container...
-    docker-compose up -d db
-    timeout /t 5 /nobreak >nul
+    echo Esperando a que MySQL este listo para aceptar conexiones...
+    docker-compose up -d --wait db
+    if errorlevel 1 (
+        echo.
+        echo ADVERTENCIA: MySQL no llego a estar healthy a tiempo.
+        echo La app va a reintentar la conexion igual, pero puede tardar.
+        echo.
+    )
 ) else (
     echo.
     echo ADVERTENCIA: Docker no esta disponible.
@@ -74,64 +93,24 @@ REM ==========================
 cd /d "%ROOT%"
 start "Flask App" cmd /k "call venv\Scripts\activate.bat && python app.py"
 
-REM ==========================
-REM LISTENER
-REM ==========================
-cd /d "%ROOT%listener"
-start "Listener" cmd /k "node listen.js"
-
 timeout /t 3 /nobreak >nul
 
 REM ==========================
-REM BROWSER FLOW
+REM BROWSER: abrir directo la app
 REM ==========================
+REM El login/captura de FamilySearch ya no se dispara aca: se hace desde
+REM el boton "Ejecutar capturador de token" dentro de la app (app.py
+REM abre Brave con el debug port y corre listener\listen.js bajo demanda).
+REM NO usa --user-data-dir=PROFILE_DIR aca a proposito: ese perfil es
+REM exclusivo de la captura de token, y stop-system.ps1 mata cualquier
+REM Brave que lo use (incluidos sus procesos hijos) cada vez que se
+REM ejecuta el capturador. Si esta ventana compartiera el perfil, se
+REM cerraria sola en cada captura.
+start "" "%BROWSER%" ^
+--new-window ^
+--start-maximized ^
+"http://localhost:5000/"
 
-if "%OPCION%"=="1" (
-    start "" "%BROWSER%" ^
-    --remote-debugging-port=9222 ^
-    --user-data-dir="%PROFILE_DIR%" ^
-    --disable-session-restore ^
-    --no-first-run ^
-    --new-window ^
-    --start-maximized ^
-    "https://www.familysearch.org/en/global"
-) else (
-    start "" "%BROWSER%" ^
-    --remote-debugging-port=9222 ^
-    --user-data-dir="%PROFILE_DIR%" ^
-    --new-window ^
-    --start-maximized ^
-    "https://www.familysearch.org/en/global"
-)
-
-timeout /t 5 /nobreak >nul
-
-echo.
-echo Esperando token del listener...
-echo.
-
-REM ==========================
-REM WAIT TOKEN
-REM ==========================
-:WAIT_TOKEN
-timeout /t 2 >nul
-
-if exist "%ENV_FILE%" (
-    for /f "tokens=2 delims==" %%T in ('findstr /r "^FAMILYSEARCH_TOKEN=" "%ENV_FILE%"') do (
-        if not "%%T"=="" (
-            echo Token detectado en .env. Abriendo app raiz y procesando...
-            start "" "%BROWSER%" ^
-            --user-data-dir="%PROFILE_DIR%" ^
-            --start-maximized ^
-            "http://localhost:5000/"
-            goto END
-        )
-    )
-)
-
-goto WAIT_TOKEN
-
-:END
 echo.
 echo Sistema listo.
 pause

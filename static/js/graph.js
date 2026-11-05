@@ -20,6 +20,7 @@ export function buildGraph(a, generarUUID, directPath, isDark = false) {
 
   nodes.push({
     id: rootId,
+    fsId: path.antepasado_comun?.id,
     shape: "image",
     image: path.antepasado_comun?.portraitUrl || getDefaultIcon(path.antepasado_comun?.gender),
     font: { size: 16 },
@@ -46,6 +47,7 @@ export function buildGraph(a, generarUUID, directPath, isDark = false) {
 
     nodes.push({
       id,
+      fsId: p.id,
       shape: "image",
       image:
         p.portraitUrl || getDefaultIcon(p.gender),
@@ -79,6 +81,7 @@ export function buildGraph(a, generarUUID, directPath, isDark = false) {
 
     nodes.push({
       id,
+      fsId: p.id,
       shape: "image",
       image:
         p.portraitUrl || getDefaultIcon(p.gender),

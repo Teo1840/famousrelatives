@@ -1,10 +1,16 @@
+import mysql.connector
 from mysql.connector.pooling import MySQLConnectionPool
+from werkzeug.security import generate_password_hash
 import json
 import os
 import time
 
 from dotenv import load_dotenv
 load_dotenv()
+
+
+class DuplicateUsernameError(Exception):
+    pass
 
 _pool = None
 
@@ -61,38 +67,244 @@ def init_db():
         """)
 
     conn.commit()
-    conn.close()
 
-def guardar_arbol(persona_id, viewer_person_id, data):
-    conn = get_pool().get_connection()
-    cur = conn.cursor()
+    cur.execute("""
+        SELECT COUNT(1) ColumnIsThere
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_schema=DATABASE()
+          AND table_name='arboles'
+          AND column_name='found_relationship';
+    """)
+    if cur.fetchone()[0] == 0:
+        cur.execute("""
+            ALTER TABLE arboles
+            ADD COLUMN found_relationship TINYINT(1) NULL DEFAULT NULL
+            AFTER data_json
+        """)
 
-    query = """
-        INSERT INTO arboles (persona_id, viewer_person_id, data_json)
-        VALUES (%s, %s, %s)
-    """
-    cur.execute(query, (persona_id, viewer_person_id, json.dumps(data)))
+    conn.commit()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL UNIQUE,
+            password_hash VARCHAR(255) NOT NULL,
+            familysearch_token VARCHAR(1024) NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+
+    cur.execute("""
+        SELECT COUNT(1) ColumnIsThere
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_schema=DATABASE()
+          AND table_name='usuarios'
+          AND column_name='token_updated_at';
+    """)
+    if cur.fetchone()[0] == 0:
+        cur.execute("""
+            ALTER TABLE usuarios
+            ADD COLUMN token_updated_at TIMESTAMP NULL DEFAULT NULL
+            AFTER familysearch_token
+        """)
+
+    conn.commit()
+
+    # Tokens saved without a timestamp (from before this column existed, or
+    # from an install that already ran the ALTER above) get back-filled to
+    # "now" so they get a fresh TTL window instead of being treated as
+    # expired the moment the TTL check runs.
+    cur.execute("""
+        UPDATE usuarios
+        SET token_updated_at = CURRENT_TIMESTAMP
+        WHERE familysearch_token IS NOT NULL
+          AND token_updated_at IS NULL
+    """)
+
+    conn.commit()
+
+    cur.execute("""
+        SELECT COUNT(1) ColumnIsThere
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_schema=DATABASE()
+          AND table_name='arboles'
+          AND column_name='user_id';
+    """)
+    if cur.fetchone()[0] == 0:
+        cur.execute("""
+            ALTER TABLE arboles
+            ADD COLUMN user_id INT NULL
+            AFTER viewer_person_id
+        """)
+
+    conn.commit()
+
+    cur.execute("""
+        SELECT COUNT(1) IndexIsThere
+        FROM INFORMATION_SCHEMA.STATISTICS
+        WHERE table_schema=DATABASE()
+          AND table_name='arboles'
+          AND index_name='idx_persona_user';
+    """)
+    if cur.fetchone()[0] == 0:
+        cur.execute("""
+            CREATE INDEX idx_persona_user
+            ON arboles(persona_id, user_id)
+        """)
+
+    conn.commit()
+
+    # Una sola fila por (persona_id, user_id). Antes cada "Actualizar todo"
+    # insertaba filas nuevas y las viejas quedaban sin usar; acá se borran
+    # (quedándose con la más nueva) y el índice único evita que vuelva a pasar.
+    cur.execute("""
+        SELECT COUNT(1) IndexIsThere
+        FROM INFORMATION_SCHEMA.STATISTICS
+        WHERE table_schema=DATABASE()
+          AND table_name='arboles'
+          AND index_name='uq_persona_user';
+    """)
+    if cur.fetchone()[0] == 0:
+        cur.execute("""
+            DELETE a FROM arboles a
+            JOIN arboles b
+              ON a.persona_id = b.persona_id
+             AND a.user_id = b.user_id
+             AND (a.created_at < b.created_at
+                  OR (a.created_at = b.created_at AND a.id < b.id))
+        """)
+        print(f"-> 🧹 {cur.rowcount} árboles duplicados borrados", flush=True)
+        cur.execute("""
+            CREATE UNIQUE INDEX uq_persona_user
+            ON arboles(persona_id, user_id)
+        """)
 
     conn.commit()
     conn.close()
 
-def obtener_arbol(persona_id, viewer_person_id):
+def crear_usuario(username, personal_id):
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+
+    password_hash = generate_password_hash(personal_id)
+    try:
+        cur.execute(
+            "INSERT INTO usuarios (username, password_hash) VALUES (%s, %s)",
+            (username, password_hash)
+        )
+        conn.commit()
+        return cur.lastrowid
+    except mysql.connector.IntegrityError:
+        conn.rollback()
+        raise DuplicateUsernameError(f"El usuario '{username}' ya existe")
+    finally:
+        conn.close()
+
+def _row_to_usuario(row):
+    if not row:
+        return None
+    id_, username, password_hash = row
+    return {
+        "id": id_,
+        "username": username,
+        "password_hash": password_hash
+    }
+
+def obtener_usuario_por_username(username):
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT id, username, password_hash FROM usuarios WHERE username=%s",
+        (username,)
+    )
+    row = cur.fetchone()
+    conn.close()
+
+    return _row_to_usuario(row)
+
+def guardar_arbol(persona_id, user_id, viewer_person_id, data, found_relationship=True):
     conn = get_pool().get_connection()
     cur = conn.cursor()
 
     query = """
-      SELECT data_json, created_at FROM arboles
-      WHERE persona_id = %s AND viewer_person_id = %s
+        INSERT INTO arboles (persona_id, user_id, viewer_person_id, data_json, found_relationship)
+        VALUES (%s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE
+            viewer_person_id = VALUES(viewer_person_id),
+            data_json = VALUES(data_json),
+            found_relationship = VALUES(found_relationship),
+            created_at = CURRENT_TIMESTAMP
+    """
+    data_json = json.dumps(data) if data is not None else None
+    cur.execute(query, (persona_id, user_id, viewer_person_id, data_json, int(found_relationship)))
+
+    conn.commit()
+    conn.close()
+
+def obtener_arboles_usuario(user_id):
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+
+    query = """
+      SELECT persona_id, data_json, found_relationship, created_at
+      FROM arboles
+      WHERE user_id = %s
+    """
+    cur.execute(query, (user_id,))
+    rows = cur.fetchall()
+
+    conn.close()
+
+    result = []
+    for persona_id, data_json, found_relationship, created_at in rows:
+        data = json.loads(data_json) if data_json else None
+        found = True if found_relationship is None else bool(found_relationship)
+        result.append({
+            "persona_id": persona_id,
+            "data": data,
+            "found": found,
+            "created_at": created_at
+        })
+    return result
+
+def obtener_version_arboles(user_id):
+    """Texto que cambia cada vez que se guarda algún árbol del usuario.
+    El navegador lo compara con su copia local para saber si está al día."""
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT COUNT(*), MAX(created_at) FROM arboles WHERE user_id = %s",
+        (user_id,)
+    )
+    count, last = cur.fetchone()
+
+    conn.close()
+
+    return f"{count}-{last.isoformat() if last else ''}"
+
+def obtener_arbol(persona_id, user_id):
+    conn = get_pool().get_connection()
+    cur = conn.cursor()
+
+    query = """
+      SELECT data_json, created_at, found_relationship FROM arboles
+      WHERE persona_id = %s AND user_id = %s
       ORDER BY created_at DESC
       LIMIT 1
     """
-    cur.execute(query, (persona_id, viewer_person_id))
+    cur.execute(query, (persona_id, user_id))
     row = cur.fetchone()
 
     conn.close()
 
     if row:
-        data_json, created_at = row
-        return json.loads(data_json), created_at
+        data_json, created_at, found_relationship = row
+        data = json.loads(data_json) if data_json else None
+        found = True if found_relationship is None else bool(found_relationship)
+        return data, created_at, found
 
-    return None, None
+    return None, None, None
