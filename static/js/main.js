@@ -1,6 +1,5 @@
 import { showPopup, prevPopup, nextPopup, closePopup } from './popup.js';
-import { initSwitches, refrescarLista, refrescarTemas, refrescarAncestros } from './switch.js';
-import { renderCards } from './card.js';
+import { initSwitches, refrescarLista, refrescarTemas } from './switch.js';
 
 // Lista activa según switch
 export function getActiveList() {
@@ -31,70 +30,38 @@ export function updateListCount(list) {
   el.textContent = activeList.length;
 }
 
-// Generar listas filtradas
+// Generar listas filtradas (el orden lo pone switch.js → update()).
+// Solo "a través del cónyuge de la persona": se queda si hay camino directo
+// por sangre, aunque ese camino pase por mi cónyuge (ese es el otro switch).
 function get_TargetList() {
-  return window.arboles
-    .filter(a => {
-      const directIsClean = a?.directPath != null && !a?.directPath?.coParentIsPathPerson;
-      return !a.coParentIsTargetPerson || directIsClean;
-    })
-    .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
+  return window.arboles.filter(a => !a.coParentIsTargetPerson || a?.directPath != null);
 }
 
 function get_PathList() {
-  return window.arboles
-    .filter(a => {
-      const main = a?.mainPath?.coParentIsPathPerson;
-      const direct = a?.directPath?.coParentIsPathPerson;
-
-      return !(main && (direct ?? true));
-    })
-    .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
+  return window.arboles.filter(a => {
+    const main = a?.mainPath?.coParentIsPathPerson;
+    const direct = a?.directPath?.coParentIsPathPerson;
+    return !(main && (direct ?? true));
+  });
 }
 
 function get_Target_and_PathList() {
-  return window.arboles
-    .filter(a => {
-      const mainIsClean = !a.coParentIsTargetPerson && !a?.mainPath?.coParentIsPathPerson;
-      const directIsClean = a?.directPath != null && !a?.directPath?.coParentIsPathPerson;
-      return mainIsClean || directIsClean;
-    })
-    .sort((a, b) => getEffectiveLength(a) - getEffectiveLength(b));
+  return window.arboles.filter(a => {
+    const mainIsClean = !a.coParentIsTargetPerson && !a?.mainPath?.coParentIsPathPerson;
+    const directIsClean = a?.directPath != null && !a?.directPath?.coParentIsPathPerson;
+    return mainIsClean || directIsClean;
+  });
 }
 
-function getEffectiveLength(a) {
-  const main = a?.mainPath?.coParentIsPathPerson;
-  const direct = a?.directPath?.coParentIsPathPerson;
-  const useDirect = a?.directPath && !(main && (direct ?? true));
-  return useDirect
-    ? (a.direct_length ?? Infinity)
-    : (a.cercania ?? Infinity);
-}
-
+// Cercanía del camino que se está mostrando (principal o directo).
 export function getSortLength(a) {
-  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
-  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
-  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
-  const directIsPath = a?.directPath?.coParentIsPathPerson;
-
-  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
-  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
-
-  return (useDirectForPath || useDirectForTarget)
+  return shouldUseDirectPath(a)
     ? (a.direct_length ?? Infinity)
     : (a.cercania ?? Infinity);
 }
 
 export function getSortMinSideLength(a) {
-  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
-  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
-  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
-  const directIsPath = a?.directPath?.coParentIsPathPerson;
-
-  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
-  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
-
-  const path = (useDirectForPath || useDirectForTarget) ? a.directPath : a.mainPath;
+  const path = getDisplayedPath(a);
   const asc  = path?.asc?.length  ?? Infinity;
   const desc = path?.desc?.length ?? Infinity;
   return Math.min(asc, desc);
@@ -167,15 +134,8 @@ function iniciarDashboard() {
   window.Target_and_PathList = get_Target_and_PathList();
 
   initSwitches();
-
-  let list = getActiveList();
-  const sortByAscToggle = document.getElementById("switch-sortByAsc");
-  list = [...list].sort(sortByAscToggle?.checked
-    ? (a, b) => getSortMinSideLength(a) - getSortMinSideLength(b)
-    : (a, b) => getSortLength(a) - getSortLength(b)
-  );
-  renderCards(list);
-  updateListCount(list);
+  // Primer dibujo con todos los filtros (tema, cercanía, ancestro) y el orden.
+  refrescarLista();
 }
 
 function domListo() {
@@ -192,7 +152,6 @@ function actualizarDatos(data) {
   window.PathList = get_PathList();
   window.Target_and_PathList = get_Target_and_PathList();
   refrescarTemas();
-  refrescarAncestros();
   refrescarLista();
 }
 

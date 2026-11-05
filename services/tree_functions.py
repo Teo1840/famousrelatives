@@ -188,18 +188,22 @@ def _process_one(codigo, session, token, viewer_state, user_id, force_refresh, c
     coParentIsTargetPerson = target.get("relationshipToPrevious") in ("HUSBAND", "WIFE", "SPOUSE")
     coParentIsPathPerson = parsed["coParentIsPathPerson"]
     extra_parsed = None
+    # False si el camino directo no se pudo buscar por un error pasajero:
+    # el árbol se guarda igual, pero el cache lo vuelve a buscar la próxima vez.
+    direct_checked = True
     if coParentIsTargetPerson or coParentIsPathPerson:
-        parent_id = fetch_parent_id(session, persona_id, token)
+        parent_id, parent_ok = fetch_parent_id(session, persona_id, token)
         if parent_id:
-            try:
-                extra_data = fetch_tree_from_api(session, parent_id, token)
-                if extra_data:
-                    extra_parsed = parse_tree_data(extra_data)
-            except Exception as e:
-                if str(e) == "SESSION_EXPIRED":
-                    raise
+            extra_data = fetch_tree_from_api(session, parent_id, token)
+            if extra_data is None:
+                direct_checked = False
+            elif extra_data is not NO_RELATIONSHIP:
+                extra_parsed = parse_tree_data(extra_data)
+        elif not parent_ok:
+            direct_checked = False
 
     tree = build_tree_data(parsed, codigo, extra_parsed)
+    tree["directPathChecked"] = direct_checked
 
     save_tree(persona_id, user_id, viewer_state.person_id, tree)
 
@@ -237,6 +241,8 @@ def generate_trees(codigos, token, user_id, force_refresh=False, on_progress=Non
             if str(e) == "SESSION_EXPIRED":
                 session_expired.set()
                 print("⚠️ La sesión expiró. Interrumpiendo proceso.", flush=True)
+            else:
+                print(f"❌ Error procesando {codigo.get('name', codigo.get('person_code'))}: {e!r}", flush=True)
             return i, None
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
@@ -277,11 +283,21 @@ def get_cached_tree(persona_id, user_id, force_refresh=False):
         return NO_RELATIONSHIP
 
     if cached_data and cached_data.get("name") and cached_data.get("person_code"):
+        if _direct_path_pending(cached_data):
+            print(f"♻️ Falta el camino directo para {persona_id}, se vuelve a buscar", flush=True)
+            return None
         print(f"💾 Cache válido para {persona_id}", flush=True)
         return cached_data
 
     print(f"♻️ Cache inválido para {persona_id}", flush=True)
     return None
+
+
+def _direct_path_pending(tree):
+    """Árbol que necesita camino directo, no lo tiene y no se confirmó que no exista
+    (falló la consulta extra, o se guardó antes de existir este chequeo)."""
+    needs_direct = tree.get("coParentIsTargetPerson") or (tree.get("mainPath") or {}).get("coParentIsPathPerson")
+    return bool(needs_direct) and tree.get("directPath") is None and not tree.get("directPathChecked")
 
 
 def save_tree(persona_id, user_id, viewer_person_id, tree_data):
@@ -430,32 +446,32 @@ def _apply_viewer_portrait(tree, viewer_id, portrait_url):
 
 #GET PARENT FOR DIRECT PATH
 def fetch_parent_id(session, person_id, token):
-    try:
-        data = fetch_tree_from_api(
-            session,
-            person_id,
-            token,
-            endpoint="family-members"
-        )
-    except Exception as e:
-        if str(e) == "SESSION_EXPIRED":
-            raise
-        return None
+    """Devuelve (parent_id, ok). ok=False si la consulta falló (error pasajero);
+    ok=True con parent_id=None si FamilySearch confirma que no tiene padres."""
+    data = fetch_tree_from_api(
+        session,
+        person_id,
+        token,
+        endpoint="family-members"
+    )
 
-    if not data:
-        return None
+    if data is None:
+        return None, False
+
+    if data is NO_RELATIONSHIP:
+        return None, True
 
     parents = data.get("parents", [])
     if not parents:
-        return None
+        return None, True
 
     parent1 = parents[0].get("parent1")
     parent2 = parents[0].get("parent2")
 
     if parent1 and parent1.get("id"):
-        return parent1.get("id")
+        return parent1.get("id"), True
 
     if parent2 and parent2.get("id"):
-        return parent2.get("id")
+        return parent2.get("id"), True
 
-    return None
+    return None, True
