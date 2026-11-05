@@ -7,8 +7,11 @@ import { ancestorTerm } from './relationship.js';
 export let refrescarLista = () => {};
 // Vuelve a armar los chips de temas (puede haber temas nuevos).
 export let refrescarTemas = () => {};
-// Vuelve a armar el desplegable de padres/abuelos (se completa con cada árbol nuevo).
-export let refrescarAncestros = () => {};
+
+// El slider al máximo no limita (si no, quedarían ocultos los árboles más lejanos).
+function sliderSinLimite(slider) {
+  return Number(slider.value) >= Number(slider.max);
+}
 
 export function initSwitches() {
 
@@ -24,18 +27,21 @@ export function initSwitches() {
       list = list.filter(a => (a.topics ?? []).includes(window.activeTopicFilter));
     }
 
+    const cercaniaSlider = document.getElementById("slider-maxCercania");
+    if (cercaniaSlider && !sliderSinLimite(cercaniaSlider)) {
+      const maxCercania = Number(cercaniaSlider.value);
+      list = list.filter(a => getSortLength(a) <= maxCercania);
+    }
+
+    // Conteos del desplegable de ancestros con los demás filtros ya aplicados.
+    buildAncestorOptions(list);
+
     if (window.activeAncestorFilter) {
       const viewerId = getViewerId(window.arboles);
       list = list.filter(a =>
         getViewerAncestors(getDisplayedPath(a), viewerId)
           .some(x => x.person.id === window.activeAncestorFilter)
       );
-    }
-
-    const cercaniaSlider = document.getElementById("slider-maxCercania");
-    if (cercaniaSlider) {
-      const maxCercania = Number(cercaniaSlider.value);
-      list = list.filter(a => getSortLength(a) <= maxCercania);
     }
 
     const sortByAscToggle = document.getElementById("switch-sortByAsc");
@@ -115,7 +121,9 @@ export function initSwitches() {
   // 🌳 FILTRO POR ANCESTRO: padres y abuelos que aparecen en los caminos.
   const GEN_LABELS = { 1: "Padres", 2: "Abuelos", 3: "Bisabuelos" };
 
-  function buildAncestorOptions() {
+  // Opciones: todos los ancestros de la lista activa (switches de cónyuge).
+  // Conteos: sobre countList (la lista con tema y cercanía aplicados).
+  function buildAncestorOptions(countList) {
     const select = document.getElementById("filtro-ancestro");
     if (!select) return;
 
@@ -123,9 +131,13 @@ export function initSwitches() {
     const found = new Map(); // id -> { person, gen, count }
     (getActiveList() || []).forEach(a => {
       getViewerAncestors(getDisplayedPath(a), viewerId).forEach(({ person, gen }) => {
-        const entry = found.get(person.id) || { person, gen, count: 0 };
-        entry.count++;
-        found.set(person.id, entry);
+        if (!found.has(person.id)) found.set(person.id, { person, gen, count: 0 });
+      });
+    });
+    (countList || getActiveList() || []).forEach(a => {
+      getViewerAncestors(getDisplayedPath(a), viewerId).forEach(({ person }) => {
+        const entry = found.get(person.id);
+        if (entry) entry.count++;
       });
     });
 
@@ -175,18 +187,13 @@ export function initSwitches() {
     });
   }
 
-  // Los switches de cónyuge cambian qué camino se muestra: rearmar ancestros.
-  function onPathToggle() {
-    buildAncestorOptions();
-    update();
-  }
-
+  // update() también rearma el desplegable: los switches cambian qué camino se muestra.
   if (directToggle) {
-    directToggle.addEventListener("change", onPathToggle);
+    directToggle.addEventListener("change", update);
   }
 
   if (coParentToggle) {
-    coParentToggle.addEventListener("change", onPathToggle);
+    coParentToggle.addEventListener("change", update);
   }
 
   const sortByAscToggle = document.getElementById("switch-sortByAsc");
@@ -218,20 +225,23 @@ export function initSwitches() {
   const cercaniaValueEl = document.getElementById("maxCercaniaValue");
 
   if (cercaniaSlider) {
-    if (cercaniaValueEl) cercaniaValueEl.textContent = cercaniaSlider.value;
+    const mostrarValor = () => {
+      if (cercaniaValueEl) {
+        cercaniaValueEl.textContent = sliderSinLimite(cercaniaSlider) ? "sin límite" : cercaniaSlider.value;
+      }
+    };
+    mostrarValor();
 
     cercaniaSlider.addEventListener("input", () => {
-      if (cercaniaValueEl) cercaniaValueEl.textContent = cercaniaSlider.value;
+      mostrarValor();
       update();
     });
   }
 
   buildTopicChips();
-  buildAncestorOptions();
 
   refrescarLista = update;
   refrescarTemas = buildTopicChips;
-  refrescarAncestros = buildAncestorOptions;
 
   // 🌙 MODO OSCURO
   const darkToggle = document.getElementById("switchDarkMode");

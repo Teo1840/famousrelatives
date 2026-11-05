@@ -1,10 +1,10 @@
 import { buildGraph } from '/static/js/graph.js';
-import { getActiveList, shouldUseDirectPath } from './main.js';
+import { shouldUseDirectPath } from './main.js';
 import { generarUUID } from './utils.js';
 import { computeRelationshipDescription } from './relationship.js';
 
 export function showPopup(currentIndex) {
-  const list = getActiveList();
+  const list = window.visibleList || [];
   const a = list[currentIndex];
   if (!a) return;
 
@@ -138,7 +138,7 @@ export function closePopup() {
 export function nextPopup(e) {
   e.stopPropagation();
 
-  const list = getActiveList();
+  const list = window.visibleList || [];
   if (!list?.length) return;
 
   window.currentIndex = (window.currentIndex + 1) % list.length;
@@ -149,7 +149,7 @@ export function nextPopup(e) {
 export function prevPopup(e) {
   e.stopPropagation();
 
-  const list = getActiveList();
+  const list = window.visibleList || [];
   if (!list?.length) return;
 
   window.currentIndex =

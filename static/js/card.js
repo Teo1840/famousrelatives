@@ -1,47 +1,18 @@
 import { showPopup } from './popup.js';
-import { getActiveList } from './main.js';
+import { shouldUseDirectPath } from './main.js';
 import { computeRelationshipDescription } from './relationship.js';
 
+// Color según el camino que se muestra: el directo nunca pasa por el
+// cónyuge de la persona, y puede (o no) pasar por mi cónyuge.
 function getCardColor(a) {
-  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
-  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const useDirect = shouldUseDirectPath(a);
+  const isTarget = !useDirect && a?.coParentIsTargetPerson;
+  const isPath = useDirect ? a?.directPath?.coParentIsPathPerson : a?.mainPath?.coParentIsPathPerson;
 
-  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
-  const directIsPath = a?.directPath?.coParentIsPathPerson;
-  const isTarget     = a?.coParentIsTargetPerson;
-
-  let effectiveIsPath   = mainIsPath;
-  let effectiveIsTarget = isTarget;
-
-  // targetToggle ON + card stays visible via directPath → use directPath's flags
-  if (targetToggle?.checked && isTarget && a?.directPath != null) {
-    effectiveIsTarget = false;
-    effectiveIsPath   = directIsPath;
-  }
-
-  // pathToggle ON + directPath is clean → drop the viewer-spouse-path color
-  if (pathToggle?.checked && mainIsPath && !(directIsPath ?? true)) {
-    effectiveIsPath = false;
-  }
-
-  if (effectiveIsPath && effectiveIsTarget) return 'var(--card-both)';
-  if (effectiveIsPath)   return 'var(--card-path)';
-  if (effectiveIsTarget) return 'var(--card-target)';
+  if (isPath && isTarget) return 'var(--card-both)';
+  if (isPath)   return 'var(--card-path)';
+  if (isTarget) return 'var(--card-target)';
   return 'var(--card-bg)';
-}
-
-function getEffectiveLength(a) {
-  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
-  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
-  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
-  const directIsPath = a?.directPath?.coParentIsPathPerson;
-
-  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
-  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
-
-  return (useDirectForPath || useDirectForTarget)
-    ? (a.direct_length ?? 0)
-    : (a.cercania ?? 0);
 }
 
 export function createCard(a) {
@@ -53,18 +24,10 @@ export function createCard(a) {
 
   card.style.setProperty('--card-color', getCardColor(a));
 
-  const effective = getEffectiveLength(a);
-  card.dataset.effectiveLength = effective;
+  const useDirect = shouldUseDirectPath(a) && a.directPath != null;
+  card.dataset.effectiveLength = useDirect ? (a.direct_length ?? 0) : (a.cercania ?? 0);
 
   card.dataset.personCode = a.person_code;
-
-  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
-  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
-  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
-  const directIsPath = a?.directPath?.coParentIsPathPerson;
-  const useDirectForPath   = pathToggle?.checked   && mainIsPath && !(directIsPath ?? true);
-  const useDirectForTarget = targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null;
-  const useDirect = useDirectForPath || useDirectForTarget;
 
   const relDesc = (useDirect && a.directPath)
     ? computeRelationshipDescription(
@@ -85,7 +48,8 @@ export function createCard(a) {
 
   // 🔥 CLICK → abre popup (sin romper arquitectura)
   card.addEventListener("click", () => {
-    const list = getActiveList();
+    // Misma lista y orden que las tarjetas visibles (para las flechas del popup).
+    const list = window.visibleList || [];
 
     const index = list.findIndex(
       x => x.person_code === card.dataset.personCode
@@ -108,6 +72,7 @@ export function renderCards(list) {
   if (!container) return;
 
   container.innerHTML = "";
+  window.visibleList = list;
 
   list.forEach(a => {
     const card = createCard(a);
