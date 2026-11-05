@@ -32,6 +32,7 @@ from db.db import (
     obtener_usuario_por_username,
     obtener_arboles_usuario,
     obtener_version_arboles,
+    obtener_ids_procesados,
     DuplicateUsernameError,
 )
 init_db()
@@ -61,7 +62,8 @@ def login_required(view_fn):
 
 class _SuppressProgressLogs(logging.Filter):
     def filter(self, record):
-        return "/progress" not in record.getMessage()
+        msg = record.getMessage()
+        return "/progress" not in msg and "/api/personas-nuevas" not in msg
 
 logging.getLogger("werkzeug").addFilter(_SuppressProgressLogs())
 
@@ -298,6 +300,20 @@ def arboles_api():
         "version": version,
         "arboles": serializar_arboles(_found_trees(user_id)),
     })
+
+
+@app.route('/api/personas-nuevas')
+@login_required
+def personas_nuevas():
+    """Cuántas personas del CSV todavía no se consultaron para este usuario.
+    El header lo usa para mostrar el punto rojo en "Buscar personas nuevas"."""
+    try:
+        rows = validate_csv_file(CSV_PATH)
+    except ValueError:
+        return jsonify({"count": 0})
+    procesados = obtener_ids_procesados(session["user_id"])
+    nuevas = [r["person_code"] for r in rows if r["person_code"] not in procesados]
+    return jsonify({"count": len(nuevas)})
 
 
 @app.route('/progress')

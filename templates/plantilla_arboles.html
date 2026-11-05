@@ -24,6 +24,7 @@
   width: 180px;
   accent-color: var(--switch-track-on);
 }
+
 </style>
 </head>
 
@@ -52,6 +53,14 @@
   <div class="cercania-slider-wrapper">
     <label for="slider-maxCercania" class="status-text">Cercanía máxima: <span id="maxCercaniaValue">-</span></label>
     <input type="range" id="slider-maxCercania" min="5" max="50" value="50" step="5">
+  </div>
+
+  <!-- FILTRO: árboles que pasan por un padre/abuelo (se completa con los árboles cargados) -->
+  <div class="ancestro-filter-wrapper">
+    <label for="filtro-ancestro" class="status-text">Pasa por:</label>
+    <select id="filtro-ancestro" disabled>
+      <option value="">Todas las ramas</option>
+    </select>
   </div>
 </div>
 

@@ -1,18 +1,7 @@
 import { buildGraph } from '/static/js/graph.js';
-import { getActiveList } from './main.js';
+import { getActiveList, shouldUseDirectPath } from './main.js';
 import { generarUUID } from './utils.js';
 import { computeRelationshipDescription } from './relationship.js';
-
-function shouldUseDirectPath(a) {
-  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
-  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
-  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
-  const directIsPath = a?.directPath?.coParentIsPathPerson;
-
-  if (targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null) return true;
-  if (pathToggle?.checked && mainIsPath && !(directIsPath ?? true)) return true;
-  return false;
-}
 
 export function showPopup(currentIndex) {
   const list = getActiveList();

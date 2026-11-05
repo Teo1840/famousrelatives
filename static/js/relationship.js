@@ -1,4 +1,4 @@
-function ancestorTerm(n, female) {
+export function ancestorTerm(n, female) {
   const s = female ? "a" : "o";
   if (n === 1) return female ? "madre" : "padre";
   if (n === 2) return `abuel${s}`;

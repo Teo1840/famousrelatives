@@ -1,5 +1,5 @@
 import { showPopup, prevPopup, nextPopup, closePopup } from './popup.js';
-import { initSwitches, refrescarLista, refrescarTemas } from './switch.js';
+import { initSwitches, refrescarLista, refrescarTemas, refrescarAncestros } from './switch.js';
 import { renderCards } from './card.js';
 
 // Lista activa según switch
@@ -100,6 +100,55 @@ export function getSortMinSideLength(a) {
   return Math.min(asc, desc);
 }
 
+// Si la tarjeta muestra el camino directo en vez del principal (según switches).
+export function shouldUseDirectPath(a) {
+  const targetToggle = document.getElementById("switch-coParentIsTargetPerson");
+  const pathToggle   = document.getElementById("switch-coParentIsPathPerson");
+  const mainIsPath   = a?.mainPath?.coParentIsPathPerson;
+  const directIsPath = a?.directPath?.coParentIsPathPerson;
+
+  if (targetToggle?.checked && a?.coParentIsTargetPerson && a?.directPath != null) return true;
+  if (pathToggle?.checked && mainIsPath && !(directIsPath ?? true)) return true;
+  return false;
+}
+
+export function getDisplayedPath(a) {
+  return (shouldUseDirectPath(a) ? a.directPath : a.mainPath) || {};
+}
+
+// --- Filtro por ancestro (padres / abuelos) ---
+// 1 = padres, 2 = abuelos. Subir a 3 para incluir bisabuelos.
+const MAX_GEN_ANCESTRO = 2;
+
+// ID del usuario: la última persona de "asc" que más se repite entre los árboles.
+export function getViewerId(arboles) {
+  const counts = new Map();
+  (arboles || []).forEach(a => {
+    const id = a?.mainPath?.asc?.at(-1)?.id;
+    if (id) counts.set(id, (counts.get(id) || 0) + 1);
+  });
+  let best = null;
+  counts.forEach((n, id) => { if (best === null || n > counts.get(best)) best = id; });
+  return best;
+}
+
+// Ancestros propios del usuario por los que pasa el camino:
+// [{ person, gen }] con gen 1 = padre/madre, 2 = abuelo/a...
+// Vacío si el camino sube por el cónyuge (no son ancestros propios).
+export function getViewerAncestors(path, viewerId) {
+  if (!path || path.coParentIsPathPerson) return [];
+  const asc = path.asc || [];
+  if (!asc.length || (viewerId && asc.at(-1)?.id !== viewerId)) return [];
+
+  const line = [...asc].reverse();
+  if (path.antepasado_comun?.id) line.push(path.antepasado_comun);
+
+  return line
+    .slice(1, MAX_GEN_ANCESTRO + 1)
+    .map((person, i) => ({ person, gen: i + 1 }))
+    .filter(x => x.person?.id);
+}
+
 // 🔗 Exponer para HTML (onclick del popup)
 window.showPopup = showPopup;
 window.prevPopup = prevPopup;
@@ -109,6 +158,7 @@ window.closePopup = closePopup;
 // Estado global
 window.currentIndex = 0;
 window.activeTopicFilter = null;
+window.activeAncestorFilter = null;
 
 function iniciarDashboard() {
   window.fullList = window.arboles;
@@ -142,6 +192,7 @@ function actualizarDatos(data) {
   window.PathList = get_PathList();
   window.Target_and_PathList = get_Target_and_PathList();
   refrescarTemas();
+  refrescarAncestros();
   refrescarLista();
 }
 
