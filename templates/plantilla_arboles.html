@@ -35,10 +35,9 @@
   <!-- DASHBOARD_HEADER -->
 </div>
 <div id="color-legend">
-  <span class="color-dot color-dot--target"></span><strong>Amarillo</strong> — el camino pasa por el cónyuge de la persona famosa, no por su propia sangre.
-  <br><span class="color-dot color-dot--path"></span><strong>Rojo</strong> — el parentesco llega a través de tu cónyuge, no directamente tuyo.
-  <br><span class="color-dot color-dot--both"></span><strong>Naranja</strong> — los dos casos a la vez.
-  <br>Podés filtrar estos tipos de parentesco desde el menú de opciones.
+  <span class="border-sample"></span><strong>Borde continuo</strong> — parentesco de sangre.
+  <br><span class="border-sample border-sample--politico"></span><strong>Borde punteado</strong> — parentesco político: el camino pasa por un cónyuge (tuyo o de la persona famosa).
+  <br>Podés filtrar los parentescos políticos desde el menú de opciones.
 </div>
 
 <div class="flex-container">
@@ -50,10 +49,10 @@
     <span class="tooltip">Download</span>
   </button>
 
-  <!-- SLIDER: mostrar solo personas hasta cierta cercania -->
+  <!-- SLIDER: cercanía a la familia = lado más corto del camino (1–39; el último puesto = todos) -->
   <div class="cercania-slider-wrapper">
-    <label for="slider-maxCercania" class="status-text">Cercanía máxima: <span id="maxCercaniaValue">-</span></label>
-    <input type="range" id="slider-maxCercania" min="5" max="50" value="50" step="5">
+    <label for="slider-maxCercania" class="status-text">Cercanía a la familia: <span id="maxCercaniaValue">-</span></label>
+    <input type="range" id="slider-maxCercania" min="1" max="40" value="40" step="1">
   </div>
 
   <!-- FILTRO: árboles que pasan por un padre/abuelo (se completa con los árboles cargados) -->
