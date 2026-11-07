@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <head>
 <meta charset="UTF-8">
 <title>Famous Relatives</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 19a4 4 0 0 1-2.24-7.32A3.5 3.5 0 0 1 9 6.03V6a3 3 0 1 1 6 0v.04a3.5 3.5 0 0 1 3.24 5.65A4 4 0 0 1 16 19Z'/%3E%3Cpath d='M12 19v3' fill='none'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='10.6' y='15' width='2.8' height='8' fill='%236e4828'/%3E%3Cg fill='%234a9e22'%3E%3Ccircle cx='12' cy='6' r='5'/%3E%3Cellipse cx='7.5' cy='12' rx='5.5' ry='5'/%3E%3Cellipse cx='16.5' cy='12' rx='5.5' ry='5'/%3E%3C/g%3E%3C/svg%3E">
 
 <style>
 ${css}

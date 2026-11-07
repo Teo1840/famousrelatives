@@ -7,3 +7,4 @@ listener/state.json
 .claude/settings.local.json
 examples/
 dist/
+desktop.ini
