@@ -19,7 +19,7 @@ jobs:
     name: Extensión (ESLint + manifest)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -54,7 +54,7 @@ jobs:
     name: Python (pytest + flake8)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -79,7 +79,7 @@ jobs:
     name: Buscar secretos (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Revisa los archivos del repo en busca de tokens, cookies y contraseñas.
       # Las excepciones (la anon key pública de Supabase) están en .gitleaks.toml.
