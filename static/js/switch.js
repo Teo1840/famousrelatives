@@ -34,16 +34,17 @@ export function initSwitches() {
       list = list.filter(a => getSortMinSideLength(a) <= maxCercania);
     }
 
-    // Conteos del desplegable de ancestros con los demás filtros ya aplicados.
-    buildAncestorOptions(list);
+    // Ancestro y país: cada desplegable cuenta con todos los demás filtros
+    // aplicados, así el número de cada opción es lo que se va a ver al elegirla.
+    const viewerId = getViewerId(window.arboles);
+    const pasaAncestro = a => !window.activeAncestorFilter ||
+      getViewerAncestors(getDisplayedPath(a), viewerId).some(x => x.person.id === window.activeAncestorFilter);
+    const esDelPais = a => !window.activePaisFilter || (a.paises ?? []).includes(window.activePaisFilter);
 
-    if (window.activeAncestorFilter) {
-      const viewerId = getViewerId(window.arboles);
-      list = list.filter(a =>
-        getViewerAncestors(getDisplayedPath(a), viewerId)
-          .some(x => x.person.id === window.activeAncestorFilter)
-      );
-    }
+    buildAncestorOptions(list.filter(esDelPais));
+    buildPaisOptions(list.filter(pasaAncestro));
+
+    list = list.filter(a => pasaAncestro(a) && esDelPais(a));
 
     const sortByAscToggle = document.getElementById("switch-sortByAsc");
     list = [...list].sort(sortByAscToggle?.checked
@@ -58,20 +59,19 @@ export function initSwitches() {
   }
 
   const TOPIC_DESCRIPTIONS = {
-    "deportistas": `
+    "Deportistas": `
       Grupo de deportistas destacados de la región incluyendo futbolistas y pilotos de automovilismo.
     `,
-    "presidentes uruguayos": `
+    "Presidentes uruguayos": `
       Lista basada en <a href="https://es.wikipedia.org/wiki/Anexo:Gobernantes_de_Uruguay" target="_blank">Wikipedia: Gobernantes de Uruguay</a>.
     `,
-    "treinta y tres orientales": `
+    "Treinta y Tres Orientales": `
       Lista basada en <a href="https://www.geni.com/projects/33-Orientales/8298" target="_blank">Geni: Los 33 Orientales</a>.
       Existen al menos 16 versiones distintas de la lista — los integrantes varían según la fuente histórica.<br>
       <strong>Orientales no encontrados en FamilySearch</strong> (si los encontrás, ¡agregálos!):
-      Francisco Lavalleja, Manuel Lavalleja, Juan Acosta, Basilio Araújo, Juan Arteaga, Felipe Carapé, Andrés Cheveste,
-      Carmelo Colman, Manuel Freire, Javier Chávez Zibil, Tiburcio Gómez, Ignacio Medina, Manuel Meléndez, Avelino Miranda,
-      Santiago Nievas, Ignacio Núñez, Dionisio Oribe, Juan Ortiz, Ramón Ortiz, Juan Rosas, Gregorio Sanabria,
-      Juan Spikerman, Jacinto Trápani, Agustín Velázquez, Pablo Zufriategui, Andrés Areguatí.
+      Juan Acosta, Juan Arteaga, Felipe Carapé, Carmelo Colman, Javier Chávez Zibil, Ignacio Medina, Manuel Meléndez,
+      Avelino Miranda, Santiago Nievas, Ignacio Núñez, Dionisio Oribe, Juan Ortiz, Juan Rosas, Agustín Velázquez,
+      Andrés Areguatí.
     `
   };
 
@@ -187,6 +187,111 @@ export function initSwitches() {
 
     select.value = window.activeAncestorFilter || "";
     select.disabled = found.size === 0;
+  }
+
+  // Código ISO de cada país para mostrar su bandera (flagcdn.com).
+  // Para un país nuevo del CSV hay que agregarlo acá; si falta, no se muestra bandera.
+  const PAIS_ISO = {
+    "Uruguay": "uy", "Argentina": "ar", "Brasil": "br", "Chile": "cl", "Paraguay": "py",
+    "México": "mx", "España": "es", "Italia": "it", "Portugal": "pt", "Francia": "fr",
+    "Alemania": "de", "Reino Unido": "gb", "Estados Unidos": "us", "Perú": "pe",
+    "Bolivia": "bo", "Colombia": "co", "Venezuela": "ve", "Cuba": "cu"
+  };
+
+  function banderaImg(pais) {
+    const iso = pais && PAIS_ISO[pais];
+    if (!iso) return null;
+    const img = document.createElement("img");
+    img.className = "pais-bandera";
+    img.src = `https://flagcdn.com/w40/${iso}.png`;
+    img.alt = "";
+    return img;
+  }
+
+  // 🌎 FILTRO POR PAÍS (columna "pais" de famosos.csv)
+  // Desplegable propio (no <select>) para poder mostrar la bandera en cada opción.
+  // Opciones: todos los países de la lista activa. Conteos: sobre countList.
+  const paisDropdown = document.getElementById("filtro-pais");
+  const paisBtn = paisDropdown?.querySelector(".pais-dropdown-btn");
+  const paisList = paisDropdown?.querySelector(".pais-dropdown-list");
+
+  function abrirPaises(abrir) {
+    if (!paisList || !paisBtn) return;
+    paisList.hidden = !abrir;
+    paisBtn.setAttribute("aria-expanded", String(abrir));
+  }
+
+  function elegirPais(pais) {
+    window.activePaisFilter = pais || null;
+    abrirPaises(false);
+    update();
+  }
+
+  function contenidoPais(el, pais, texto) {
+    el.replaceChildren();
+    const img = banderaImg(pais);
+    if (img) el.appendChild(img);
+    const span = document.createElement("span");
+    span.textContent = texto;
+    el.appendChild(span);
+  }
+
+  function buildPaisOptions(countList) {
+    if (!paisDropdown || !paisBtn || !paisList) return;
+
+    const counts = new Map();
+    (getActiveList() || []).forEach(a => (a.paises || []).forEach(p => counts.has(p) || counts.set(p, 0)));
+    (countList || []).forEach(a => (a.paises || []).forEach(p => counts.has(p) && counts.set(p, counts.get(p) + 1)));
+
+    if (window.activePaisFilter && !counts.has(window.activePaisFilter)) {
+      window.activePaisFilter = null;
+    }
+
+    // Más árboles primero; si empatan, por nombre.
+    const paises = [...counts.entries()].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]));
+
+    const sig = JSON.stringify([window.activePaisFilter, paises]);
+    if (paisDropdown.dataset.sig === sig) return;
+    paisDropdown.dataset.sig = sig;
+
+    const activo = window.activePaisFilter;
+    contenidoPais(paisBtn.querySelector(".pais-dropdown-value"), activo, activo || "Todos los países");
+    paisBtn.disabled = paises.length === 0;
+
+    paisList.replaceChildren();
+    [[null, null], ...paises].forEach(([pais, n]) => {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", String((pais || null) === (activo || null)));
+      li.tabIndex = 0;
+      contenidoPais(li, pais, pais ? `${pais} · ${n} ${n === 1 ? "árbol" : "árboles"}` : "Todos los países");
+      li.addEventListener("click", () => elegirPais(pais));
+      li.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegirPais(pais); }
+      });
+      paisList.appendChild(li);
+    });
+  }
+
+  if (paisDropdown && paisBtn && paisList) {
+    paisBtn.addEventListener("click", () => {
+      abrirPaises(paisList.hidden);
+      if (!paisList.hidden) paisList.querySelector('[aria-selected="true"]')?.focus();
+    });
+    document.addEventListener("click", e => {
+      if (!e.target.closest("#filtro-pais")) abrirPaises(false);
+    });
+    paisDropdown.addEventListener("keydown", e => {
+      if (e.key === "Escape") { abrirPaises(false); paisBtn.focus(); }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const items = [...paisList.querySelectorAll("li")];
+        if (paisList.hidden || !items.length) return;
+        e.preventDefault();
+        const i = items.indexOf(document.activeElement);
+        const next = e.key === "ArrowDown" ? Math.min(i + 1, items.length - 1) : Math.max(i - 1, 0);
+        items[next].focus();
+      }
+    });
   }
 
   const ancestorSelect = document.getElementById("filtro-ancestro");

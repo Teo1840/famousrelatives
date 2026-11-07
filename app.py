@@ -1,16 +1,15 @@
 from dotenv import load_dotenv
 import os
-import shutil
 import subprocess
 import threading
 import time
+import urllib.request
 import zlib
 import logging
 from functools import wraps
 from flask import Response, Flask, render_template, request, jsonify, session, redirect, url_for
-from werkzeug.security import check_password_hash
 
-from services.tree_functions import generate_trees, apply_viewer_portrait
+from services.tree_functions import generate_trees, apply_viewer_portrait, fetch_current_user
 from services.cards import generate_html, serializar_arboles
 from services.csv_validation import validate_csv_file
 
@@ -29,13 +28,11 @@ load_dotenv("/app/listener.env", override=True)
 # -------------------
 from db.db import (
     init_db,
-    crear_usuario,
-    obtener_usuario_por_username,
+    obtener_o_crear_usuario_fs,
     obtener_arboles_usuario,
     obtener_version_arboles,
     obtener_ids_procesados,
     obtener_retrato_usuario,
-    DuplicateUsernameError,
 )
 init_db()
 
@@ -65,7 +62,7 @@ def login_required(view_fn):
 class _SuppressProgressLogs(logging.Filter):
     def filter(self, record):
         msg = record.getMessage()
-        return "/progress" not in msg and "/api/personas-nuevas" not in msg
+        return not any(p in msg for p in ("/progress", "/api/personas-nuevas", "/capture-status"))
 
 logging.getLogger("werkzeug").addFilter(_SuppressProgressLogs())
 
@@ -130,11 +127,9 @@ def _clear_env_token():
 
 
 def _kill_stale_capture_state():
-    """Defensively clear any leftover Brave (9222 debug port /
-    chrome_debug_profile) or `node listen.js` process from a previous capture
-    attempt - including one orphaned by the Werkzeug reloader restarting
-    mid-capture - so every attempt starts from a clean state. Best-effort:
-    must never block a capture attempt if the cleanup itself fails."""
+    """Corta un `node listen.js` que haya quedado de un intento anterior
+    (por ejemplo, si el reloader de Werkzeug reinició a mitad de captura).
+    No toca el navegador: es la misma ventana donde está abierta la app."""
     try:
         subprocess.run(
             [
@@ -148,25 +143,31 @@ def _kill_stale_capture_state():
         pass
 
 
+def _debug_browser_running():
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:9222/json/version", timeout=2):
+            return True
+    except Exception:
+        return False
+
+
 def _run_capture():
+    """Abre FamilySearch en una pestaña nueva del navegador donde está la app
+    (start-system.bat lo abre con el puerto de depuración 9222). Si ese
+    navegador no está abierto, lo abre con el mismo perfil."""
     global _capture_status
-    brave_proc = None
-    close_brave_on_exit = True
     try:
         _kill_stale_capture_state()
         _clear_env_token()
-        shutil.rmtree(PROFILE_DIR, ignore_errors=True)
 
-        brave_proc = subprocess.Popen([
-            BRAVE_PATH,
-            "--remote-debugging-port=9222",
-            f"--user-data-dir={PROFILE_DIR}",
-            "--disable-session-restore",
-            "--no-first-run",
-            "--new-window",
-            "--start-maximized",
-            "https://www.familysearch.org/en/global",
-        ])
+        if not _debug_browser_running():
+            subprocess.Popen([
+                BRAVE_PATH,
+                "--remote-debugging-port=9222",
+                f"--user-data-dir={PROFILE_DIR}",
+                "--no-first-run",
+                "--start-maximized",
+            ])
 
         listener_proc = subprocess.Popen(["node", "listen.js"], cwd=LISTENER_DIR)
 
@@ -179,12 +180,10 @@ def _run_capture():
             return
 
         token = get_env_captured_token()
-        if returncode == 0 and token:
-            with _capture_lock:
+        with _capture_lock:
+            if returncode == 0 and token:
                 _capture_status = {"state": "done", "error": None}
-            close_brave_on_exit = False  # capture succeeded, leave the window open
-        else:
-            with _capture_lock:
+            else:
                 _capture_status = {"state": "error", "error": "El listener no pudo capturar el token"}
     except FileNotFoundError as e:
         with _capture_lock:
@@ -192,17 +191,25 @@ def _run_capture():
     except Exception as e:
         with _capture_lock:
             _capture_status = {"state": "error", "error": str(e)}
-    finally:
-        if close_brave_on_exit and brave_proc is not None and brave_proc.poll() is None:
-            try:
-                brave_proc.kill()
-            except Exception:
-                pass
 
 
 def _found_trees(user_id):
     cache_rows = obtener_arboles_usuario(user_id)
     trees = [r["data"] for r in cache_rows if r["found"] and r["data"]]
+
+    # Datos del CSV (temas, descripción, link a Wikipedia) siempre al día, sin
+    # tener que volver a consultar FamilySearch al editar famosos.csv.
+    try:
+        csv_rows = {r["person_code"]: r for r in validate_csv_file(CSV_PATH)}
+    except ValueError:
+        csv_rows = {}
+    for tree in trees:
+        row = csv_rows.get(tree.get("person_code"))
+        if row:
+            tree["topics"] = row["topics"]
+            tree["info"] = row["info"]
+            tree["wiki"] = row["wiki"]
+            tree["paises"] = row["paises"]
     viewer_id, portrait_url = obtener_retrato_usuario(user_id)
     if viewer_id and portrait_url:
         for tree in trees:
@@ -211,9 +218,14 @@ def _found_trees(user_id):
 
 
 def _version_arboles(user_id):
-    # Incluye la foto de perfil: si cambia, el navegador vuelve a pedir los árboles.
+    # Incluye la foto de perfil y famosos.csv: si cambian, el navegador vuelve
+    # a pedir los árboles en vez de usar su copia local.
     _, portrait_url = obtener_retrato_usuario(user_id)
-    return f"{obtener_version_arboles(user_id)}-{zlib.crc32((portrait_url or '').encode()):x}"
+    try:
+        csv_mtime = int(os.path.getmtime(CSV_PATH))
+    except OSError:
+        csv_mtime = 0
+    return f"{obtener_version_arboles(user_id)}-{zlib.crc32((portrait_url or '').encode()):x}-{csv_mtime}"
 
 
 def _build_dashboard_page():
@@ -229,48 +241,53 @@ def _build_dashboard_page():
 # ROUTES
 # -------------------
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'GET':
-        return render_template("register.html")
-
-    username = request.form.get("username", "").strip()
-    personal_id = request.form.get("personal_id", "")
-
-    if not username or not personal_id:
-        return render_template("register.html", error="Usuario e ID personal son obligatorios"), 400
-
+def _iniciar_sesion_fs(token):
+    """Abre la sesión de la app con la cuenta de FamilySearch dueña del token.
+    No hay usuario ni contraseña propios: la cuenta de FamilySearch es el usuario.
+    Devuelve None si salió bien, o el mensaje de error."""
     try:
-        user_id = crear_usuario(username, personal_id)
-    except DuplicateUsernameError:
-        return render_template("register.html", error="Ese usuario ya existe"), 400
+        cuenta = fetch_current_user(token)
+    except Exception as e:
+        if str(e) == "SESSION_EXPIRED":
+            return "FamilySearch rechazó el token. Volvé a iniciar sesión."
+        return f"No se pudo consultar FamilySearch: {e}"
+    if not cuenta:
+        return "No se pudo saber qué cuenta de FamilySearch inició sesión. ¿Está corriendo el proxy?"
 
+    person_id, nombre = cuenta
+    user_id = obtener_o_crear_usuario_fs(person_id)
+    if session.get("user_id") != user_id:
+        session.clear()  # otra cuenta: no mezclar nada de la anterior
     session["user_id"] = user_id
-    session["username"] = username
-    return redirect(url_for("index"))
+    session["username"] = nombre
+    session["familysearch_token"] = token
+    return None
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template("login.html")
+        if "user_id" in session:
+            return redirect(url_for("index"))
+        # Después de cerrar sesión no se abre FamilySearch solo.
+        return render_template("login.html", auto_start=request.args.get("salir") is None)
 
-    username = request.form.get("username", "").strip()
-    personal_id = request.form.get("personal_id", "")
-
-    user = obtener_usuario_por_username(username)
-    if not user or not check_password_hash(user["password_hash"], personal_id):
-        return render_template("login.html", error="Usuario o ID personal incorrecto"), 400
-
-    session["user_id"] = user["id"]
-    session["username"] = user["username"]
+    # Token pegado a mano (alternativa al capturador).
+    token = request.form.get("token", "").strip()
+    if not token:
+        return render_template("login.html", error="Pegá un token.", auto_start=False), 400
+    error = _iniciar_sesion_fs(token)
+    if error:
+        return render_template("login.html", error=error, auto_start=False), 400
     return redirect(url_for("index"))
 
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for("login"))
+    # Si no, el próximo inicio de sesión tomaría el mismo token sin pasar por FamilySearch.
+    _clear_env_token()
+    return redirect(url_for("login", salir=1))
 
 
 @app.route('/')
@@ -338,12 +355,12 @@ def progress():
 
 
 @app.route('/capture-token', methods=['POST'])
-@login_required
 def capture_token():
     global _capture_status
     with _capture_lock:
         if _capture_status["state"] == "waiting":
-            return jsonify({"started": False, "error": "Ya hay una captura en curso."})
+            # Ya hay una captura abierta: esta página espera la misma.
+            return jsonify({"started": True})
         _capture_status = {"state": "waiting", "error": None}
 
     threading.Thread(target=_run_capture, daemon=True).start()
@@ -351,16 +368,17 @@ def capture_token():
 
 
 @app.route('/capture-status')
-@login_required
 def capture_status():
     with _capture_lock:
         status = dict(_capture_status)
 
     if status["state"] == "done":
-        # Claim the capture into *this* browser session only - never the DB.
+        # El token queda solo en la sesión de este navegador, nunca en la BD.
+        # Con él se sabe qué cuenta de FamilySearch entró y se abre la sesión.
         token = get_env_captured_token()
-        if token:
-            session["familysearch_token"] = token
+        error = _iniciar_sesion_fs(token) if token else "No se encontró el token capturado."
+        if error:
+            status = {"state": "error", "error": error}
 
     return jsonify(status)
 

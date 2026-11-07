@@ -43,15 +43,37 @@ famousrelatives/
 │   └── validators.py
 ├── static/
 ├── templates/
-│   ├── login.html            # Site login (username + personal ID)
-│   ├── register.html         # Site account creation
+│   ├── login.html            # Sign-in page: opens FamilySearch via the token capturer
 │   ├── dashboard_header.html # Logged-in header: token status + actions menu
 │   ├── plantilla_arboles.html # Main results page (cards + graph)
 │   └── loading.html
 └── reference/               # Example FamilySearch API responses (for development)
 ```
 
-## Setup
+## Browser extension (recommended for family use)
+`extension/` is a self-contained Chrome/Edge/Brave extension that replaces the whole local stack (Flask, proxy, token listener, MySQL, Docker):
+- **Login:** reads the `fssessionid` cookie of the FamilySearch session already open in the browser (no capture script).
+- **API calls:** made directly from the extension with that session as a Bearer token (no proxy). Same rate limiting and retries as `fs_proxy.py`.
+- **Cache:** IndexedDB in each user's browser, per FamilySearch account. Family data never leaves the computer.
+- **Famous people list:** read-only from Supabase (`famosos` and `categorias` tables, see `supabase/schema.sql`). Edit the list in the Supabase Table Editor and everyone gets it on the next open.
+
+```
+extension/
+├── manifest.json, background.js, app.html, config.js (Supabase URL + public anon key)
+└── js/
+    ├── fs-api.js    # FamilySearch requests (port of fs_proxy.py)
+    ├── trees.js     # relationship parsing/caching (port of services/tree_functions.py)
+    ├── store.js     # IndexedDB (replaces db/db.py)
+    ├── famosos.js   # Supabase list + offline copy
+    ├── session.js   # FamilySearch login detection
+    └── app.js       # startup, progress, actions menu (replaces app.py)
+```
+
+- Build the zip to share: `powershell -File scripts\build-extension.ps1` → `dist\famousrelatives-extension.zip`.
+- Install steps for non-technical users: `extension/INSTALAR.md`.
+- Load the famous people list into Supabase from `famosos.csv`: `python scripts/seed_supabase.py`, then run `supabase/seed.sql` in the Supabase SQL editor.
+
+## Setup (local Flask version)
 
 ### Requirements
 - Python 3.10+
@@ -89,7 +111,7 @@ This launches the MySQL container, the local FamilySearch proxy, and the Flask a
 ```
 stop-system.bat
 ```
-Stops everything belonging to this project: `app.py` (both the Werkzeug reloader parent and worker, whether launched from the venv or a global `python` on PATH), `fs_proxy.py`, any running `node listen.js`, and any Brave window opened for token capture (matched by the `--remote-debugging-port=9222` flag or the `chrome_debug_profile` folder). Safe to run even if nothing is currently running.
+Stops everything belonging to this project: `app.py` (both the Werkzeug reloader parent and worker, whether launched from the venv or a global `python` on PATH), `fs_proxy.py`, any running `node listen.js`, and the app's Brave window (matched by the `--remote-debugging-port=9222` flag or the `chrome_debug_profile` folder). Safe to run even if nothing is currently running.
 
 ### Manual startup
 ```bash
@@ -106,9 +128,8 @@ python app.py
 ```
 
 ## Core workflow
-1. User registers/logs in to the app itself (own account, unrelated to FamilySearch).
-2. From the dashboard's "⋯" actions menu, the user runs the token capturer or pastes a token manually. This is required again every new browser session, since the token is never persisted.
-   - Running the capturer opens a Brave window on FamilySearch and a listener that grabs the session token via Chrome DevTools Protocol once the user logs in there. Each click first cleans up any leftover Brave/listener process from a previous attempt before starting fresh — no manual process killing needed.
+1. The user signs in with FamilySearch: the sign-in page runs the token capturer automatically (or accepts a pasted token). The app asks FamilySearch who owns the token (`/platform/users/current`) and uses that FamilySearch person ID as the app account. There is no separate username or password. The capturer can be run again from the dashboard's settings menu when the token expires.
+   - `start-system.bat` opens the app in Brave with the DevTools port 9222 and its own profile (`chrome_debug_profile`). Running the capturer opens FamilySearch in a new tab of that same window; a listener grabs the session token via Chrome DevTools Protocol once the user logs in (instantly if already logged in), closes that tab and switches back to the app. If that browser isn't running, the capturer opens it. Each click first stops any leftover listener from a previous attempt.
 3. App loads a CSV with a curated list of FamilySearch person IDs.
 4. Person IDs are processed in parallel in the background (`MAX_WORKERS`, default 2):
    - Check cache (no automatic expiry) to avoid repeated API calls.
@@ -118,9 +139,10 @@ python app.py
 6. The dashboard opens right away and polls `/progress`; each tree appears as soon as it's saved.
 
 ## Authentication & Security
-- The app has its own account system (`usuarios` table): a username plus a personal ID chosen at registration, hashed and stored as the login password. This is unrelated to a FamilySearch login.
+- There are no app passwords: an account is a row in `usuarios` keyed by the FamilySearch person ID (`viewer_person_id`), created on first sign-in. `username` and `password_hash` are unused leftovers kept because the columns are NOT NULL.
+- Signing out clears the session and the captured token in `.env`, and the sign-in page doesn't reopen FamilySearch on its own after that.
 - The FamilySearch token is **never persisted server-side** (not in the DB, not on disk beyond the brief capture hand-off below). It lives only in the browser's Flask session cookie, so it disappears when the browser closes or the user logs out — every new session needs a fresh capture or paste.
-- The FamilySearch token is only ever captured on demand — never automatically on startup or login — via the "Ejecutar capturador de token" action, which opens a fresh Brave profile and a listener (CDP) that writes the captured token to `.env`. The next `/capture-status` poll from that browser reads it from `.env` and stores it in that browser's session only.
+- The FamilySearch token is only captured on demand — from the sign-in page or the "Ejecutar capturador de token" action, never on startup — which opens FamilySearch in a new tab of the app's browser and runs a listener (CDP) that writes the captured token to `.env`. The next `/capture-status` poll from that browser reads it from `.env` and stores it in that browser's session only.
 - Only one capture can run at a time (shared Chrome debug profile), so usage across accounts must be sequential.
 - The `.env` file is gitignored — never commit it.
 - Note: the `usuarios` table still has unused `familysearch_token`/`token_updated_at` columns left over from an earlier DB-persisted design; they're dead schema now, kept rather than dropped to avoid an unprompted destructive migration.

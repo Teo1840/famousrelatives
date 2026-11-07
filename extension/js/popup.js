@@ -1,0 +1,166 @@
+import { buildGraph } from './graph.js';
+import { shouldUseDirectPath } from './main.js';
+import { generarUUID } from './utils.js';
+import { computeRelationshipDescription } from './relationship.js';
+
+export function showPopup(currentIndex) {
+  const list = window.visibleList || [];
+  const a = list[currentIndex];
+  if (!a) return;
+
+  renderPopupInfo(a);
+
+  requestAnimationFrame(() => {
+    renderGraph(a, shouldUseDirectPath(a));
+  });
+
+  document.getElementById('popup').style.display = 'flex';
+}
+
+function renderGraph(a, useDirectPath) {
+  const container = document.getElementById('mynetwork');
+  if (!container) return;
+
+  // 🔥 limpiar contenido previo
+  container.innerHTML = "";
+
+  const isDark = document.body.classList.contains('dark-mode');
+
+  const { nodes, edges } = buildGraph(
+    a,
+    generarUUID,
+    useDirectPath,
+    isDark
+  );
+
+  // 🔥 destruir grafo anterior
+  if (window.network) {
+    window.network.destroy();
+    window.network = null;
+  }
+
+  if (!nodes.length) {
+    container.innerHTML = "<p>No hay datos para mostrar</p>";
+    return;
+  }
+
+  const data = {
+    nodes: new vis.DataSet(nodes),
+    edges: new vis.DataSet(edges)
+  };
+
+  const options = {
+    physics: false,
+    nodes: {
+      font: {
+        color: isDark ? '#e4e6eb' : '#222222',
+        size: 14,
+        strokeWidth: isDark ? 3 : 2,
+        strokeColor: isDark ? '#0f1115' : '#ffffff'
+      },
+      color: {
+        border: isDark ? '#2a2f3a' : '#cccccc',
+        highlight: { border: '#84b943', background: isDark ? '#1e2d12' : '#f0f8e0' },
+        hover:     { border: '#84b943', background: isDark ? '#1e2d12' : '#f0f8e0' }
+      }
+    },
+    edges: {
+      color: {
+        color:     isDark ? '#84b943' : '#4a9e22',
+        highlight: isDark ? '#b8d96e' : '#2e7d32',
+        hover:     isDark ? '#b8d96e' : '#2e7d32'
+      },
+      width: 2,
+      smooth: {
+        type: "cubicBezier",
+        roundness: 0.5
+      }
+    }
+  };
+
+  window.network = new vis.Network(container, data, options);
+  window.network.fit();
+
+  window.network.on("doubleClick", function (params) {
+    if (params.nodes.length > 0) {
+      const nodeData = data.nodes.get(params.nodes[0]);
+      if (nodeData?.fsId) {
+        window.open(
+          `https://www.familysearch.org/en/tree/person/details/${nodeData.fsId}`,
+          '_blank'
+        );
+      }
+    }
+  });
+}
+
+function renderPopupInfo(a) {
+  const container = document.getElementById('popup-body');
+  if (!container) return;
+
+  const useDirect = shouldUseDirectPath(a);
+  const valor = useDirect
+    ? (a.direct_length ?? '')
+    : (a.cercania ?? '');
+
+  const directPath = a.directPath;
+  const relDesc = (useDirect && directPath)
+    ? computeRelationshipDescription(
+        directPath.asc.length,
+        directPath.desc.length,
+        a.name,
+        directPath.desc.at(-1)?.gender || ""
+      )
+    : (a.relationshipDescription || '');
+
+  container.innerHTML = `
+    <h3>${a.name}</h3>
+    <img src="${a.portraitUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'}" width="200">
+    <p><i>${relDesc}</i></p>
+    <p><b>${'Cercanía'}:</b> ${valor}</p>
+    <p><b>Código:</b> <a href="https://www.familysearch.org/en/tree/person/details/${a.person_code}" target="_blank" rel="noopener">${a.person_code}</a></p>
+    <pre>${a.detalle || ''}</pre>
+  `;
+
+  // Foto rota → foto genérica (las extensiones no permiten onerror="..." en el HTML).
+  const img = container.querySelector('img');
+  img?.addEventListener('error', () => {
+    img.src = 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png';
+  }, { once: true });
+}
+
+export function closePopup() {
+  const popup = document.getElementById('popup');
+  if (popup) {
+    popup.style.display = 'none';
+  }
+
+  // 🔥 limpiar grafo al cerrar
+  if (window.network) {
+    window.network.destroy();
+    window.network = null;
+  }
+}
+
+export function nextPopup(e) {
+  e.stopPropagation();
+
+  const list = window.visibleList || [];
+  if (!list?.length) return;
+
+  window.currentIndex = (window.currentIndex + 1) % list.length;
+
+  showPopup(window.currentIndex);
+}
+
+export function prevPopup(e) {
+  e.stopPropagation();
+
+  const list = window.visibleList || [];
+  if (!list?.length) return;
+
+  window.currentIndex =
+    (window.currentIndex - 1 + list.length) % list.length;
+
+  showPopup(window.currentIndex);
+}

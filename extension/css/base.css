@@ -1,0 +1,417 @@
+/* =========================
+   VARIABLES (LIGHT)
+========================= */
+:root {
+  --bg: #ececec;
+  --text: #222;
+  --title: #111;
+
+  --card-bg: #fff;
+  --card-text: #222;
+  --card-shadow: rgba(0,0,0,0.15);
+  --card-hover-shadow: rgba(0,0,0,0.25);
+
+  --border: #ddd;
+
+  --popup-bg: #fff;
+  --popup-text: #222;
+  --popup-pre: #f4f4f4;
+
+  --overlay: rgba(0,0,0,0.5);
+
+  --graph-bg: #fff;
+
+  --btn-bg: white;
+  --btn-hover: rgb(132, 185, 67);
+  --icon-fill: rgb(168, 199, 129);
+  --icon-border: rgb(156, 197, 106);
+  --tooltip-bg: rgb(12, 12, 12);
+  --tooltip-text: white;
+
+  /* Borde de tarjeta: continuo = sangre, punteado = político */
+  --card-kin-border: rgb(92, 150, 30);
+
+  --switch-track-off: rgb(190, 224, 149);
+  --switch-track-on: rgb(132, 185, 67);
+
+  --popup-border: transparent;
+
+  --chip-bg: #e0e0e0;
+  --chip-text: #333;
+  --chip-active-bg: rgb(132, 185, 67);
+  --chip-active-text: white;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+body.dark-mode {
+  color-scheme: dark;
+
+  --bg: #0f1115;
+  --text: #e4e6eb;
+  --title: #ffffff;
+
+  --card-bg: #181a20;
+  --card-text: #d1d5db;
+  --card-shadow: rgba(0,0,0,0.6);
+  --card-hover-shadow: rgba(0,0,0,0.9);
+
+  --border: #2a2f3a;
+
+  --popup-bg: #1c1f26;
+  --popup-text: #e5e7eb;
+  --popup-pre: #111318;
+  --popup-border: #2e3340;
+
+  --overlay: rgba(0,0,0,0.75);
+
+  --graph-bg: #14171c;
+
+  --btn-bg: #1f232b;
+  --btn-hover: #84b943;
+
+  --icon-fill: #9fbf6b;
+  --icon-border: #84b943;
+
+  --tooltip-bg: #0b0d11;
+  --tooltip-text: #e6e6e6;
+
+  --card-kin-border: #84b943;
+
+  --switch-track-off: #2d3748;
+  --switch-track-on: #84b943;
+
+  --chip-bg: #2a2f3a;
+  --chip-text: #e4e6eb;
+  --chip-active-bg: #84b943;
+  --chip-active-text: white;
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  font-family: "Open Sans", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* =========================
+   TITLES
+========================= */
+h1, h2 {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  text-align: center;
+  color: var(--title);
+  margin-top: 20px;
+}
+
+/* =========================
+   FLEX HEADER
+========================= */
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 10px;
+  font-family: "Open Sans", sans-serif;
+}
+
+.status-text {
+  font-size: 14px;
+  user-select: none;
+}
+
+/* =========================
+   GRID
+========================= */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  justify-items: center;
+  margin: 20px auto;
+  max-width: 1000px;
+}
+
+@media (max-width: 900px) {
+  .grid-container { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .grid-container { grid-template-columns: 1fr; }
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 12px;
+  width: 90%;
+  max-width: 280px;
+  text-align: center;
+
+  background: var(--card-bg);
+  color: var(--card-text);
+
+  box-shadow: 0 2px 5px var(--card-shadow);
+  border: 4px solid var(--card-kin-border);
+
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s, color 0.3s, border-color 0.3s 0.15s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px var(--card-hover-shadow);
+}
+
+.card h3 {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* =========================
+   GRAPH
+========================= */
+#mynetwork {
+  width: 100%;
+  height: 500px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--graph-bg);
+}
+
+/* =========================
+   COUNTER
+========================= */
+#list-count {
+  font-family: "Open Sans", sans-serif;
+  font-size: 24px;
+}
+
+/* =========================
+   DARK MODE SCROLLBAR
+========================= */
+body.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #1a1d24;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: #3a3f4b;
+  border-radius: 4px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #4e5566;
+}
+
+/* =========================
+   DARK MODE SELECTION
+========================= */
+body.dark-mode ::selection {
+  background: rgba(132, 185, 67, 0.3);
+  color: var(--text);
+}
+
+/* =========================
+   COLOR LEGEND
+========================= */
+#color-legend {
+  max-width: 700px;
+  margin: 4px auto 0;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--popup-pre);
+  color: var(--text);
+  font-size: 0.88em;
+  text-align: center;
+  line-height: 2;
+}
+
+/* Parentesco político (a través de un cónyuge): mismo verde, punteado */
+.card.card--politico {
+  border-style: dashed;
+}
+
+/* Muestras de borde para la leyenda */
+.border-sample {
+  display: inline-block;
+  width: 18px;
+  height: 12px;
+  border-radius: 3px;
+  border: 3px solid var(--card-kin-border);
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.border-sample--politico { border-style: dashed; }
+
+/* =========================
+   TOPIC CHIPS
+========================= */
+.topic-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-size: 0.85em;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.topic-chip.active,
+.topic-chip:hover {
+  background: var(--chip-active-bg);
+  color: var(--chip-active-text);
+}
+
+/* =========================
+   TOPIC DESCRIPTION
+========================= */
+#topic-description {
+  max-width: 700px;
+  margin: 4px auto 12px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--popup-pre);
+  color: var(--text);
+  font-size: 0.88em;
+  text-align: center;
+  line-height: 1.6;
+}
+
+#topic-description a {
+  color: var(--chip-active-bg);
+  text-decoration: underline;
+}
+
+/* =========================
+   FILTRO POR ANCESTRO
+========================= */
+.ancestro-filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtro-select {
+  max-width: 360px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--chip-active-bg);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-family: inherit;
+  font-size: 0.85em;
+}
+
+/* =========================
+   SLIDER DE CERCANÍA
+========================= */
+/* Ancho fijo para el valor ("1"…"39" o "todos") así la barra no se corre al cambiar */
+#maxCercaniaValue {
+  display: inline-block;
+  min-width: 5.5ch;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Link a Wikipedia en la tarjeta */
+.card-wiki {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--card-kin-border);
+  text-decoration: none;
+}
+
+.card-wiki:hover {
+  text-decoration: underline;
+}
+
+/* Desplegable de país (propio, para poder mostrar banderas en las opciones) */
+.pais-dropdown {
+  position: relative;
+}
+
+.pais-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.pais-dropdown-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.pais-dropdown-value,
+.pais-dropdown-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pais-dropdown-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 300;
+  min-width: 100%;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border-radius: 8px;
+  border: 1px solid var(--chip-active-bg);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  font-size: 0.85em;
+}
+
+.pais-dropdown-list[hidden] {
+  display: none;
+}
+
+.pais-dropdown-list li {
+  display: flex;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pais-dropdown-list li:hover,
+.pais-dropdown-list li:focus,
+.pais-dropdown-list li[aria-selected="true"] {
+  background: var(--chip-active-bg);
+  color: var(--chip-active-text);
+  outline: none;
+}
+
+.pais-bandera {
+  width: 22px;
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--border);
+  flex-shrink: 0;
+}

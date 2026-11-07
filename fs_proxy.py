@@ -71,6 +71,11 @@ def proxy(persona_id):
             'includePhotos': request.args.get('includePhotos', 'true'),
             'treeId': request.args.get('treeId', 'PRIVATE'),
         }
+    elif endpoint == "current-user":
+        # Quién inició sesión (personId en el árbol y nombre). persona_id se ignora.
+        url = "https://www.familysearch.org/platform/users/current"
+        headers['Accept'] = 'application/x-fs-v1+json, application/json'
+        params = {}
     elif endpoint == "portrait":
         url = f"https://www.familysearch.org/service/memories/tps/persons/{persona_id}/portrait"
         params = {}

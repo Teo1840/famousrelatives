@@ -239,7 +239,8 @@ def generate_trees(codigos, token, user_id, force_refresh=False, on_progress=Non
         if session_expired.is_set():
             return i, None
         try:
-            tree = _process_one(codigo, session, token, viewer_state, user_id, force_refresh, counter, total, on_progress)
+            tree = _process_one(codigo, session, token, viewer_state, user_id,
+                                force_refresh, counter, total, on_progress)
             return i, tree
         except Exception as e:
             if str(e) == "SESSION_EXPIRED":
@@ -446,6 +447,20 @@ def fetch_viewer_portrait(session, person_id, token):
     if not data:
         return None
     return data.get("_links", {}).get("thumbSquare", {}).get("href")
+
+
+def fetch_current_user(token):
+    """(person_id, nombre) de la cuenta de FamilySearch dueña del token.
+    None si no se pudo consultar; lanza SESSION_EXPIRED si el token no sirve."""
+    data = fetch_tree_from_api(get_session(), "me", token, endpoint="current-user")
+    if not isinstance(data, dict):
+        return None
+    user = (data.get("users") or [{}])[0]
+    person_id = user.get("personId")
+    if not person_id:
+        return None
+    name = user.get("displayName") or user.get("contactName") or person_id
+    return person_id, name
 
 
 def _viewer_id_from_trees(trees):

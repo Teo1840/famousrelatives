@@ -3,7 +3,7 @@ import logging
 from services.validators import validate_row
 
 REQUIRED_COLUMNS = {"person_code", "name", "info"}
-OPTIONAL_COLUMNS = {"topics"}
+OPTIONAL_COLUMNS = {"topics", "pais", "wiki"}
 
 def validate_csv_schema(headers):
     headers_set = set(headers)

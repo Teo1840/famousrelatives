@@ -27,6 +27,19 @@ def validate_topics(topics_str):
         return []
     return [t.strip() for t in topics_str.split(",") if t.strip()]
 
+def validate_wiki(url):
+    """Opcional: link a un artículo de Wikipedia (https://xx.wikipedia.org/...).
+    Un link mal escrito se ignora (con aviso) en vez de descartar a la persona."""
+    import re
+    import logging
+    if not url or not isinstance(url, str) or not url.strip():
+        return None
+    url = url.strip()
+    if not re.match(r"^https://[a-z\-]+\.wikipedia\.org/wiki/\S+$", url):
+        logging.warning(f"Link de Wikipedia inválido, se ignora: {url}")
+        return None
+    return url
+
 def validate_row(row):
     """
     Valida una fila completa del CSV.
@@ -37,5 +50,8 @@ def validate_row(row):
         "person_code": validate_person_code(row["person_code"]),
         "name": validate_name(row["name"]),
         "info": validate_info(row["info"]),
-        "topics": validate_topics(row.get("topics", ""))
+        "topics": validate_topics(row.get("topics", "")),
+        # País con el que se asocia a la persona; puede haber varios separados por coma
+        "paises": validate_topics(row.get("pais", "")),
+        "wiki": validate_wiki(row.get("wiki"))
     }

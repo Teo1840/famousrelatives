@@ -11,6 +11,8 @@ def serializar_arboles(arboles_ordenados):
             "name": a.get('name', ''),
             "info": a.get('info', ''),
             "topics": a.get('topics', []),
+            "wiki": a.get('wiki'),
+            "paises": a.get('paises', []),
             "cercania": a.get('cercania', 0),
             "relationshipDescription": a.get('relationshipDescription', ''),
 

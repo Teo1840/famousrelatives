@@ -84,8 +84,8 @@ export function getDisplayedPath(a) {
 }
 
 // --- Filtro por ancestro (padres / abuelos) ---
-// 1 = padres, 2 = abuelos. Subir a 3 para incluir bisabuelos.
-const MAX_GEN_ANCESTRO = 2;
+// 1 = padres, 2 = abuelos, 3 = bisabuelos.
+const MAX_GEN_ANCESTRO = 3;
 
 // ID del usuario: la última persona de "asc" que más se repite entre los árboles.
 export function getViewerId(arboles) {
@@ -126,6 +126,7 @@ window.closePopup = closePopup;
 window.currentIndex = 0;
 window.activeTopicFilter = null;
 window.activeAncestorFilter = null;
+window.activePaisFilter = null;
 
 function iniciarDashboard() {
   window.fullList = window.arboles;

@@ -6,3 +6,4 @@ listener/node_modules/
 listener/state.json
 .claude/settings.local.json
 examples/
+dist/

@@ -1,6 +1,4 @@
-import mysql.connector
 from mysql.connector.pooling import MySQLConnectionPool
-from werkzeug.security import generate_password_hash
 import json
 import os
 import time
@@ -8,9 +6,6 @@ import time
 from dotenv import load_dotenv
 load_dotenv()
 
-
-class DuplicateUsernameError(Exception):
-    pass
 
 _pool = None
 
@@ -202,46 +197,31 @@ def init_db():
     conn.commit()
     conn.close()
 
-def crear_usuario(username, personal_id):
+def obtener_o_crear_usuario_fs(person_id):
+    """Id del usuario de la app para una cuenta de FamilySearch (su personId).
+    Si hay más de una fila con ese personId, usa la que tiene más árboles."""
     conn = get_pool().get_connection()
     cur = conn.cursor()
-
-    password_hash = generate_password_hash(personal_id)
     try:
+        cur.execute("""
+            SELECT u.id FROM usuarios u
+            WHERE u.viewer_person_id=%s
+            ORDER BY (SELECT COUNT(*) FROM arboles a WHERE a.user_id=u.id) DESC, u.id
+            LIMIT 1
+        """, (person_id,))
+        row = cur.fetchone()
+        if row:
+            return row[0]
+        # Ya no hay usuario ni contraseña: username y password_hash quedan
+        # solo porque la tabla los exige.
         cur.execute(
-            "INSERT INTO usuarios (username, password_hash) VALUES (%s, %s)",
-            (username, password_hash)
+            "INSERT INTO usuarios (username, password_hash, viewer_person_id) VALUES (%s, '', %s)",
+            (f"fs:{person_id}", person_id)
         )
         conn.commit()
         return cur.lastrowid
-    except mysql.connector.IntegrityError:
-        conn.rollback()
-        raise DuplicateUsernameError(f"El usuario '{username}' ya existe")
     finally:
         conn.close()
-
-def _row_to_usuario(row):
-    if not row:
-        return None
-    id_, username, password_hash = row
-    return {
-        "id": id_,
-        "username": username,
-        "password_hash": password_hash
-    }
-
-def obtener_usuario_por_username(username):
-    conn = get_pool().get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "SELECT id, username, password_hash FROM usuarios WHERE username=%s",
-        (username,)
-    )
-    row = cur.fetchone()
-    conn.close()
-
-    return _row_to_usuario(row)
 
 def guardar_retrato_usuario(user_id, viewer_person_id, portrait_url):
     conn = get_pool().get_connection()

@@ -38,7 +38,11 @@ export function createCard(a) {
     <small><i>${relDesc}</i></small><br>
     <small class="metric"></small><br>
     <small>${a.info || ""}</small>
+    ${a.wiki ? `<br><a class="card-wiki" href="${a.wiki}" target="_blank" rel="noopener">Wikipedia ↗</a>` : ""}
   `;
+
+  // El link abre Wikipedia sin abrir el popup de la tarjeta.
+  card.querySelector(".card-wiki")?.addEventListener("click", e => e.stopPropagation());
 
   // 🔥 CLICK → abre popup (sin romper arquitectura)
   card.addEventListener("click", () => {

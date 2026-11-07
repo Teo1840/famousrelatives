@@ -55,10 +55,22 @@
     <input type="range" id="slider-maxCercania" min="1" max="40" value="40" step="1">
   </div>
 
+  <!-- FILTRO: país de la persona famosa (columna "pais" de famosos.csv) -->
+  <div class="ancestro-filter-wrapper">
+    <span class="status-text" id="filtro-pais-label">País:</span>
+    <div id="filtro-pais" class="pais-dropdown">
+      <button type="button" class="filtro-select pais-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="filtro-pais-label" disabled>
+        <span class="pais-dropdown-value"><span>Todos los países</span></span>
+        <span class="pais-dropdown-caret" aria-hidden="true">▾</span>
+      </button>
+      <ul class="pais-dropdown-list" role="listbox" aria-labelledby="filtro-pais-label" hidden></ul>
+    </div>
+  </div>
+
   <!-- FILTRO: árboles que pasan por un padre/abuelo (se completa con los árboles cargados) -->
   <div class="ancestro-filter-wrapper">
     <label for="filtro-ancestro" class="status-text">Pasa por:</label>
-    <select id="filtro-ancestro" disabled>
+    <select id="filtro-ancestro" class="filtro-select" disabled>
       <option value="">Todas las ramas</option>
     </select>
   </div>

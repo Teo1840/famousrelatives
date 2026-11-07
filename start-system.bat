@@ -98,16 +98,13 @@ timeout /t 3 /nobreak >nul
 REM ==========================
 REM BROWSER: abrir directo la app
 REM ==========================
-REM El login/captura de FamilySearch ya no se dispara aca: se hace desde
-REM el boton "Ejecutar capturador de token" dentro de la app (app.py
-REM abre Brave con el debug port y corre listener\listen.js bajo demanda).
-REM NO usa --user-data-dir=PROFILE_DIR aca a proposito: ese perfil es
-REM exclusivo de la captura de token, y stop-system.ps1 mata cualquier
-REM Brave que lo use (incluidos sus procesos hijos) cada vez que se
-REM ejecuta el capturador. Si esta ventana compartiera el perfil, se
-REM cerraria sola en cada captura.
+REM Se abre con el puerto de depuracion 9222 y un perfil propio para que el
+REM boton "Ejecutar capturador de token" abra FamilySearch en una pestana
+REM nueva de esta misma ventana (listener\listen.js) en vez de otro Brave.
 start "" "%BROWSER%" ^
---new-window ^
+--remote-debugging-port=9222 ^
+--user-data-dir="%PROFILE_DIR%" ^
+--no-first-run ^
 --start-maximized ^
 "http://localhost:5000/"
 

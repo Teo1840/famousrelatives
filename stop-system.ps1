@@ -39,15 +39,16 @@ function Stop-Matching {
 
 Write-Info "=== Deteniendo procesos de FamousRelatives (Scope=$Scope) ==="
 
-# 1. Brave de captura de token - siempre, para liberar el puerto 9222 y el
-#    lock del perfil antes de tocar cualquier otra cosa.
-$bravePattern = '(?i)(--remote-debugging-port=9222|' + $ProfileDirEscaped + ')'
-Stop-Matching -ProcessNames @('brave.exe') -Pattern $bravePattern -Label "Brave (captura de token)"
-
-# 2. node listen.js - siempre.
+# 1. node listen.js - siempre.
 Stop-Matching -ProcessNames @('node.exe') -Pattern '(?i)listen\.js' -Label "listener (node listen.js)"
 
 if ($Scope -eq "All") {
+    # 2. Brave de la app (puerto 9222 / chrome_debug_profile). Es la misma
+    #    ventana donde corre la app y el capturador, asi que solo se cierra
+    #    al reiniciar o detener todo el sistema, nunca en una captura.
+    $bravePattern = '(?i)(--remote-debugging-port=9222|' + $ProfileDirEscaped + ')'
+    Stop-Matching -ProcessNames @('brave.exe') -Pattern $bravePattern -Label "Brave (app y captura de token)"
+
     # 3. app.py - matchea tanto el proceso padre (reloader) como el worker de
     #    Werkzeug, y tanto python.exe del venv como uno global del PATH,
     #    porque el match es por contenido de linea de comando, no por ruta.
@@ -63,7 +64,7 @@ if ($Scope -eq "All") {
 
 Start-Sleep -Milliseconds 500
 
-$ports = if ($Scope -eq "All") { @(5000, 5001, 9222) } else { @(9222) }
+$ports = if ($Scope -eq "All") { @(5000, 5001, 9222) } else { @() }
 foreach ($port in $ports) {
     $listening = netstat -ano | Select-String ":$port\s.*LISTENING"
     if ($listening) {
