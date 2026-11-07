@@ -68,12 +68,12 @@ Removing someone from `famosos` hides them from everyone's dashboard. To bulk-lo
 - `examples/` (exported family trees) and `.env` are gitignored: they contain private data.
 
 ## Legacy: local Flask version
-The original version is still in the repo: a Flask app (`app.py`, `templates/`, `static/`), a local proxy (`fs_proxy.py`), a Node token capturer (`listener/`, via Chrome DevTools Protocol) and a MySQL cache (`db/`, in Docker). The extension replaces all of it; `trees.js` and `fs-api.js` are ports of `services/tree_functions.py` and `fs_proxy.py`.
+The original version is still in the repo: a Flask app (`app.py`, `templates/`, `static/`), a local proxy (`fs_proxy.py`), a Node token capturer (`listener/`, via Chrome DevTools Protocol) and a local SQLite cache (`db/db.py`). The extension replaces all of it; `trees.js` and `fs-api.js` are ports of `services/tree_functions.py` and `fs_proxy.py`.
 
-To run it on Windows: create a `.env` (`SECRET_KEY`, `DB_*`, browser headers; see `app.py` and `fs_proxy.py`), then run `start-system.bat` (starts MySQL, proxy and Flask, opens `http://localhost:5000`). Stop it with `stop-system.bat`. It reads the list from `famosos.csv`, not Supabase.
+To run it on Windows: create a `.env` with `SECRET_KEY` (plus optional browser headers; see `fs_proxy.py`), then run `start-system.bat` (starts the proxy and Flask, opens `http://localhost:5000`). Stop it with `stop-system.bat`. The cache is a single file, `data/famousrelatives.db`, created automatically (gitignored: it holds family trees; change the location with `DB_PATH`). No Docker or MySQL needed. It reads the list from `famosos.csv`, not Supabase.
 
 ## Tech stack
-JavaScript (Manifest V3 extension, IndexedDB) · vis-network (graphs) · Supabase (Postgres) · Python (seed script, legacy Flask app) · GitHub Actions (tests)
+JavaScript (Manifest V3 extension, IndexedDB) · vis-network (graphs) · Supabase (Postgres) · Python (seed script, legacy Flask app + SQLite) · GitHub Actions (tests)
 
 ## Roadmap
 - [x] Timeouts, retries and rate limiting for FamilySearch calls

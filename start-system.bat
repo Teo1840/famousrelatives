@@ -38,7 +38,7 @@ set "NODE=node"
 set "BROWSER=C:\Users\abc\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe"
 
 REM Without this, Python's stdout defaults to the console's codepage (not UTF-8),
-REM and the emoji in db.py's startup prints crashes init_db() before MySQL even connects.
+REM and the emoji in the startup prints crash the app.
 set "PYTHONIOENCODING=utf-8"
 
 echo =====================================
@@ -55,31 +55,10 @@ echo Limpiando perfil Brave...
 if exist "%PROFILE_DIR%" rd /s /q "%PROFILE_DIR%"
 
 REM ==========================
-REM DOCKER - DB ONLY
+REM BASE DE DATOS
 REM ==========================
-cd /d "%ROOT%"
-
-echo Verificando Docker...
-set "DOCKER_AVAILABLE=0"
-2>nul docker info >nul 2>&1 && set "DOCKER_AVAILABLE=1"
-
-if "%DOCKER_AVAILABLE%"=="1" (
-    echo Docker disponible. Iniciando MySQL container...
-    echo Esperando a que MySQL este listo para aceptar conexiones...
-    docker-compose up -d --wait db
-    if errorlevel 1 (
-        echo.
-        echo ADVERTENCIA: MySQL no llego a estar healthy a tiempo.
-        echo La app va a reintentar la conexion igual, pero puede tardar.
-        echo.
-    )
-) else (
-    echo.
-    echo ADVERTENCIA: Docker no esta disponible.
-    echo Asegúrate de que MySQL este ejecutándose localmente en localhost:3306
-    echo con usuario: root, contraseña: secret
-    echo.
-)
+REM Es un archivo SQLite (data/famousrelatives.db) que app.py crea solo.
+REM No hace falta Docker ni MySQL.
 
 REM ==========================
 REM PROXY
@@ -110,4 +89,4 @@ start "" "%BROWSER%" ^
 
 echo.
 echo Sistema listo.
-pause
+pause

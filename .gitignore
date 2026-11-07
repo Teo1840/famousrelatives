@@ -9,3 +9,4 @@ examples/
 dist/
 desktop.ini
 node_modules/
+data/

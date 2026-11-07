@@ -17,11 +17,7 @@ from services.csv_validation import validate_csv_file
 # CARGA DE .ENV
 # -------------------
 
-# 1. .env principal
 load_dotenv()
-
-# 2. .env del listener (montado como /app/listener.env en Docker)
-load_dotenv("/app/listener.env", override=True)
 
 # -------------------
 # DB
@@ -91,7 +87,6 @@ def get_token():
 def get_env_captured_token():
     """Reads whatever the browser-capture listener most recently wrote to .env."""
     load_dotenv(override=True)  # Reload .env each time to get latest token
-    load_dotenv("/app/listener.env", override=True)
     return os.getenv("FAMILYSEARCH_TOKEN") or None
 
 
