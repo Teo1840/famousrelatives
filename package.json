@@ -1,6 +1,7 @@
 {
   "name": "famousrelatives",
   "private": true,
+  "license": "MIT",
   "description": "Herramientas de desarrollo (lint) para la extensión. La extensión en sí no usa npm.",
   "scripts": {
     "lint": "eslint extension"

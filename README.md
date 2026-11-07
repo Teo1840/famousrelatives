@@ -80,3 +80,7 @@ JavaScript (Manifest V3 extension, IndexedDB) · vis-network (graphs) · Supabas
 - [x] Per-account cache, viewer portrait, category/country/ancestor filters
 - [x] Browser extension: no local server, no token capture, list in Supabase
 - [ ] Remove the legacy Flask version once the extension is confirmed
+
+
+## License
+[MIT](LICENSE) © 2026 Mateo F Nunez
