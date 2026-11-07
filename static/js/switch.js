@@ -8,7 +8,7 @@ export let refrescarLista = () => {};
 // Vuelve a armar los chips de temas (puede haber temas nuevos).
 export let refrescarTemas = () => {};
 
-// El último puesto del slider (40) es "todos": no limita.
+// El slider llega hasta 29; el último puesto (30) es "todos": no limita.
 function sliderSinLimite(slider) {
   return Number(slider.value) >= Number(slider.max);
 }
@@ -120,14 +120,76 @@ export function initSwitches() {
     });
   }
 
+  // 🔽 DESPLEGABLES PROPIOS ("Pasa por" y "País"): mismo diseño para los dos.
+  // Abre/cierra la lista, la cierra al hacer clic afuera y permite usar el teclado.
+  function conectarDesplegable(dropdown) {
+    const btn = dropdown?.querySelector(".pais-dropdown-btn");
+    const lista = dropdown?.querySelector(".pais-dropdown-list");
+    if (!btn || !lista) return () => {};
+
+    const abrir = abrirla => {
+      lista.hidden = !abrirla;
+      btn.setAttribute("aria-expanded", String(abrirla));
+    };
+
+    btn.addEventListener("click", () => {
+      abrir(lista.hidden);
+      if (!lista.hidden) lista.querySelector('[aria-selected="true"]')?.focus();
+    });
+    document.addEventListener("click", e => {
+      if (!dropdown.contains(e.target)) abrir(false);
+    });
+    dropdown.addEventListener("keydown", e => {
+      if (e.key === "Escape") { abrir(false); btn.focus(); }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const items = [...lista.querySelectorAll('li[role="option"]')];
+        if (lista.hidden || !items.length) return;
+        e.preventDefault();
+        const i = items.indexOf(document.activeElement);
+        const next = e.key === "ArrowDown" ? Math.min(i + 1, items.length - 1) : Math.max(i - 1, 0);
+        items[next].focus();
+      }
+    });
+    return abrir;
+  }
+
+  // Una opción de la lista; "llenar" pone el contenido (texto, bandera...).
+  function opcionDesplegable(seleccionada, llenar, alElegir) {
+    const li = document.createElement("li");
+    li.setAttribute("role", "option");
+    li.setAttribute("aria-selected", String(seleccionada));
+    li.tabIndex = 0;
+    llenar(li);
+    li.addEventListener("click", alElegir);
+    li.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); alElegir(); }
+    });
+    return li;
+  }
+
+  function textoEn(el, texto) {
+    const span = document.createElement("span");
+    span.textContent = texto;
+    el.replaceChildren(span);
+  }
+
   // 🌳 FILTRO POR ANCESTRO: padres y abuelos que aparecen en los caminos.
   const GEN_LABELS = { 1: "Padres", 2: "Abuelos", 3: "Bisabuelos" };
+  const ancestroDropdown = document.getElementById("filtro-ancestro");
+  const ancestroBtn = ancestroDropdown?.querySelector(".pais-dropdown-btn");
+  const ancestroList = ancestroDropdown?.querySelector(".pais-dropdown-list");
+  const abrirAncestros = conectarDesplegable(ancestroDropdown);
+
+  function elegirAncestro(id) {
+    window.activeAncestorFilter = id || null;
+    abrirAncestros(false);
+    update();
+  }
 
   // Opciones: todos los ancestros de la lista activa (switches de cónyuge).
   // Conteos: sobre countList (la lista con tema y cercanía aplicados).
   function buildAncestorOptions(countList) {
-    const select = document.getElementById("filtro-ancestro");
-    if (!select) return;
+    if (!ancestroBtn || !ancestroList) return;
 
     const viewerId = getViewerId(window.arboles);
     const found = new Map(); // id -> { person, gen, count }
@@ -153,14 +215,23 @@ export function initSwitches() {
       window.activeAncestorFilter,
       [...found.entries()].map(([id, e]) => [id, e.gen, e.count])
     ]);
-    if (select.dataset.sig === sig) return;
-    select.dataset.sig = sig;
+    if (ancestroDropdown.dataset.sig === sig) return;
+    ancestroDropdown.dataset.sig = sig;
 
-    select.innerHTML = "";
-    const all = document.createElement("option");
-    all.value = "";
-    all.textContent = "Todas las ramas";
-    select.appendChild(all);
+    const activo = window.activeAncestorFilter;
+    const nombreDe = (person, gen) => {
+      const term = ancestorTerm(gen, person.gender === "FEMALE");
+      return `${term.charAt(0).toUpperCase()}${term.slice(1)} — ${person.nombre || person.id}`;
+    };
+
+    const elegido = activo && found.get(activo);
+    textoEn(ancestroBtn.querySelector(".pais-dropdown-value"),
+      elegido ? nombreDe(elegido.person, elegido.gen) : "Todas las ramas");
+    ancestroBtn.disabled = found.size === 0;
+
+    ancestroList.replaceChildren(
+      opcionDesplegable(!activo, li => textoEn(li, "Todas las ramas"), () => elegirAncestro(null))
+    );
 
     const byGen = new Map();
     [...found.values()]
@@ -171,22 +242,21 @@ export function initSwitches() {
       });
 
     byGen.forEach((entries, gen) => {
-      const group = document.createElement("optgroup");
-      group.label = GEN_LABELS[gen] || `Generación ${gen}`;
+      const titulo = document.createElement("li");
+      titulo.className = "pais-dropdown-grupo";
+      titulo.setAttribute("role", "presentation");
+      titulo.textContent = GEN_LABELS[gen] || `Generación ${gen}`;
+      ancestroList.appendChild(titulo);
+
       entries.forEach(({ person, count }) => {
-        const term = ancestorTerm(gen, person.gender === "FEMALE");
-        const opt = document.createElement("option");
-        opt.value = person.id;
-        opt.textContent = `${term.charAt(0).toUpperCase()}${term.slice(1)} — ${person.nombre || person.id}`
+        const texto = nombreDe(person, gen)
           + (person.lifespan ? ` (${person.lifespan})` : "")
           + ` · ${count} ${count === 1 ? "árbol" : "árboles"}`;
-        group.appendChild(opt);
+        ancestroList.appendChild(opcionDesplegable(
+          person.id === activo, li => textoEn(li, texto), () => elegirAncestro(person.id)
+        ));
       });
-      select.appendChild(group);
     });
-
-    select.value = window.activeAncestorFilter || "";
-    select.disabled = found.size === 0;
   }
 
   // Código ISO de cada país para mostrar su bandera (flagcdn.com).
@@ -215,11 +285,7 @@ export function initSwitches() {
   const paisBtn = paisDropdown?.querySelector(".pais-dropdown-btn");
   const paisList = paisDropdown?.querySelector(".pais-dropdown-list");
 
-  function abrirPaises(abrir) {
-    if (!paisList || !paisBtn) return;
-    paisList.hidden = !abrir;
-    paisBtn.setAttribute("aria-expanded", String(abrir));
-  }
+  const abrirPaises = conectarDesplegable(paisDropdown);
 
   function elegirPais(pais) {
     window.activePaisFilter = pais || null;
@@ -260,45 +326,11 @@ export function initSwitches() {
 
     paisList.replaceChildren();
     [[null, null], ...paises].forEach(([pais, n]) => {
-      const li = document.createElement("li");
-      li.setAttribute("role", "option");
-      li.setAttribute("aria-selected", String((pais || null) === (activo || null)));
-      li.tabIndex = 0;
-      contenidoPais(li, pais, pais ? `${pais} · ${n} ${n === 1 ? "árbol" : "árboles"}` : "Todos los países");
-      li.addEventListener("click", () => elegirPais(pais));
-      li.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegirPais(pais); }
-      });
-      paisList.appendChild(li);
-    });
-  }
-
-  if (paisDropdown && paisBtn && paisList) {
-    paisBtn.addEventListener("click", () => {
-      abrirPaises(paisList.hidden);
-      if (!paisList.hidden) paisList.querySelector('[aria-selected="true"]')?.focus();
-    });
-    document.addEventListener("click", e => {
-      if (!e.target.closest("#filtro-pais")) abrirPaises(false);
-    });
-    paisDropdown.addEventListener("keydown", e => {
-      if (e.key === "Escape") { abrirPaises(false); paisBtn.focus(); }
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        const items = [...paisList.querySelectorAll("li")];
-        if (paisList.hidden || !items.length) return;
-        e.preventDefault();
-        const i = items.indexOf(document.activeElement);
-        const next = e.key === "ArrowDown" ? Math.min(i + 1, items.length - 1) : Math.max(i - 1, 0);
-        items[next].focus();
-      }
-    });
-  }
-
-  const ancestorSelect = document.getElementById("filtro-ancestro");
-  if (ancestorSelect) {
-    ancestorSelect.addEventListener("change", () => {
-      window.activeAncestorFilter = ancestorSelect.value || null;
-      update();
+      paisList.appendChild(opcionDesplegable(
+        (pais || null) === (activo || null),
+        li => contenidoPais(li, pais, pais ? `${pais} · ${n} ${n === 1 ? "árbol" : "árboles"}` : "Todos los países"),
+        () => elegirPais(pais)
+      ));
     });
   }
 

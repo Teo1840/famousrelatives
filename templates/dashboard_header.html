@@ -229,58 +229,10 @@
         <a id="btn-logout" href="{{ url_for('logout') }}" class="menu-btn" style="display:flex; align-items:center; justify-content:center; text-decoration:none; box-sizing:border-box; gap:8px;"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg> Cerrar sesión ({{ session.username }})</a>
       </div>
     </div>
-
-    <div class="settings-menu">
-      <!-- From Uiverse.io by vinodjangid07 -->
-      <button id="btn-settings-toggle" title="filter" class="filter" type="button">
-        <svg viewBox="0 0 512 512" height="1em">
-          <path
-            d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"
-          ></path>
-        </svg>
-      </button>
-
-      <div id="settings-actions">
-        <div class="switch-wrapper">
-          <!-- From Uiverse.io by gharsh11032000 -->
-          <label class="switch">
-            <input type="checkbox" id="switch-coParentIsPathPerson">
-            <span class="slider"></span>
-          </label>
-          <span class="status-text">No incluir parentescos a traves de mi cónyuge*</span>
-        </div>
-
-        <div class="switch-wrapper">
-          <!-- From Uiverse.io by gharsh11032000 -->
-          <label class="switch">
-            <input type="checkbox" id="switch-coParentIsTargetPerson">
-            <span class="slider"></span>
-          </label>
-          <span class="status-text">No incluir parentescos a traves del cónyuge de la persona</span>
-        </div>
-
-        <div class="switch-wrapper">
-          <label class="switch">
-            <input type="checkbox" id="switch-sortByAsc">
-            <span class="slider"></span>
-          </label>
-          <span class="status-text">Ordenar por cercanía al antepasado</span>
-        </div>
-
-        <div class="switch-wrapper">
-          <!-- From Uiverse.io by gharsh11032000 -->
-          <label class="switch">
-            <input type="checkbox" id="switchDarkMode">
-            <span class="slider"></span>
-          </label>
-          <span id="darkModeText" class="status-text">Modo claro</span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div id="capture-status"></div>
-  <p id="progreso-busqueda" hidden style="margin: 6px 0 0; font-size: 0.95rem;"></p>
+  <p id="progreso-busqueda" class="procesando" hidden style="margin: 6px 0 0; font-size: 0.95rem;"></p>
 </div>
 
 <script>
@@ -345,11 +297,13 @@
 
   btn.addEventListener('click', function() {
     btn.disabled = true;
+    status.classList.add('procesando');
     status.textContent = 'Iniciando capturador...';
     fetch('/capture-token', { method: 'POST' })
       .then(r => r.json())
       .then(data => {
         if (!data.started) {
+          status.classList.remove('procesando');
           status.textContent = data.error || 'No se pudo iniciar.';
           btn.disabled = false;
           return;
@@ -357,17 +311,19 @@
         status.textContent = 'Esperando login en el navegador...';
         polling = setInterval(poll, 2000);
       })
-      .catch(() => { status.textContent = 'Error al iniciar.'; btn.disabled = false; });
+      .catch(() => { status.classList.remove('procesando'); status.textContent = 'Error al iniciar.'; btn.disabled = false; });
   });
 
   function poll() {
     fetch('/capture-status').then(r => r.json()).then(data => {
       if (data.state === 'done') {
         clearInterval(polling);
+        status.classList.remove('procesando');
         status.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Token capturado. Recargando...';
         location.reload();
       } else if (data.state === 'error' || data.state === 'timeout') {
         clearInterval(polling);
+        status.classList.remove('procesando');
         status.textContent = 'Error: ' + (data.error || data.state);
         btn.disabled = false;
       } else {

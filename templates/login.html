@@ -67,6 +67,29 @@
     summary { cursor: pointer; }
     h1 { display: inline-flex; align-items: center; gap: 10px; }
     .icon { flex-shrink: 0; }
+
+  /* Círculo animado antes del texto mientras algo se está procesando */
+  .procesando::before {
+    content: "";
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 0.5em;
+    vertical-align: -0.12em;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: girar-procesando 0.8s linear infinite;
+  }
+  
+  @keyframes girar-procesando {
+    to { transform: rotate(360deg); }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .procesando::before { animation-duration: 2.4s; }
+  }
   </style>
 </head>
 <body>
@@ -109,7 +132,7 @@
       fetch('/capture-status').then(r => r.json()).then(data => {
         if (data.state === 'done') {
           clearInterval(polling);
-          status.className = '';
+          status.className = 'procesando';
           status.textContent = 'Sesión iniciada. Cargando...';
           location.href = '/';
         } else if (data.state === 'error' || data.state === 'timeout') {
@@ -120,7 +143,7 @@
 
     function start() {
       btn.disabled = true;
-      status.className = '';
+      status.className = 'procesando';
       status.textContent = 'Abriendo FamilySearch...';
       fetch('/capture-token', { method: 'POST' })
         .then(r => r.json())

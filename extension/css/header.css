@@ -202,8 +202,10 @@
   gap: 10px;
 }
 
+/* Ancho: unos 9px por paso para poder moverlo de a 1 con el mouse */
 #slider-maxCercania {
-  width: 180px;
+  width: 280px;
+  max-width: 60vw;
   accent-color: var(--switch-track-on);
 }
 

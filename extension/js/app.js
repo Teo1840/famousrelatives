@@ -23,11 +23,13 @@ const estado = { running: false, current: 0, total: 0 };
 let version = 0;           // sube cada vez que se guarda algo
 let versionEntregada = -1; // la última que se le pasó a main.js
 
-function mostrarAviso(texto, esError = false) {
+// procesando = true muestra el círculo animado (algo está en curso).
+function mostrarAviso(texto, esError = false, procesando = false) {
   const el = $("app-aviso");
   el.textContent = texto || "";
   el.hidden = !texto;
   el.classList.toggle("error", esError);
+  el.classList.toggle("procesando", procesando);
 }
 
 // --- Sesión ---
@@ -212,7 +214,7 @@ function conectarMenu() {
 // --- Inicio ---
 
 async function iniciar() {
-  mostrarAviso("Conectando con FamilySearch…");
+  mostrarAviso("Conectando con FamilySearch…", false, true);
   cuenta = await asegurarSesion();
 
   const estadoCuenta = $("cuenta-estado");
@@ -220,7 +222,7 @@ async function iniciar() {
   estadoCuenta.title = "Sesión de FamilySearch activa";
   estadoCuenta.hidden = false;
 
-  mostrarAviso("Descargando la lista de famosos…");
+  mostrarAviso("Descargando la lista de famosos…", false, true);
   try {
     lista = await cargarFamosos();
     mostrarAviso(lista.offline ? "Sin conexión: se muestra la última lista de famosos guardada." : "");

@@ -22,7 +22,8 @@
 }
 
 #slider-maxCercania {
-  width: 180px;
+  width: 280px;
+  max-width: 60vw;
   accent-color: var(--switch-track-on);
 }
 
@@ -49,10 +50,10 @@
     <span class="tooltip">Download</span>
   </button>
 
-  <!-- SLIDER: cercanía a la familia = lado más corto del camino (1–39; el último puesto = todos) -->
+  <!-- SLIDER: cercanía a la familia = lado más corto del camino (1–29; el último puesto = todos) -->
   <div class="cercania-slider-wrapper">
     <label for="slider-maxCercania" class="status-text">Cercanía a la familia: <span id="maxCercaniaValue">-</span></label>
-    <input type="range" id="slider-maxCercania" min="1" max="40" value="40" step="1">
+    <input type="range" id="slider-maxCercania" min="1" max="30" value="30" step="1">
   </div>
 
   <!-- FILTRO: país de la persona famosa (columna "pais" de famosos.csv) -->
@@ -69,10 +70,63 @@
 
   <!-- FILTRO: árboles que pasan por un padre/abuelo (se completa con los árboles cargados) -->
   <div class="ancestro-filter-wrapper">
-    <label for="filtro-ancestro" class="status-text">Pasa por:</label>
-    <select id="filtro-ancestro" class="filtro-select" disabled>
-      <option value="">Todas las ramas</option>
-    </select>
+    <span class="status-text" id="filtro-ancestro-label">Pasa por:</span>
+    <div id="filtro-ancestro" class="pais-dropdown">
+      <button type="button" class="filtro-select pais-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="filtro-ancestro-label" disabled>
+        <span class="pais-dropdown-value"><span>Todas las ramas</span></span>
+        <span class="pais-dropdown-caret" aria-hidden="true">▾</span>
+      </button>
+      <ul class="pais-dropdown-list" role="listbox" aria-labelledby="filtro-ancestro-label" hidden></ul>
+    </div>
+  </div>
+
+  <!-- AJUSTES: switches de cónyuge, orden y modo oscuro -->
+  <div class="settings-menu">
+    <!-- From Uiverse.io by vinodjangid07 -->
+    <button id="btn-settings-toggle" title="filter" class="filter" type="button">
+      <svg viewBox="0 0 512 512" height="1em">
+        <path
+          d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"
+        ></path>
+      </svg>
+    </button>
+
+    <div id="settings-actions">
+      <div class="switch-wrapper">
+        <!-- From Uiverse.io by gharsh11032000 -->
+        <label class="switch">
+          <input type="checkbox" id="switch-coParentIsPathPerson">
+          <span class="slider"></span>
+        </label>
+        <span class="status-text">No incluir parentescos a traves de mi cónyuge*</span>
+      </div>
+
+      <div class="switch-wrapper">
+        <!-- From Uiverse.io by gharsh11032000 -->
+        <label class="switch">
+          <input type="checkbox" id="switch-coParentIsTargetPerson">
+          <span class="slider"></span>
+        </label>
+        <span class="status-text">No incluir parentescos a traves del cónyuge de la persona</span>
+      </div>
+
+      <div class="switch-wrapper">
+        <label class="switch">
+          <input type="checkbox" id="switch-sortByAsc">
+          <span class="slider"></span>
+        </label>
+        <span class="status-text">Ordenar por cercanía al antepasado</span>
+      </div>
+
+      <div class="switch-wrapper">
+        <!-- From Uiverse.io by gharsh11032000 -->
+        <label class="switch">
+          <input type="checkbox" id="switchDarkMode">
+          <span class="slider"></span>
+        </label>
+        <span id="darkModeText" class="status-text">Modo claro</span>
+      </div>
+    </div>
   </div>
 </div>
 
