@@ -89,4 +89,4 @@ start "" "%BROWSER%" ^
 
 echo.
 echo Sistema listo.
-pause
+pause
