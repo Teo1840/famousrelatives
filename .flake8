@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 120
+exclude = .git,venv,node_modules,__pycache__
+extend-ignore = E265,E231,E225,E261,E302,E305,E402,W291,W292,W293

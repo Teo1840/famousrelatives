@@ -5,32 +5,85 @@ on:
     branches: [ main ]
   pull_request:
 
+# Solo lectura: el CI no necesita escribir en el repo.
+permissions:
+  contents: read
+
+# Si llega otro push a la misma rama, se cancela la corrida anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  extension:
+    name: Extensión (ESLint + manifest)
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
+      - name: Instalar dependencias
+        run: npm ci
 
-    - name: Run tests
-      run: |
-        python -m pytest -v
+      - name: ESLint
+        run: npm run lint
 
-    - name: Run lint (flake8)
-      run: |
-        pip install flake8
-        flake8 . --max-line-length=120 --exclude=venv --ignore=E265,E231,E225,E261,E302,E305,E402,W291,W292,W293
+      - name: Validar manifest.json
+        run: |
+          node -e '
+            const m = require("./extension/manifest.json");
+            if (m.manifest_version !== 3) throw new Error("manifest_version debe ser 3");
+            if (!/^\d+(\.\d+){0,3}$/.test(m.version)) throw new Error("version inválida: " + m.version);
+            console.log("manifest OK, versión", m.version);
+          '
+
+      - name: Armar el zip de la extensión
+        run: cd extension && zip -r -q ../famousrelatives-extension.zip . -x '*.DS_Store' 'desktop.ini'
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: famousrelatives-extension
+          path: famousrelatives-extension.zip
+          retention-days: 14
+
+  python:
+    name: Python (pytest + flake8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Tests
+        run: python -m pytest -v
+
+      - name: flake8
+        run: flake8 .
+
+  secretos:
+    name: Buscar secretos (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # Revisa los archivos del repo en busca de tokens, cookies y contraseñas.
+      # Las excepciones (la anon key pública de Supabase) están en .gitleaks.toml.
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.28.0 \
+            dir /repo --config /repo/.gitleaks.toml --redact --verbose --no-banner

@@ -39,6 +39,6 @@ export async function cargarFamosos() {
     console.warn("No se pudo descargar la lista de famosos:", err);
     const { [CACHE_KEY]: cached } = await chrome.storage.local.get(CACHE_KEY);
     if (cached) return { ...cached, offline: true };
-    throw new Error("No se pudo descargar la lista de famosos. Revisá tu conexión a internet.");
+    throw new Error("No se pudo descargar la lista de famosos. Revisá tu conexión a internet.", { cause: err });
   }
 }

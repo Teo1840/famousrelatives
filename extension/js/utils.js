@@ -7,3 +7,25 @@ export function generarUUID() {
     );
   }
 }
+
+// Texto que viene de afuera (FamilySearch, Supabase) → seguro para meter en
+// innerHTML. Los nombres del árbol de FamilySearch los puede editar cualquiera.
+export function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Solo deja pasar links http(s); cualquier otra cosa (javascript:, data:...) → fallback.
+export function safeUrl(value, fallback = "") {
+  try {
+    const url = new URL(String(value ?? ""));
+    if (url.protocol === "https:" || url.protocol === "http:") return escapeHtml(url.href);
+  } catch (_) {
+    // no es una URL válida
+  }
+  return escapeHtml(fallback);
+}

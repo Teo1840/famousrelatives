@@ -1,6 +1,6 @@
 import { buildGraph } from './graph.js';
 import { shouldUseDirectPath } from './main.js';
-import { generarUUID } from './utils.js';
+import { generarUUID, escapeHtml, safeUrl } from './utils.js';
 import { computeRelationshipDescription } from './relationship.js';
 
 export function showPopup(currentIndex) {
@@ -113,13 +113,14 @@ function renderPopupInfo(a) {
       )
     : (a.relationshipDescription || '');
 
+  const code = String(a.person_code ?? '');
   container.innerHTML = `
-    <h3>${a.name}</h3>
-    <img src="${a.portraitUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png'}" width="200">
-    <p><i>${relDesc}</i></p>
-    <p><b>${'Cercanía'}:</b> ${valor}</p>
-    <p><b>Código:</b> <a href="https://www.familysearch.org/en/tree/person/details/${a.person_code}" target="_blank" rel="noopener">${a.person_code}</a></p>
-    <pre>${a.detalle || ''}</pre>
+    <h3>${escapeHtml(a.name)}</h3>
+    <img src="${safeUrl(a.portraitUrl, 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" width="200">
+    <p><i>${escapeHtml(relDesc)}</i></p>
+    <p><b>Cercanía:</b> ${escapeHtml(valor)}</p>
+    <p><b>Código:</b> <a href="https://www.familysearch.org/en/tree/person/details/${encodeURIComponent(code)}" target="_blank" rel="noopener">${escapeHtml(code)}</a></p>
+    <pre>${escapeHtml(a.detalle)}</pre>
   `;
 
   // Foto rota → foto genérica (las extensiones no permiten onerror="..." en el HTML).

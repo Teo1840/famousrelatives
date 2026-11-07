@@ -1,0 +1,13 @@
+# Configuración del escáner de secretos del CI (gitleaks).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Excepciones conocidas"
+paths = [
+  # Anon key de Supabase: es pública a propósito (RLS solo permite leer).
+  '''extension/config\.js''',
+  # Librerías de terceros minificadas.
+  '''vis-network\.min\.js''',
+  '''package-lock\.json''',
+]

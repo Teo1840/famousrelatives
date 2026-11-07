@@ -60,6 +60,7 @@ Removing someone from `famosos` hides them from everyone's dashboard. To bulk-lo
 ### Develop
 1. Load `extension/` with "Load unpacked" and press reload (↻) after each change.
 2. Build the shareable zip: `powershell -File scripts\build-extension.ps1`.
+3. Lint: `npm install` once, then `npm run lint` (ESLint). CI also runs pytest/flake8 and a secret scan (gitleaks) on every push.
 
 ## Privacy & security
 - The FamilySearch session never leaves the browser; results are stored only in the user's IndexedDB.

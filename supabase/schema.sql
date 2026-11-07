@@ -24,3 +24,8 @@ drop policy if exists "lectura publica" on famosos;
 drop policy if exists "lectura publica" on categorias;
 create policy "lectura publica" on famosos    for select to anon using (true);
 create policy "lectura publica" on categorias for select to anon using (true);
+
+-- Refuerzo: aunque RLS ya bloquea escribir (no hay políticas de insert/update/
+-- delete), también se quitan esos permisos a los roles públicos. Así, si algún
+-- día se desactiva RLS por error, la anon key sigue sin poder modificar nada.
+revoke insert, update, delete, truncate on famosos, categorias from anon, authenticated;

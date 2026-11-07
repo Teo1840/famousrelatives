@@ -8,3 +8,4 @@ listener/state.json
 examples/
 dist/
 desktop.ini
+node_modules/

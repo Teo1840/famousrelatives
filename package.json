@@ -1,0 +1,13 @@
+{
+  "name": "famousrelatives",
+  "private": true,
+  "description": "Herramientas de desarrollo (lint) para la extensión. La extensión en sí no usa npm.",
+  "scripts": {
+    "lint": "eslint extension"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "globals": "17.14.0"
+  }
+}

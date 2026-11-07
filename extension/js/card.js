@@ -1,6 +1,7 @@
 import { showPopup } from './popup.js';
 import { shouldUseDirectPath } from './main.js';
 import { computeRelationshipDescription } from './relationship.js';
+import { escapeHtml, safeUrl } from './utils.js';
 
 // Parentesco político: el camino que se muestra pasa por un cónyuge (mío o de
 // la persona famosa). El camino directo nunca pasa por el cónyuge de la persona.
@@ -32,13 +33,14 @@ export function createCard(a) {
       )
     : (a.relationshipDescription || "");
 
+  const wiki = safeUrl(a.wiki);
   card.innerHTML = `
-    <img src="${a.portraitUrl || defaultPortraitUrl}" width="150">
-    <h3>${a.name}</h3>
-    <small><i>${relDesc}</i></small><br>
+    <img src="${safeUrl(a.portraitUrl, defaultPortraitUrl)}" width="150">
+    <h3>${escapeHtml(a.name)}</h3>
+    <small><i>${escapeHtml(relDesc)}</i></small><br>
     <small class="metric"></small><br>
-    <small>${a.info || ""}</small>
-    ${a.wiki ? `<br><a class="card-wiki" href="${a.wiki}" target="_blank" rel="noopener">Wikipedia ↗</a>` : ""}
+    <small>${escapeHtml(a.info)}</small>
+    ${wiki ? `<br><a class="card-wiki" href="${wiki}" target="_blank" rel="noopener">Wikipedia ↗</a>` : ""}
   `;
 
   // Foto rota → foto genérica (las extensiones no permiten onerror="..." en el HTML).

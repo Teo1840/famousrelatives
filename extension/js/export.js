@@ -18,6 +18,15 @@ async function getCSSContent() {
   return styles;
 }
 
+// JSON para meter dentro de <script>: sin "<" un texto como "</script>" no
+// puede cerrar el bloque y meter código en el archivo descargado.
+function jsonForScript(value) {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 // limpia imports y exports
 function cleanJS(code) {
   return code
@@ -89,8 +98,8 @@ ${css}
 ${bodyHTML}
 
 <script>
-window.arboles = ${JSON.stringify(arbolesData)};
-window.CATEGORIAS = ${JSON.stringify(window.CATEGORIAS || {})};
+window.arboles = ${jsonForScript(arbolesData)};
+window.CATEGORIAS = ${jsonForScript(window.CATEGORIAS || {})};
 window.currentIndex = 0;
 </script>
 
