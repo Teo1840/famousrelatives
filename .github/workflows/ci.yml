@@ -44,7 +44,7 @@ jobs:
       - name: Armar el zip de la extensión
         run: cd extension && zip -r -q ../famousrelatives-extension.zip . -x '*.DS_Store' 'desktop.ini'
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: famousrelatives-extension
           path: famousrelatives-extension.zip
