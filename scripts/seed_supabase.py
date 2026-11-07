@@ -18,12 +18,17 @@ OUT_PATH = os.path.join(ROOT, "supabase", "seed.sql")
 # Copiadas de TOPIC_DESCRIPTIONS en static/js/switch.js.
 CATEGORIAS = {
     "Deportistas": "Grupo de deportistas destacados de la región incluyendo futbolistas y pilotos de automovilismo.",
-    "Presidentes uruguayos": 'Lista basada en <a href="https://es.wikipedia.org/wiki/Anexo:Gobernantes_de_Uruguay" target="_blank">Wikipedia: Gobernantes de Uruguay</a>.',
+    "Presidentes uruguayos": (
+        'Lista basada en <a href="https://es.wikipedia.org/wiki/Anexo:Gobernantes_de_Uruguay" target="_blank">'
+        "Wikipedia: Gobernantes de Uruguay</a>."
+    ),
     "Treinta y Tres Orientales": (
-        'Lista basada en <a href="https://www.geni.com/projects/33-Orientales/8298" target="_blank">Geni: Los 33 Orientales</a>. '
+        'Lista basada en <a href="https://www.geni.com/projects/33-Orientales/8298" target="_blank">'
+        "Geni: Los 33 Orientales</a>. "
         "Existen al menos 16 versiones distintas de la lista — los integrantes varían según la fuente histórica.<br>"
         "<strong>Orientales no encontrados en FamilySearch</strong> (si los encontrás, ¡agregálos!): "
-        "Juan Acosta, Juan Arteaga, Felipe Carapé, Carmelo Colman, Javier Chávez Zibil, Ignacio Medina, Manuel Meléndez, "
+        "Juan Acosta, Juan Arteaga, Felipe Carapé, Carmelo Colman, Javier Chávez Zibil, Ignacio Medina, "
+        "Manuel Meléndez, "
         "Avelino Miranda, Santiago Nievas, Ignacio Núñez, Dionisio Oribe, Juan Ortiz, Juan Rosas, Agustín Velázquez, "
         "Andrés Areguatí."
     ),
@@ -61,7 +66,8 @@ def main():
     usadas = sorted({t for r in rows for t in r["topics"]} | set(CATEGORIAS))
     out.append("insert into categorias (nombre, descripcion) values")
     out.append(",\n".join(f"  ({lit(c)}, {lit(CATEGORIAS.get(c))})" for c in usadas))
-    out.append("on conflict (nombre) do update set descripcion = coalesce(excluded.descripcion, categorias.descripcion);")
+    out.append("on conflict (nombre) do update set "
+               "descripcion = coalesce(excluded.descripcion, categorias.descripcion);")
     out.append("")
 
     with open(OUT_PATH, "w", encoding="utf-8", newline="\n") as f:
