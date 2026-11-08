@@ -1,6 +1,6 @@
 import { showPopup } from './popup.js';
 import { shouldUseDirectPath } from './main.js';
-import { computeRelationshipDescription } from './relationship.js';
+import { describePath } from './relationship.js';
 import { escapeHtml, safeUrl } from './utils.js';
 
 // Parentesco político: el camino que se muestra pasa por un cónyuge (mío o de
@@ -24,18 +24,11 @@ export function createCard(a) {
 
   card.dataset.personCode = a.person_code;
 
-  const relDesc = (useDirect && a.directPath)
-    ? computeRelationshipDescription(
-        a.directPath.asc.length,
-        a.directPath.desc.length,
-        a.name,
-        a.directPath.desc.at(-1)?.gender || ""
-      )
-    : (a.relationshipDescription || "");
+  const relDesc = describePath(a, useDirect);
 
   const wiki = safeUrl(a.wiki);
   card.innerHTML = `
-    <img src="${safeUrl(a.portraitUrl, defaultPortraitUrl)}" width="150">
+    <img src="${safeUrl(a.portraitUrl, defaultPortraitUrl)}" width="150" alt="${escapeHtml(a.name)}">
     <h3>${escapeHtml(a.name)}</h3>
     <small><i>${escapeHtml(relDesc)}</i></small><br>
     <small class="metric"></small><br>

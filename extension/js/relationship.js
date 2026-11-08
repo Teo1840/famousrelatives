@@ -26,14 +26,12 @@ function ordinal(n, female) {
   return n < list.length ? list[n] : `${n}°`;
 }
 
-export function computeRelationshipDescription(ascLen, descLen, personName, gender) {
-  const female = gender?.toUpperCase() === "FEMALE";
-
+// Parentesco de sangre sin sujeto ("bisabuela", "primo segundo"), o "" si
+// los dos lados están vacíos (es la misma persona).
+function relationshipTerm(ascLen, descLen, female) {
   let rel;
 
-  if (ascLen === 0 && descLen === 0) {
-    return personName;
-  }
+  if (ascLen === 0 && descLen === 0) return "";
 
   if (descLen === 0) {
     rel = ancestorTerm(ascLen, female);
@@ -66,11 +64,57 @@ export function computeRelationshipDescription(ascLen, descLen, personName, gend
       const base = female ? "prima" : "primo";
       const degStr = degree >= 2 ? ` ${ordinal(degree, female)}` : "";
       const remStr = removed > 0
-        ? ` ${removed} ${removed === 1 ? "vez" : "veces"} removido${female ? "a" : ""}`
+        ? ` ${removed} ${removed === 1 ? "vez" : "veces"} removid${female ? "a" : "o"}`
         : "";
       rel = `${base}${degStr}${remStr}`;
     }
   }
 
-  return `${personName} es tu ${rel}`;
+  return rel;
+}
+
+export function computeRelationshipDescription(ascLen, descLen, personName, gender) {
+  const rel = relationshipTerm(ascLen, descLen, gender?.toUpperCase() === "FEMALE");
+  return rel ? `${personName} es tu ${rel}` : personName;
+}
+
+const isFemale = p => p?.gender?.toUpperCase() === "FEMALE";
+const isMale = p => p?.gender?.toUpperCase() === "MALE";
+const spouseWord = p => isFemale(p) ? "esposa" : isMale(p) ? "esposo" : "cónyuge";
+const article = p => isFemale(p) ? "la" : "el";
+
+// Descripción en español del camino que muestra la tarjeta, incluidos los
+// parentescos políticos. Reemplaza al texto en inglés de FamilySearch.
+// Los nodos que entran por un casamiento (ver processJson en trees.js) no
+// cuentan como generaciones: con coParentIsPathPerson, "asc" tiene a mi cónyuge
+// de más; si la persona famosa es cónyuge de mi pariente, es el último de "desc".
+export function describePath(a, useDirect) {
+  const path = useDirect ? a?.directPath : a?.mainPath;
+  if (!path?.asc || !path?.desc) return a?.relationshipDescription || "";
+
+  const asc = path.asc;
+  const desc = path.desc;
+  const viaMySpouse = !!path.coParentIsPathPerson;
+  const viaTargetSpouse = !useDirect && !!a.coParentIsTargetPerson && desc.length > 0;
+
+  const ascLen = asc.length - (viaMySpouse ? 1 : 0);
+  const descLen = desc.length - (viaTargetSpouse ? 1 : 0);
+  const target = desc.at(-1);
+  // Mi pariente: la persona famosa, o la persona con la que está casada.
+  const relative = (viaTargetSpouse ? desc.at(-2) : target) ?? path.antepasado_comun;
+
+  const rel = relationshipTerm(Math.max(ascLen, 0), Math.max(descLen, 0), isFemale(relative));
+  if (!rel) return a.relationshipDescription || "";
+
+  let phrase = `tu ${rel}`;
+  if (viaMySpouse) {
+    // Lo normal: el último de "asc" soy yo (marcado "conyuge") y antes está mi cónyuge.
+    const i = asc.findIndex(p => p.conyuge);
+    const mySpouse = i === asc.length - 1 ? asc[i - 1] : null;
+    phrase = `${article(relative)} ${rel} de tu ${spouseWord(mySpouse)}`;
+  }
+  if (viaTargetSpouse) {
+    phrase = `${article(target)} ${spouseWord(target)} de ${phrase}`.replace(/ de el /g, " del ");
+  }
+  return `${a.name} es ${phrase}`;
 }

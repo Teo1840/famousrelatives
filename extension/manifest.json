@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Famous Relatives",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Encontrá tu parentesco con personas famosas usando tu árbol de FamilySearch.",
   "permissions": ["cookies", "storage", "unlimitedStorage"],
   "host_permissions": [

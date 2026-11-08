@@ -1,7 +1,7 @@
 import { buildGraph } from './graph.js';
 import { shouldUseDirectPath } from './main.js';
 import { generarUUID, escapeHtml, safeUrl } from './utils.js';
-import { computeRelationshipDescription } from './relationship.js';
+import { describePath } from './relationship.js';
 
 export function showPopup(currentIndex) {
   const list = window.visibleList || [];
@@ -86,7 +86,7 @@ function renderGraph(a, useDirectPath) {
       const nodeData = data.nodes.get(params.nodes[0]);
       if (nodeData?.fsId) {
         window.open(
-          `https://www.familysearch.org/en/tree/person/details/${nodeData.fsId}`,
+          `https://www.familysearch.org/es/tree/person/details/${nodeData.fsId}`,
           '_blank'
         );
       }
@@ -103,23 +103,15 @@ function renderPopupInfo(a) {
     ? (a.direct_length ?? '')
     : (a.cercania ?? '');
 
-  const directPath = a.directPath;
-  const relDesc = (useDirect && directPath)
-    ? computeRelationshipDescription(
-        directPath.asc.length,
-        directPath.desc.length,
-        a.name,
-        directPath.desc.at(-1)?.gender || ""
-      )
-    : (a.relationshipDescription || '');
+  const relDesc = describePath(a, useDirect && a.directPath != null);
 
   const code = String(a.person_code ?? '');
   container.innerHTML = `
     <h3>${escapeHtml(a.name)}</h3>
-    <img src="${safeUrl(a.portraitUrl, 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" width="200">
+    <img src="${safeUrl(a.portraitUrl, 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" width="200" alt="${escapeHtml(a.name)}">
     <p><i>${escapeHtml(relDesc)}</i></p>
     <p><b>Cercanía:</b> ${escapeHtml(valor)}</p>
-    <p><b>Código:</b> <a href="https://www.familysearch.org/en/tree/person/details/${encodeURIComponent(code)}" target="_blank" rel="noopener">${escapeHtml(code)}</a></p>
+    <p><b>Código:</b> <a href="https://www.familysearch.org/es/tree/person/details/${encodeURIComponent(code)}" target="_blank" rel="noopener">${escapeHtml(code)}</a></p>
     <pre>${escapeHtml(a.detalle)}</pre>
   `;
 
