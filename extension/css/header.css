@@ -75,6 +75,13 @@
   z-index: 400;
 }
 
+/* Modo claro/oscuro dentro del menú de configuración */
+#opcion-modo-oscuro {
+  justify-content: center;
+  min-width: 0;
+  padding: 4px 0;
+}
+
 #dashboard-actions.open {
   display: flex;
 }
@@ -202,9 +209,9 @@
   gap: 10px;
 }
 
-/* Ancho: unos 9px por paso para poder moverlo de a 1 con el mouse */
+/* Ancho: unos 7px por paso (50 puestos) para poder moverlo de a 1 con el mouse */
 #slider-maxCercania {
-  width: 280px;
+  width: 360px;
   max-width: 60vw;
   accent-color: var(--switch-track-on);
 }

@@ -53,6 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
     bodyClone.querySelector(".btn-download")?.remove();
     // El boton "..." (capturar token, buscar personas nuevas, cerrar sesion,
     // etc.) depende del servidor y no tiene sentido en el archivo offline.
+    // El modo claro/oscuro vive en ese menú: se pasa al de ajustes para no perderlo.
+    const modoOscuro = bodyClone.querySelector("#opcion-modo-oscuro");
+    if (modoOscuro) bodyClone.querySelector("#settings-actions")?.appendChild(modoOscuro);
     bodyClone.querySelector(".header-menu")?.remove();
 
     let bodyHTML = bodyClone.innerHTML;

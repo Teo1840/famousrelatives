@@ -24,11 +24,11 @@ CATEGORIAS = {
     ),
     "Treinta y Tres Orientales": (
         'Lista basada en <a href="https://www.geni.com/projects/33-Orientales/8298" target="_blank">'
-        "Geni: Los 33 Orientales</a>. "
+        "Geni: Los 33 Orientales</a> y "
+        '<a href="https://es.wikipedia.org/w/index.php?title=Treinta_y_Tres_Orientales&amp;oldid=50076383" target="_blank">Wikipedia: Treinta y Tres Orientales</a>. '
         "Existen al menos 16 versiones distintas de la lista — los integrantes varían según la fuente histórica.<br>"
         "<strong>Orientales no encontrados en FamilySearch</strong> (si los encontrás, ¡agregálos!): "
-        "Juan Acosta, Juan Arteaga, Felipe Carapé, Carmelo Colman, Javier Chávez Zibil, Ignacio Medina, "
-        "Manuel Meléndez, "
+        "Juan Acosta, Juan Arteaga, Felipe Carapé, Javier Chávez Zibil, Ignacio Medina, "
         "Avelino Miranda, Santiago Nievas, Ignacio Núñez, Dionisio Oribe, Juan Ortiz, Juan Rosas, Agustín Velázquez, "
         "Andrés Areguatí."
     ),

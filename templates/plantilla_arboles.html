@@ -22,7 +22,7 @@
 }
 
 #slider-maxCercania {
-  width: 280px;
+  width: 360px;
   max-width: 60vw;
   accent-color: var(--switch-track-on);
 }
@@ -50,22 +50,11 @@
     <span class="tooltip">Download</span>
   </button>
 
-  <!-- SLIDER: cercanía a la familia = lado más corto del camino (1–29; el último puesto = todos) -->
+  <!-- SLIDER: cercanía absoluta (nodos intermedios, 1–49) o, con "Ordenar por cercanía al antepasado",
+       cercanía a la familia (lado más corto, 1–29). El último puesto = todos. Lo ajusta switch.js. -->
   <div class="cercania-slider-wrapper">
-    <label for="slider-maxCercania" class="status-text">Cercanía a la familia: <span id="maxCercaniaValue">-</span></label>
-    <input type="range" id="slider-maxCercania" min="1" max="30" value="30" step="1">
-  </div>
-
-  <!-- FILTRO: país de la persona famosa (columna "pais" de famosos.csv) -->
-  <div class="ancestro-filter-wrapper">
-    <span class="status-text" id="filtro-pais-label">País:</span>
-    <div id="filtro-pais" class="pais-dropdown">
-      <button type="button" class="filtro-select pais-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="filtro-pais-label" disabled>
-        <span class="pais-dropdown-value"><span>Todos los países</span></span>
-        <span class="pais-dropdown-caret" aria-hidden="true">▾</span>
-      </button>
-      <ul class="pais-dropdown-list" role="listbox" aria-labelledby="filtro-pais-label" hidden></ul>
-    </div>
+    <label for="slider-maxCercania" class="status-text" title="Absoluta: personas entre vos y el famoso. A la familia (al ordenar por cercanía al antepasado): el lado más corto del camino."><span id="cercaniaTitulo">Cercanía absoluta</span>: <span id="maxCercaniaValue">-</span></label>
+    <input type="range" id="slider-maxCercania" min="1" max="50" value="50" step="1">
   </div>
 
   <!-- FILTRO: árboles que pasan por un padre/abuelo (se completa con los árboles cargados) -->
@@ -80,7 +69,19 @@
     </div>
   </div>
 
-  <!-- AJUSTES: switches de cónyuge, orden y modo oscuro -->
+  <!-- FILTRO: país de la persona famosa (columna "pais" de famosos.csv) -->
+  <div class="ancestro-filter-wrapper">
+    <span class="status-text" id="filtro-pais-label">País:</span>
+    <div id="filtro-pais" class="pais-dropdown">
+      <button type="button" class="filtro-select pais-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="filtro-pais-label" disabled>
+        <span class="pais-dropdown-value"><span>Todos los países</span></span>
+        <span class="pais-dropdown-caret" aria-hidden="true">▾</span>
+      </button>
+      <ul class="pais-dropdown-list" role="listbox" aria-labelledby="filtro-pais-label" hidden></ul>
+    </div>
+  </div>
+
+  <!-- AJUSTES: switches de cónyuge y orden -->
   <div class="settings-menu">
     <!-- From Uiverse.io by vinodjangid07 -->
     <button id="btn-settings-toggle" title="filter" class="filter" type="button">
@@ -116,15 +117,6 @@
           <span class="slider"></span>
         </label>
         <span class="status-text">Ordenar por cercanía al antepasado</span>
-      </div>
-
-      <div class="switch-wrapper">
-        <!-- From Uiverse.io by gharsh11032000 -->
-        <label class="switch">
-          <input type="checkbox" id="switchDarkMode">
-          <span class="slider"></span>
-        </label>
-        <span id="darkModeText" class="status-text">Modo claro</span>
       </div>
     </div>
   </div>

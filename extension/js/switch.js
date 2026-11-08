@@ -8,9 +8,49 @@ export let refrescarLista = () => {};
 // Vuelve a armar los chips de temas (puede haber temas nuevos).
 export let refrescarTemas = () => {};
 
-// El slider llega hasta 29; el último puesto (30) es "todos": no limita.
+// El último puesto del slider es "todos": no limita.
 function sliderSinLimite(slider) {
   return Number(slider.value) >= Number(slider.max);
+}
+
+// El slider tiene dos modos, según el switch "Ordenar por cercanía al antepasado":
+// - apagado: cercanía absoluta = nodos intermedios del camino (sin contarme a mí
+//   ni a la persona famosa; el antepasado común sí cuenta), de 1 a 49.
+// - prendido: cercanía a la familia = el lado más corto del camino, de 1 a 29.
+const MAX_ABSOLUTA = 50; // 1–49 + "todos"
+const MAX_FAMILIA = 30;  // 1–29 + "todos"
+
+function modoFamilia() {
+  return !!document.getElementById("switch-sortByAsc")?.checked;
+}
+
+// asc (incluye al que mira) + antepasado + desc (incluye al famoso) - las 2 puntas.
+function nodosIntermedios(a) {
+  return Math.max(0, getSortLength(a) - 1);
+}
+
+function medidaCercania(a) {
+  return modoFamilia() ? getSortMinSideLength(a) : nodosIntermedios(a);
+}
+
+function mostrarValorCercania(slider) {
+  const titulo = document.getElementById("cercaniaTitulo");
+  if (titulo) titulo.textContent = modoFamilia() ? "Cercanía a la familia" : "Cercanía absoluta";
+  const valor = document.getElementById("maxCercaniaValue");
+  if (valor) valor.textContent = sliderSinLimite(slider) ? "todos" : slider.value;
+}
+
+// Pone el máximo según el modo; al cambiar de modo vuelve a "todos".
+function ajustarSlider(slider) {
+  const familia = modoFamilia();
+  const modo = familia ? "familia" : "absoluta";
+  if (slider.dataset.modo !== modo) {
+    const max = familia ? MAX_FAMILIA : MAX_ABSOLUTA;
+    slider.dataset.modo = modo;
+    slider.max = max;
+    slider.value = max;
+  }
+  mostrarValorCercania(slider);
 }
 
 export function initSwitches() {
@@ -28,10 +68,10 @@ export function initSwitches() {
     }
 
     const cercaniaSlider = document.getElementById("slider-maxCercania");
-    // Cercanía a la familia: el lado más corto del camino (mío o de la persona).
+    if (cercaniaSlider) ajustarSlider(cercaniaSlider);
     if (cercaniaSlider && !sliderSinLimite(cercaniaSlider)) {
       const maxCercania = Number(cercaniaSlider.value);
-      list = list.filter(a => getSortMinSideLength(a) <= maxCercania);
+      list = list.filter(a => medidaCercania(a) <= maxCercania);
     }
 
     // Ancestro y país: cada desplegable cuenta con todos los demás filtros
@@ -356,14 +396,9 @@ export function initSwitches() {
 
   // 🎚️ SLIDER: cercanía máxima
   const cercaniaSlider = document.getElementById("slider-maxCercania");
-  const cercaniaValueEl = document.getElementById("maxCercaniaValue");
 
   if (cercaniaSlider) {
-    const mostrarValor = () => {
-      if (cercaniaValueEl) {
-        cercaniaValueEl.textContent = sliderSinLimite(cercaniaSlider) ? "todos" : cercaniaSlider.value;
-      }
-    };
+    const mostrarValor = () => mostrarValorCercania(cercaniaSlider);
     mostrarValor();
 
     // Como mucho un redibujo por cuadro mientras se arrastra la barra.

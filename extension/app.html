@@ -25,6 +25,14 @@
         <button id="btn-actions-toggle" class="btn-actions-toggle" type="button" title="Acciones" aria-label="Acciones"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
 
         <div id="dashboard-actions">
+          <div class="switch-wrapper" id="opcion-modo-oscuro">
+            <label class="switch">
+              <input type="checkbox" id="switchDarkMode">
+              <span class="slider"></span>
+            </label>
+            <span id="darkModeText" class="status-text">Modo claro</span>
+          </div>
+
           <button id="btn-buscar-nuevas" class="menu-btn" type="button"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Buscar personas nuevas</button>
 
           <button id="btn-actualizar" class="menu-btn" type="button"><svg class="icon" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Actualizar mis árboles</button>
@@ -65,22 +73,11 @@
     <span class="tooltip">Download</span>
   </button>
 
-  <!-- SLIDER: cercanía a la familia = lado más corto del camino (1–29; el último puesto = todos) -->
+  <!-- SLIDER: cercanía absoluta (nodos intermedios, 1–49) o, con "Ordenar por cercanía al antepasado",
+       cercanía a la familia (lado más corto, 1–29). El último puesto = todos. Lo ajusta switch.js. -->
   <div class="cercania-slider-wrapper">
-    <label for="slider-maxCercania" class="status-text">Cercanía a la familia: <span id="maxCercaniaValue">-</span></label>
-    <input type="range" id="slider-maxCercania" min="1" max="30" value="30" step="1">
-  </div>
-
-  <!-- FILTRO: país de la persona famosa -->
-  <div class="ancestro-filter-wrapper">
-    <span class="status-text" id="filtro-pais-label">País:</span>
-    <div id="filtro-pais" class="pais-dropdown">
-      <button type="button" class="filtro-select pais-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="filtro-pais-label" disabled>
-        <span class="pais-dropdown-value"><span>Todos los países</span></span>
-        <span class="pais-dropdown-caret" aria-hidden="true">▾</span>
-      </button>
-      <ul class="pais-dropdown-list" role="listbox" aria-labelledby="filtro-pais-label" hidden></ul>
-    </div>
+    <label for="slider-maxCercania" class="status-text" title="Absoluta: personas entre vos y el famoso. A la familia (al ordenar por cercanía al antepasado): el lado más corto del camino."><span id="cercaniaTitulo">Cercanía absoluta</span>: <span id="maxCercaniaValue">-</span></label>
+    <input type="range" id="slider-maxCercania" min="1" max="50" value="50" step="1">
   </div>
 
   <!-- FILTRO: árboles que pasan por un padre/abuelo -->
@@ -95,7 +92,19 @@
     </div>
   </div>
 
-  <!-- AJUSTES: switches de cónyuge, orden y modo oscuro -->
+  <!-- FILTRO: país de la persona famosa -->
+  <div class="ancestro-filter-wrapper">
+    <span class="status-text" id="filtro-pais-label">País:</span>
+    <div id="filtro-pais" class="pais-dropdown">
+      <button type="button" class="filtro-select pais-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="filtro-pais-label" disabled>
+        <span class="pais-dropdown-value"><span>Todos los países</span></span>
+        <span class="pais-dropdown-caret" aria-hidden="true">▾</span>
+      </button>
+      <ul class="pais-dropdown-list" role="listbox" aria-labelledby="filtro-pais-label" hidden></ul>
+    </div>
+  </div>
+
+  <!-- AJUSTES: switches de cónyuge y orden -->
   <div class="settings-menu">
     <!-- From Uiverse.io by vinodjangid07 -->
     <button id="btn-settings-toggle" title="filter" class="filter" type="button">
@@ -129,14 +138,6 @@
           <span class="slider"></span>
         </label>
         <span class="status-text">Ordenar por cercanía al antepasado</span>
-      </div>
-
-      <div class="switch-wrapper">
-        <label class="switch">
-          <input type="checkbox" id="switchDarkMode">
-          <span class="slider"></span>
-        </label>
-        <span id="darkModeText" class="status-text">Modo claro</span>
       </div>
     </div>
   </div>
